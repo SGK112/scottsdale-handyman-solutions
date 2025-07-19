@@ -61,7 +61,8 @@ import {
   MessageCircle,
   Bot,
   Minimize2,
-  RotateCcw
+  RotateCcw,
+  Download
 } from 'lucide-react'
 
 // Add CSS animations for success page and blog enhancements
@@ -5510,6 +5511,25 @@ Monitor Positioning: Proper monitor height and distance reduce neck strain and e
                 </button>
                 
                 <button
+                  onClick={() => setAdminSection('chatbot')}
+                  style={{
+                    padding: '0.75rem',
+                    background: adminSection === 'chatbot' ? 'var(--primary-100)' : 'transparent',
+                    color: adminSection === 'chatbot' ? 'var(--primary-700)' : 'var(--gray-600)',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    textAlign: 'left',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '0.5rem'
+                  }}
+                >
+                  <Bot size={16} />
+                  Chatbot Controls
+                </button>
+                
+                <button
                   onClick={() => setAdminSection('payments')}
                   style={{
                     padding: '0.75rem',
@@ -5537,6 +5557,7 @@ Monitor Positioning: Proper monitor height and distance reduce neck strain and e
               {adminSection === 'gallery' && <AdminGallery />}
               {adminSection === 'media' && <AdminMediaLibrary />}
               {adminSection === 'content' && <AdminContent />}
+              {adminSection === 'chatbot' && <AdminChatbot />}
               {adminSection === 'payments' && <AdminPayments />}
             </div>
           </div>
@@ -5640,6 +5661,29 @@ Monitor Positioning: Proper monitor height and distance reduce neck strain and e
           <div>
             <h3 style={{ margin: 0, color: 'var(--gray-900)' }}>{uploadedFiles.length}</h3>
             <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem' }}>Media Files</p>
+          </div>
+        </div>
+        
+        <div style={{
+          background: 'white',
+          padding: '1.5rem',
+          borderRadius: '12px',
+          border: '1px solid var(--gray-200)',
+          display: 'flex',
+          alignItems: 'center',
+          gap: '1rem'
+        }}>
+          <div style={{
+            background: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+            padding: '0.75rem',
+            borderRadius: '10px',
+            color: 'white'
+          }}>
+            <Bot size={24} />
+          </div>
+          <div>
+            <h3 style={{ margin: 0, color: 'var(--gray-900)' }}>{chatMessages.length > 1 ? chatMessages.length - 1 : 0}</h3>
+            <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem' }}>Chat Messages</p>
           </div>
         </div>
       </div>
@@ -7859,6 +7903,567 @@ Monitor Positioning: Proper monitor height and distance reduce neck strain and e
               <Save size={16} style={{ marginRight: '0.5rem' }} />
               Save Payment Settings
             </button>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Admin Chatbot Component
+  const AdminChatbot = () => {
+    const [chatbotSettings, setChatbotSettings] = useState({
+      enabled: true,
+      welcomeMessage: "Hi! I'm your AI handyman assistant. I can help you with service information, pricing, scheduling, and emergency support. What can I help you with today?",
+      responseDelay: 800,
+      maxMessages: 50,
+      autoLog: true,
+      logEmail: "help.scottsdalehandyman@gmail.com",
+      knowledgeBase: {
+        electrical: true,
+        plumbing: true,
+        painting: true,
+        hvac: true,
+        general: true,
+        emergency: true
+      },
+      quickReplies: {
+        enabled: true,
+        categories: ['electrical', 'plumbing', 'painting', 'general', 'pricing', 'scheduling']
+      },
+      actionButtons: {
+        enabled: true,
+        showQuoteRequest: true,
+        showEmergencyService: true,
+        showContactUs: true,
+        showEmailUs: true
+      },
+      analytics: {
+        trackConversations: true,
+        trackPopularQueries: true,
+        trackServiceRequests: true
+      }
+    });
+
+    const [chatStats, setChatStats] = useState({
+      totalConversations: 127,
+      averageMessagesPerSession: 4.2,
+      mostPopularServices: [
+        { service: 'Electrical', count: 45 },
+        { service: 'Plumbing', count: 38 },
+        { service: 'Painting', count: 22 },
+        { service: 'General Repairs', count: 19 },
+        { service: 'Emergency', count: 13 }
+      ],
+      recentQueries: [
+        { query: "electrical outlet installation", timestamp: "2 hours ago" },
+        { query: "plumbing leak repair", timestamp: "4 hours ago" },
+        { query: "emergency plumbing service", timestamp: "6 hours ago" },
+        { query: "painting interior walls", timestamp: "1 day ago" },
+        { query: "ceiling fan installation", timestamp: "1 day ago" }
+      ]
+    });
+
+    const [testMessage, setTestMessage] = useState('');
+    const [testResponse, setTestResponse] = useState('');
+
+    const testChatbot = () => {
+      if (!testMessage.trim()) return;
+      
+      // Use the existing generateChatResponse function
+      const response = generateChatResponse(testMessage, {});
+      setTestResponse(response);
+    };
+
+    const resetChatbot = () => {
+      setChatMessages([{
+        id: 1,
+        type: 'bot',
+        message: chatbotSettings.welcomeMessage,
+        timestamp: new Date(),
+        quickReplies: [
+          { text: "⚡ Electrical Issues", action: "electrical problems" },
+          { text: "🔧 Plumbing Help", action: "plumbing repair" },
+          { text: "🎨 Painting Project", action: "painting service" },
+          { text: "🔨 General Repairs", action: "handyman repairs" },
+          { text: "💰 Get Pricing", action: "pricing information" },
+          { text: "📅 Schedule Now", action: "schedule appointment" }
+        ]
+      }]);
+    };
+
+    const exportChatData = () => {
+      const data = {
+        settings: chatbotSettings,
+        stats: chatStats,
+        recentMessages: chatMessages,
+        exportDate: new Date().toISOString()
+      };
+      
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `chatbot-data-${new Date().toISOString().split('T')[0]}.json`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    };
+
+    return (
+      <div style={{ display: 'grid', gap: '1.5rem' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <h2 style={{ color: 'var(--gray-900)', margin: 0 }}>Chatbot Controls</h2>
+          <div style={{ display: 'flex', gap: '0.5rem' }}>
+            <button
+              onClick={exportChatData}
+              style={{
+                padding: '0.5rem 1rem',
+                background: 'var(--primary-600)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '0.875rem'
+              }}
+            >
+              <Download size={16} />
+              Export Data
+            </button>
+            <button
+              onClick={resetChatbot}
+              style={{
+                padding: '0.5rem 1rem',
+                background: 'var(--warning)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '0.5rem',
+                fontSize: '0.875rem'
+              }}
+            >
+              <RotateCcw size={16} />
+              Reset Chat
+            </button>
+          </div>
+        </div>
+
+        {/* Analytics Overview */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+          <div style={{
+            background: 'white',
+            padding: '1.5rem',
+            borderRadius: '12px',
+            border: '1px solid var(--gray-200)',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              background: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1rem',
+              color: 'white'
+            }}>
+              <MessageCircle size={24} />
+            </div>
+            <h3 style={{ margin: '0 0 0.5rem', color: 'var(--gray-900)', fontSize: '2rem' }}>
+              {chatStats.totalConversations}
+            </h3>
+            <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem' }}>
+              Total Conversations
+            </p>
+          </div>
+
+          <div style={{
+            background: 'white',
+            padding: '1.5rem',
+            borderRadius: '12px',
+            border: '1px solid var(--gray-200)',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              background: 'linear-gradient(135deg, #10b981, #059669)',
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1rem',
+              color: 'white'
+            }}>
+              <TrendingUp size={24} />
+            </div>
+            <h3 style={{ margin: '0 0 0.5rem', color: 'var(--gray-900)', fontSize: '2rem' }}>
+              {chatStats.averageMessagesPerSession}
+            </h3>
+            <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem' }}>
+              Avg Messages/Session
+            </p>
+          </div>
+
+          <div style={{
+            background: 'white',
+            padding: '1.5rem',
+            borderRadius: '12px',
+            border: '1px solid var(--gray-200)',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              background: chatbotSettings.enabled ? 'var(--success)' : 'var(--error)',
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1rem',
+              color: 'white'
+            }}>
+              <Bot size={24} />
+            </div>
+            <h3 style={{ margin: '0 0 0.5rem', color: 'var(--gray-900)', fontSize: '1.5rem' }}>
+              {chatbotSettings.enabled ? 'Active' : 'Disabled'}
+            </h3>
+            <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem' }}>
+              Chatbot Status
+            </p>
+          </div>
+
+          <div style={{
+            background: 'white',
+            padding: '1.5rem',
+            borderRadius: '12px',
+            border: '1px solid var(--gray-200)',
+            textAlign: 'center'
+          }}>
+            <div style={{
+              background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+              width: '48px',
+              height: '48px',
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              margin: '0 auto 1rem',
+              color: 'white'
+            }}>
+              <Target size={24} />
+            </div>
+            <h3 style={{ margin: '0 0 0.5rem', color: 'var(--gray-900)', fontSize: '2rem' }}>
+              {chatStats.mostPopularServices[0]?.count || 0}
+            </h3>
+            <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem' }}>
+              Top Service Requests
+            </p>
+          </div>
+        </div>
+
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          {/* Chatbot Settings */}
+          <div style={{
+            background: 'white',
+            padding: '1.5rem',
+            borderRadius: '12px',
+            border: '1px solid var(--gray-200)'
+          }}>
+            <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>Chatbot Settings</h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <label style={{ color: 'var(--gray-700)' }}>Enable Chatbot</label>
+                <input
+                  type="checkbox"
+                  checked={chatbotSettings.enabled}
+                  onChange={(e) => setChatbotSettings(prev => ({ ...prev, enabled: e.target.checked }))}
+                  style={{ transform: 'scale(1.2)' }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--gray-700)' }}>
+                  Welcome Message
+                </label>
+                <textarea
+                  value={chatbotSettings.welcomeMessage}
+                  onChange={(e) => setChatbotSettings(prev => ({ ...prev, welcomeMessage: e.target.value }))}
+                  style={{
+                    width: '100%',
+                    minHeight: '80px',
+                    padding: '0.75rem',
+                    border: '1px solid var(--gray-300)',
+                    borderRadius: '6px',
+                    resize: 'vertical',
+                    fontSize: '0.9rem'
+                  }}
+                />
+              </div>
+
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--gray-700)' }}>
+                  Response Delay (ms)
+                </label>
+                <input
+                  type="number"
+                  value={chatbotSettings.responseDelay}
+                  onChange={(e) => setChatbotSettings(prev => ({ ...prev, responseDelay: parseInt(e.target.value) }))}
+                  style={{
+                    width: '100%',
+                    padding: '0.75rem',
+                    border: '1px solid var(--gray-300)',
+                    borderRadius: '6px',
+                    fontSize: '0.9rem'
+                  }}
+                  min="100"
+                  max="5000"
+                />
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <label style={{ color: 'var(--gray-700)' }}>Auto-log Conversations</label>
+                <input
+                  type="checkbox"
+                  checked={chatbotSettings.autoLog}
+                  onChange={(e) => setChatbotSettings(prev => ({ ...prev, autoLog: e.target.checked }))}
+                  style={{ transform: 'scale(1.2)' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <label style={{ color: 'var(--gray-700)' }}>Quick Replies</label>
+                <input
+                  type="checkbox"
+                  checked={chatbotSettings.quickReplies.enabled}
+                  onChange={(e) => setChatbotSettings(prev => ({ 
+                    ...prev, 
+                    quickReplies: { ...prev.quickReplies, enabled: e.target.checked }
+                  }))}
+                  style={{ transform: 'scale(1.2)' }}
+                />
+              </div>
+
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <label style={{ color: 'var(--gray-700)' }}>Action Buttons</label>
+                <input
+                  type="checkbox"
+                  checked={chatbotSettings.actionButtons.enabled}
+                  onChange={(e) => setChatbotSettings(prev => ({ 
+                    ...prev, 
+                    actionButtons: { ...prev.actionButtons, enabled: e.target.checked }
+                  }))}
+                  style={{ transform: 'scale(1.2)' }}
+                />
+              </div>
+            </div>
+
+            <button
+              style={{
+                width: '100%',
+                marginTop: '1rem',
+                padding: '0.75rem',
+                background: 'var(--primary-600)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              <Save size={16} />
+              Save Settings
+            </button>
+          </div>
+
+          {/* Test Chatbot */}
+          <div style={{
+            background: 'white',
+            padding: '1.5rem',
+            borderRadius: '12px',
+            border: '1px solid var(--gray-200)'
+          }}>
+            <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>Test Chatbot</h3>
+            
+            <div style={{ marginBottom: '1rem' }}>
+              <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--gray-700)' }}>
+                Test Message
+              </label>
+              <input
+                type="text"
+                value={testMessage}
+                onChange={(e) => setTestMessage(e.target.value)}
+                placeholder="Type a test message..."
+                style={{
+                  width: '100%',
+                  padding: '0.75rem',
+                  border: '1px solid var(--gray-300)',
+                  borderRadius: '6px',
+                  fontSize: '0.9rem'
+                }}
+              />
+            </div>
+
+            <button
+              onClick={testChatbot}
+              style={{
+                width: '100%',
+                marginBottom: '1rem',
+                padding: '0.75rem',
+                background: 'var(--success)',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '0.5rem'
+              }}
+            >
+              <Send size={16} />
+              Test Response
+            </button>
+
+            {testResponse && (
+              <div>
+                <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--gray-700)' }}>
+                  Bot Response
+                </label>
+                <div style={{
+                  padding: '1rem',
+                  background: 'var(--gray-50)',
+                  border: '1px solid var(--gray-200)',
+                  borderRadius: '6px',
+                  fontSize: '0.9rem',
+                  color: 'var(--gray-700)',
+                  whiteSpace: 'pre-wrap'
+                }}>
+                  {testResponse}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Analytics */}
+        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem' }}>
+          {/* Popular Services */}
+          <div style={{
+            background: 'white',
+            padding: '1.5rem',
+            borderRadius: '12px',
+            border: '1px solid var(--gray-200)'
+          }}>
+            <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>Popular Services</h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {chatStats.mostPopularServices.map((service, index) => (
+                <div key={index} style={{
+                  display: 'flex',
+                  justifyContent: 'space-between',
+                  alignItems: 'center',
+                  padding: '0.75rem',
+                  background: 'var(--gray-50)',
+                  borderRadius: '6px'
+                }}>
+                  <span style={{ color: 'var(--gray-700)' }}>{service.service}</span>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <div style={{
+                      background: 'var(--primary-600)',
+                      color: 'white',
+                      padding: '0.25rem 0.5rem',
+                      borderRadius: '4px',
+                      fontSize: '0.8rem'
+                    }}>
+                      {service.count}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Recent Queries */}
+          <div style={{
+            background: 'white',
+            padding: '1.5rem',
+            borderRadius: '12px',
+            border: '1px solid var(--gray-200)'
+          }}>
+            <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>Recent Queries</h3>
+            
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              {chatStats.recentQueries.map((query, index) => (
+                <div key={index} style={{
+                  padding: '0.75rem',
+                  background: 'var(--gray-50)',
+                  borderRadius: '6px'
+                }}>
+                  <div style={{ color: 'var(--gray-700)', marginBottom: '0.25rem' }}>
+                    "{query.query}"
+                  </div>
+                  <div style={{ color: 'var(--gray-500)', fontSize: '0.8rem' }}>
+                    {query.timestamp}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Knowledge Base Management */}
+        <div style={{
+          background: 'white',
+          padding: '1.5rem',
+          borderRadius: '12px',
+          border: '1px solid var(--gray-200)'
+        }}>
+          <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>Knowledge Base</h3>
+          
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+            {Object.entries(chatbotSettings.knowledgeBase).map(([category, enabled]) => (
+              <div key={category} style={{
+                padding: '1rem',
+                background: enabled ? 'var(--success-50)' : 'var(--gray-50)',
+                border: `1px solid ${enabled ? 'var(--success-200)' : 'var(--gray-200)'}`,
+                borderRadius: '6px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+              }}>
+                <span style={{ 
+                  color: enabled ? 'var(--success-700)' : 'var(--gray-600)',
+                  textTransform: 'capitalize',
+                  fontWeight: '500'
+                }}>
+                  {category}
+                </span>
+                <input
+                  type="checkbox"
+                  checked={enabled}
+                  onChange={(e) => setChatbotSettings(prev => ({
+                    ...prev,
+                    knowledgeBase: {
+                      ...prev.knowledgeBase,
+                      [category]: e.target.checked
+                    }
+                  }))}
+                  style={{ transform: 'scale(1.2)' }}
+                />
+              </div>
+            ))}
           </div>
         </div>
       </div>
