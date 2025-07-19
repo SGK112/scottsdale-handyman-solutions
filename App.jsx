@@ -501,8 +501,16 @@ function App() {
     },
     contactUs: {
       text: "📞 Contact Us", 
-      action: () => setCurrentPage('contact'),
-      description: "Get in touch via phone, email, or contact form"
+      action: () => {
+        setCurrentPage('home');
+        setTimeout(() => {
+          const contactSection = document.getElementById('contact');
+          if (contactSection) {
+            contactSection.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 100);
+      },
+      description: "Go to our contact form and information"
     },
     viewServices: {
       text: "🔧 View All Services",
@@ -526,7 +534,26 @@ function App() {
     },
     emailUs: {
       text: "✉️ Email Us",
-      action: () => window.open('mailto:help.scottsdalehandyman@gmail.com', '_blank'),
+      action: () => {
+        const email = 'help.scottsdalehandyman@gmail.com';
+        const subject = 'Service Inquiry from Website Chat';
+        
+        // Try to copy to clipboard first
+        if (navigator.clipboard && window.isSecureContext) {
+          navigator.clipboard.writeText(email).then(() => {
+            const userChoice = confirm(`📧 Email copied to clipboard: ${email}\n\nClick OK to open your email app, or Cancel to just use the copied email address.`);
+            if (userChoice) {
+              window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}`, '_self');
+            }
+          }).catch(() => {
+            // If clipboard fails, just open mailto
+            window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}`, '_self');
+          });
+        } else {
+          // Fallback for older browsers
+          window.open(`mailto:${email}?subject=${encodeURIComponent(subject)}`, '_self');
+        }
+      },
       description: "Send us an email at help.scottsdalehandyman@gmail.com"
     }
   };
