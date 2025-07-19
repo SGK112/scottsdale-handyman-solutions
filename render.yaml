@@ -1,5 +1,5 @@
 services:
-  # Frontend (React/Vite)
+  # Frontend (React/Vite) - Static Site
   - type: web
     name: scottsdale-handyman-frontend
     env: static
@@ -10,23 +10,19 @@ services:
         source: /*
         destination: /index.html
 
-  # Backend (Flask API)
+  # Backend (Flask API) - Web Service
   - type: web
     name: scottsdale-handyman-backend
     env: python
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn main:app
+    startCommand: gunicorn main:app --bind 0.0.0.0:$PORT
     plan: free
     envVars:
       - key: PYTHON_VERSION
         value: 3.11.0
-      - key: FLASK_ENV
-        value: production
-      # Add your environment variables in Render dashboard:
-      # - MAIL_SERVER
-      # - MAIL_PORT
-      # - MAIL_USE_TLS
-      # - MAIL_USERNAME
-      # - MAIL_PASSWORD
-      # - STRIPE_PUBLISHABLE_KEY
-      # - STRIPE_SECRET_KEY
+      # Add these in Render Dashboard Environment Variables:
+      # FLASK_SECRET_KEY=C2kkKCnTHJXDHwTzhdFX3NC2rUNAx9jdn1ldXlqTmYA
+      # MAIL_PASSWORD=nfsx nosf sfbp ckmp
+      # STRIPE_PUBLISHABLE_KEY_TEST=pk_test_...
+      # STRIPE_SECRET_KEY_TEST=sk_test_...
+      # ENVIRONMENT=development

@@ -1,6 +1,7 @@
 import os
 import sys
 import stripe
+import mimetypes
 from dotenv import load_dotenv
 
 from flask import Flask, send_from_directory, request, jsonify
@@ -12,6 +13,11 @@ load_dotenv()
 
 app = Flask(__name__, static_folder='.')
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'asdf#FGSgvasgf$5$WGT')
+
+# Configure MIME types for JavaScript modules
+mimetypes.add_type('application/javascript', '.js')
+mimetypes.add_type('application/javascript', '.mjs')
+mimetypes.add_type('text/css', '.css')
 
 # Enable CORS for all routes
 CORS(app)
@@ -163,10 +169,23 @@ def stripe_webhook():
 def serve(path):
     static_folder_path = app.static_folder
     if static_folder_path is None:
-            return "Static folder not configured", 404
+        return "Static folder not configured", 404
 
     if path != "" and os.path.exists(os.path.join(static_folder_path, path)):
-        return send_from_directory(static_folder_path, path)
+        # Get the file extension and determine MIME type
+        file_ext = os.path.splitext(path)[1].lower()
+        
+        # Set appropriate MIME type for JavaScript modules
+        if file_ext == '.js' or file_ext == '.mjs':
+            response = send_from_directory(static_folder_path, path)
+            response.headers['Content-Type'] = 'application/javascript'
+            return response
+        elif file_ext == '.css':
+            response = send_from_directory(static_folder_path, path)
+            response.headers['Content-Type'] = 'text/css'
+            return response
+        else:
+            return send_from_directory(static_folder_path, path)
     else:
         index_path = os.path.join(static_folder_path, 'index.html')
         if os.path.exists(index_path):
