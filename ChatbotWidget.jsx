@@ -50,7 +50,6 @@ const ChatbotWidget = ({
                 if (handleQuickReply) {
                     handleQuickReply(message);
                 } else {
-                    setChatInput(message);
                     handleSendMessage(message);
                 }
             }
@@ -63,6 +62,8 @@ const ChatbotWidget = ({
                     openLeadForm('quote');
                 } else if (handleQuickReply) {
                     handleQuickReply('I would like to get a quote');
+                } else {
+                    handleSendMessage('I would like to get a quote');
                 }
             }
         },
@@ -74,7 +75,6 @@ const ChatbotWidget = ({
                 if (handleQuickReply) {
                     handleQuickReply(message);
                 } else {
-                    setChatInput(message);
                     handleSendMessage(message);
                 }
             }
@@ -87,7 +87,6 @@ const ChatbotWidget = ({
                 if (handleQuickReply) {
                     handleQuickReply(message);
                 } else {
-                    setChatInput(message);
                     handleSendMessage(message);
                 }
             }
@@ -203,11 +202,30 @@ const ChatbotWidget = ({
     // Auto-scroll effect
     useEffect(() => {
         scrollToBottom();
-    }, [chatMessages, chatTyping]);    const handleSendMessage = (message = chatInput) => {
+    }, [chatMessages, chatTyping]);
+
+    // Welcome message effect - ensure there's a welcome message when chat opens
+    useEffect(() => {
+        if (chatOpen && chatMessages.length === 0) {
+            // Add initial welcome message if none exists
+            const welcomeMessage = {
+                sender: 'bot',
+                text: '🏠 Hi! I\'m your AI handyman assistant. I can help you with service information, pricing, scheduling, and emergency support. What can I help you with today?',
+                timestamp: new Date(),
+                isWelcome: true
+            };
+            setChatMessages([welcomeMessage]);
+        }
+    }, [chatOpen, chatMessages.length, setChatMessages]);
+
+    const handleSendMessage = (message = chatInput) => {
         if (!message.trim()) return;
 
         console.log('📤 ChatbotWidget handleSendMessage called with:', message);
         console.log('🔍 handleChatSubmit prop available:', !!handleChatSubmit);
+
+        // Clear the input field immediately
+        setChatInput('');
 
         // Use the handleChatSubmit function from props if available
         if (handleChatSubmit) {
@@ -223,7 +241,6 @@ const ChatbotWidget = ({
             };
 
             setChatMessages(prev => [...prev, userMessage]);
-            setChatInput('');
             setChatTyping(true);
 
             // Simulate bot response
@@ -272,8 +289,8 @@ const ChatbotWidget = ({
             return '🚨 For emergency services, please call us immediately at (480) 255-5887. We offer 24/7 emergency handyman services throughout Scottsdale and surrounding areas.\n\nOur emergency team can handle:\n• Plumbing emergencies\n• Electrical issues\n• Broken doors/windows\n• Water damage repairs\n• And more!';
         }
 
-        if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('quote')) {
-            return '💰 Our transparent pricing:\n• General Handyman: $75/hour\n• Electrical Work: $125/hour\n• Plumbing: $95/hour\n• Painting: $200/room\n• Drywall Repair: $85/hour\n• HVAC Service: $125/hour\n\nWould you like a detailed quote for your specific project? I can connect you with our team for a free estimate!';
+        if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('quote') || lowerMessage.includes('much')) {
+            return '💰 Our transparent pricing:\n• General Handyman: $85/hour\n• Electrical Work: $125/hour\n• Plumbing: $95/hour\n• Painting: $200-400/room\n• Drywall Repair: $85/hour\n• HVAC Service: $125/hour\n\nWould you like a detailed quote for your specific project? I can connect you with our team for a free estimate!';
         }
 
         if (lowerMessage.includes('service') || lowerMessage.includes('repair') || lowerMessage.includes('fix')) {
@@ -285,11 +302,15 @@ const ChatbotWidget = ({
         }
 
         if (lowerMessage.includes('contact') || lowerMessage.includes('phone') || lowerMessage.includes('call')) {
-            return '📞 Contact Scottsdale Handyman Solutions:\n\n• Phone: (480) 255-5887\n• Email: info@scottsdalehandyman.com\n• Available: 24/7 for emergencies\n• Regular Hours: Mon-Sat 7AM-7PM\n\nWould you like me to help you schedule a service call or get a quote?';
+            return '📞 Contact Scottsdale Handyman Solutions:\n\n• Phone: (480) 255-5887\n• Email: help.scottsdalehandyman@gmail.com\n• Available: 24/7 for emergencies\n• Regular Hours: Mon-Sat 7AM-6PM\n\nWould you like me to help you schedule a service call or get a quote?';
         }
 
         if (lowerMessage.includes('time') || lowerMessage.includes('schedule') || lowerMessage.includes('when')) {
             return '⏰ We offer flexible scheduling:\n\n• Same-day service available\n• Evening appointments\n• Weekend service\n• Emergency 24/7 response\n\nTypical response times:\n• Emergency: Within 1 hour\n• Urgent: Within 4 hours\n• Regular: Next business day\n\nWhen would work best for you?';
+        }
+
+        if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
+            return '👋 Hello! Great to meet you! I\'m here to help with all your handyman needs. What project are you working on or what needs fixing today?';
         }
 
         if (lowerMessage.includes('thank') || lowerMessage.includes('thanks')) {
@@ -302,7 +323,9 @@ const ChatbotWidget = ({
 
     const handleFormSubmit = (e) => {
         e.preventDefault();
-        handleSendMessage();
+        if (!chatInput.trim()) return;
+        const message = chatInput.trim();
+        handleSendMessage(message);
     };
 
     return (
@@ -662,6 +685,7 @@ const ChatbotWidget = ({
                         <>
                             {/* Messages Container */}
                             <div
+                                className="chatbot-messages"
                                 style={{
                                     flex: 1,
                                     overflowY: 'auto',
@@ -1044,6 +1068,36 @@ const ChatbotWidget = ({
           30% {
             transform: translateY(-10px);
           }
+        }
+
+        /* Responsive styles for mobile */
+        @media (max-width: 768px) {
+          .chatbot-tooltip-container {
+            right: 16px !important;
+            left: 16px !important;
+            max-width: none !important;
+            min-width: auto !important;
+            bottom: 88px !important;
+          }
+        }
+
+        /* Smooth scrolling for message container */
+        .chatbot-messages::-webkit-scrollbar {
+          width: 6px;
+        }
+        
+        .chatbot-messages::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 3px;
+        }
+        
+        .chatbot-messages::-webkit-scrollbar-thumb {
+          background: #c1c1c1;
+          border-radius: 3px;
+        }
+        
+        .chatbot-messages::-webkit-scrollbar-thumb:hover {
+          background: #a8a8a8;
         }
       `}</style>
         </>

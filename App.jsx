@@ -1317,6 +1317,13 @@ function App() {
 
   // Handle quick reply selection
   const handleQuickReply = (replyText) => {
+    console.log('🎯 App handleQuickReply called with:', replyText);
+    
+    if (!replyText || typeof replyText !== 'string') {
+      console.warn('⚠️ Invalid replyText in handleQuickReply');
+      return;
+    }
+
     const userMessage = {
       sender: 'user',
       text: replyText,
@@ -1328,14 +1335,26 @@ function App() {
 
     // Process the quick reply as a regular message
     setTimeout(() => {
-      const botResponse = {
-        sender: 'bot',
-        text: generateChatResponse(replyText, chatContext),
-        timestamp: new Date()
-      };
-      
-      setChatMessages(prev => [...prev, botResponse]);
-      setChatTyping(false);
+      try {
+        const responseText = generateChatResponse(replyText, chatContext);
+        const botResponse = {
+          sender: 'bot',
+          text: responseText || "I apologize, but I'm having trouble processing your request. Could you please try again or contact us at (480) 255-5887?",
+          timestamp: new Date()
+        };
+        
+        setChatMessages(prev => [...prev, botResponse]);
+      } catch (error) {
+        console.error('❌ Error in handleQuickReply:', error);
+        const errorResponse = {
+          sender: 'bot',
+          text: "I apologize, but I'm experiencing technical difficulties. Please contact us directly at (480) 255-5887 for immediate assistance.",
+          timestamp: new Date()
+        };
+        setChatMessages(prev => [...prev, errorResponse]);
+      } finally {
+        setChatTyping(false);
+      }
     }, 800);
   };
 
@@ -1397,12 +1416,6 @@ function App() {
     
     const message = userMessage.toLowerCase();
     console.log('🔍 Processing message:', message);
-    
-    // TEMPORARY: Add alert for debugging
-    if (message.includes('much') || message.includes('service')) {
-      console.log('💰 PRICING QUESTION DETECTED!');
-      alert('DEBUG: Pricing question detected! Message: ' + message);
-    }
     
     let response = "";
     let newContext = { ...chatContext };
@@ -1472,10 +1485,10 @@ function App() {
         `Hello! Welcome to Scottsdale's trusted handyman service. What project can I help with - electrical, plumbing, repairs, or installation?`,
         `Hey there! Beautiful day in the desert! Tell me about your handyman needs - what's broken or what would you like upgraded?`
       ];
-      response = greetings[Math.floor(Math.random() * greetings.length)];
+      response = localGreetings[Math.floor(Math.random() * localGreetings.length)];
       newContext.conversationStage = 'engaged';
       newContext.actionButtons = generateActionButtons(['quoteRequest', 'viewServices', 'emergencyService']);
-      newContext.quickReplies = quickReplies.greeting;
+      // Remove reference to undefined quickReplies
     }
 
     // Pricing and cost inquiries
@@ -1730,6 +1743,8 @@ function App() {
       messageOrEvent.preventDefault();
       message = chatInput.trim();
       console.log('🎯 Event message:', message);
+      // Clear input for events
+      setChatInput('');
     }
     
     if (!message) return
@@ -1741,7 +1756,6 @@ function App() {
     }
 
     setChatMessages(prev => [...prev, userMessage])
-    setChatInput('')
     setChatTyping(true)
 
     // More realistic typing delay based on message length
