@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Form Test</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            padding: 20px;
+            background: #f9f9f9;
+        }
+
+        .test-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #d1d5db;
+            border-radius: 8px;
+            font-size: 16px;
+            background: white;
+            color: #111827;
+            margin: 10px 0;
+        }
+
+        .test-input:focus {
+            border-color: #3b82f6;
+            outline: none;
+        }
+
+        h1 {
+            color: #333;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Simple Form Test</h1>
+    <p>If you can type in these fields, the issue is in React. If not, it's browser/system related:</p>
+
+    <label for="test1">Test Input 1:</label>
+    <input type="text" id="test1" class="test-input" placeholder="Type here..." />
+
+    <label for="test2">Test Input 2:</label>
+    <input type="text" id="test2" class="test-input" placeholder="Type here too..." />
+
+    <label for="test3">Test Textarea:</label>
+    <textarea id="test3" class="test-input" placeholder="Type a longer message here..."></textarea>
+
+    <script>
+        // Add some debug info
+        const inputs = document.querySelectorAll('.test-input');
+        inputs.forEach((input, index) => {
+            input.addEventListener('input', (e) => {
+                console.log(`Input ${index + 1} value:`, e.target.value);
+            });
+        });
+    </script>
+</body>
+
+</html>

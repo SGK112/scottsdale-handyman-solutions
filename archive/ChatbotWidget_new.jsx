@@ -13,32 +13,20 @@ import {
     Mail
 } from 'lucide-react';
 
-const ChatbotWidget = ({ 
-    chatOpen, 
-    setChatOpen, 
-    chatMessages, 
-    setChatMessages, 
-    chatInput, 
-    setChatInput, 
-    chatTyping, 
-    setChatTyping, 
-    chatContext, 
-    setChatContext, 
-    handleChatSubmit, 
-    generateChatResponse, 
-    openLeadForm, 
-    logChatConversation, 
-    handleQuickReply 
-}) => {
+const ChatbotWidget = ({ openLeadForm }) => {
+    const [chatOpen, setChatOpen] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
-    const [showTooltip, setShowTooltip] = useState(false);
-    const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
-    const [shouldPulse, setShouldPulse] = useState(true);
+    const [chatMessages, setChatMessages] = useState([
+        {
+            sender: 'bot',
+            text: '👋 Hi! I\'m your Handyman Assistant. I\'m here to help you with any home repair questions or to connect you with our expert team.\n\nHow can I help you today?',
+            timestamp: new Date(),
+            isWelcome: true
+        }
+    ]);
+    const [chatInput, setChatInput] = useState('');
+    const [chatTyping, setChatTyping] = useState(false);
     const messagesEndRef = useRef(null);
-
-    // Add tooltip timeout ref for better hover control
-    const tooltipTimeoutRef = useRef(null);
-    const autoTooltipTimeoutRef = useRef(null);
 
     // Quick actions for new users
     const quickActions = [
@@ -46,223 +34,69 @@ const ChatbotWidget = ({
             icon: '⚡',
             text: 'Emergency Service',
             action: () => {
-                const message = 'I need emergency handyman service';
-                if (handleQuickReply) {
-                    handleQuickReply(message);
-                } else {
-                    setChatInput(message);
-                    handleSendMessage(message);
-                }
+                setChatInput('I need emergency handyman service');
+                handleSendMessage('I need emergency handyman service');
             }
         },
         {
             icon: '💰',
             text: 'Get Quote',
             action: () => {
-                if (openLeadForm) {
-                    openLeadForm('quote');
-                } else if (handleQuickReply) {
-                    handleQuickReply('I would like to get a quote');
-                }
+                openLeadForm && openLeadForm('quote');
             }
         },
         {
             icon: '🔧',
             text: 'Common Repairs',
             action: () => {
-                const message = 'What are common home repairs?';
-                if (handleQuickReply) {
-                    handleQuickReply(message);
-                } else {
-                    setChatInput(message);
-                    handleSendMessage(message);
-                }
+                setChatInput('What are common home repairs?');
+                handleSendMessage('What are common home repairs?');
             }
         },
         {
             icon: '📞',
             text: 'Contact Info',
             action: () => {
-                const message = 'What are your contact details?';
-                if (handleQuickReply) {
-                    handleQuickReply(message);
-                } else {
-                    setChatInput(message);
-                    handleSendMessage(message);
-                }
+                setChatInput('What are your contact details?');
+                handleSendMessage('What are your contact details?');
             }
         }
     ];
 
-    // Auto-scroll to bottom when new messages are added
+    // Auto-scroll to bottom
     const scrollToBottom = () => {
         setTimeout(() => {
-            messagesEndRef.current?.scrollIntoView({
-                behavior: 'smooth',
-                block: 'end',
-                inline: 'nearest'
-            });
+            messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
         }, 100);
     };
 
-    // Enhanced tooltip management with auto-show
-    const handleTooltipEnter = () => {
-        if (tooltipTimeoutRef.current) {
-            clearTimeout(tooltipTimeoutRef.current);
-        }
-        setShowTooltip(true);
-        setShouldPulse(false); // Stop pulsing when tooltip is shown
-    };
-
-    const handleTooltipLeave = () => {
-        tooltipTimeoutRef.current = setTimeout(() => {
-            setShowTooltip(false);
-            setShouldPulse(true); // Resume pulsing when tooltip is hidden
-        }, 200);
-    };
-
-    // Auto-show tooltip periodically to remind users
-    useEffect(() => {
-        if (!chatOpen) {
-            const showPeriodicTooltip = () => {
-                if (!showTooltip) {
-                    setShowTooltip(true);
-                    setTimeout(() => {
-                        setShowTooltip(false);
-                    }, 3000); // Show for 3 seconds
-                }
-            };
-
-            // Show tooltip after 10 seconds initially
-            autoTooltipTimeoutRef.current = setTimeout(showPeriodicTooltip, 10000);
-            
-            // Then show every 45 seconds
-            const interval = setInterval(() => {
-                if (!showTooltip && !chatOpen) {
-                    showPeriodicTooltip();
-                }
-            }, 45000);
-
-            // Add proactive message after 2 minutes of inactivity
-            const proactiveTimeout = setTimeout(() => {
-                if (!chatOpen && chatMessages.length <= 1) {
-                    // Add a gentle reminder message
-                    setChatMessages && setChatMessages(prev => [...prev, {
-                        sender: 'bot',
-                        text: '👋 Still here to help! I\'m available 24/7 for any handyman questions or if you need emergency service. Just click the chat button when you\'re ready!',
-                        timestamp: new Date(),
-                        isProactive: true
-                    }]);
-                    setHasUnreadMessages(true);
-                }
-            }, 120000); // 2 minutes
-
-            return () => {
-                if (autoTooltipTimeoutRef.current) {
-                    clearTimeout(autoTooltipTimeoutRef.current);
-                }
-                clearTimeout(proactiveTimeout);
-                clearInterval(interval);
-            };
-        }
-    }, [chatOpen, showTooltip, chatMessages, setChatMessages]);
-
-    // Handle keyboard shortcuts
-    useEffect(() => {
-        const handleKeyDown = (e) => {
-            // Ctrl/Cmd + K to open/close chat
-            if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
-                e.preventDefault();
-                setChatOpen(!chatOpen);
-            }
-            
-            // Escape to close chat
-            if (e.key === 'Escape' && chatOpen) {
-                setChatOpen(false);
-            }
-        };
-
-        document.addEventListener('keydown', handleKeyDown);
-        return () => document.removeEventListener('keydown', handleKeyDown);
-    }, [chatOpen, setChatOpen]);
-
-    // Track unread messages when chat is closed
-    useEffect(() => {
-        if (!chatOpen && chatMessages.length > 0) {
-            const lastMessage = chatMessages[chatMessages.length - 1];
-            if (lastMessage.sender === 'bot') {
-                setHasUnreadMessages(true);
-                setShouldPulse(true);
-            }
-        } else if (chatOpen) {
-            setHasUnreadMessages(false);
-            setShouldPulse(false);
-        }
-    }, [chatMessages, chatOpen]);
-
-    // Auto-scroll effect
     useEffect(() => {
         scrollToBottom();
-    }, [chatMessages, chatTyping]);    const handleSendMessage = (message = chatInput) => {
+    }, [chatMessages, chatTyping]);
+
+    const handleSendMessage = (message = chatInput) => {
         if (!message.trim()) return;
 
-        console.log('📤 ChatbotWidget handleSendMessage called with:', message);
-        console.log('🔍 handleChatSubmit prop available:', !!handleChatSubmit);
+        const userMessage = {
+            sender: 'user',
+            text: message.trim(),
+            timestamp: new Date()
+        };
 
-        // Use the handleChatSubmit function from props if available
-        if (handleChatSubmit) {
-            console.log('✅ Using App handleChatSubmit');
-            handleChatSubmit(message.trim());
-        } else {
-            console.log('⚠️ Using fallback logic');
-            // Fallback logic if handleChatSubmit is not provided
-            const userMessage = {
-                sender: 'user',
-                text: message.trim(),
+        setChatMessages(prev => [...prev, userMessage]);
+        setChatInput('');
+        setChatTyping(true);
+
+        // Simulate bot response
+        setTimeout(() => {
+            const botResponse = getBotResponse(message.trim());
+            setChatMessages(prev => [...prev, {
+                sender: 'bot',
+                text: botResponse,
                 timestamp: new Date()
-            };
-
-            setChatMessages(prev => [...prev, userMessage]);
-            setChatInput('');
-            setChatTyping(true);
-
-            // Simulate bot response
-            setTimeout(() => {
-                try {
-                    console.log('🤖 ChatbotWidget: Attempting to generate response...');
-                    let botResponse;
-                    if (generateChatResponse) {
-                        console.log('🎯 Using App generateChatResponse');
-                        botResponse = generateChatResponse(message.trim());
-                        console.log('✅ App response:', botResponse);
-                    } else {
-                        console.log('🔄 Using fallback getBotResponse');
-                        botResponse = getBotResponse(message.trim());
-                        console.log('✅ Fallback response:', botResponse);
-                    }
-                    
-                    // Ensure we have a valid response
-                    if (!botResponse || typeof botResponse !== 'string') {
-                        console.warn('⚠️ Invalid response, using fallback');
-                        botResponse = "I apologize, but I'm having trouble processing your request right now. Could you please rephrase your question or contact us directly at (480) 255-5887?";
-                    }
-                    
-                    setChatMessages(prev => [...prev, {
-                        sender: 'bot',
-                        text: botResponse,
-                        timestamp: new Date()
-                    }]);
-                } catch (error) {
-                    console.error('❌ Error generating response:', error);
-                    setChatMessages(prev => [...prev, {
-                        sender: 'bot',
-                        text: "I apologize, but I'm experiencing technical difficulties. Please contact us directly at (480) 255-5887 for immediate assistance.",
-                        timestamp: new Date()
-                    }]);
-                }
-                setChatTyping(false);
-            }, 1000 + Math.random() * 1000);
-        }
+            }]);
+            setChatTyping(false);
+        }, 1000 + Math.random() * 1000);
     };
 
     const getBotResponse = (message) => {
@@ -300,7 +134,7 @@ const ChatbotWidget = ({
         return '🏠 I\'m here to help with all your handyman needs! I can assist with:\n\n• Service information & pricing\n• Scheduling appointments\n• Emergency services\n• Service area questions\n• Getting quotes\n\nWhat would you like to know more about? Or would you prefer to speak directly with our team?';
     };
 
-    const handleFormSubmit = (e) => {
+    const handleChatSubmit = (e) => {
         e.preventDefault();
         handleSendMessage();
     };
@@ -309,252 +143,39 @@ const ChatbotWidget = ({
         <>
             {/* Chat Button */}
             {!chatOpen && (
-                <>
-                    {/* Tooltip and Quick Actions - Enhanced Version */}
-                    {showTooltip && (
-                        <>
-                            {/* Main Tooltip */}
-                            <div
-                                className="chatbot-tooltip-container"
-                                onMouseEnter={handleTooltipEnter}
-                                onMouseLeave={handleTooltipLeave}
-                                style={{
-                                    position: 'fixed',
-                                    bottom: '100px',
-                                    right: '24px',
-                                    background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
-                                    color: 'white',
-                                    padding: '14px 16px',
-                                    borderRadius: '14px',
-                                    fontSize: '13px',
-                                    fontWeight: '600',
-                                    boxShadow: '0 12px 40px rgba(0, 0, 0, 0.4)',
-                                    zIndex: 99998,
-                                    animation: 'slideInUp 0.3s ease-out',
-                                    maxWidth: '280px',
-                                    minWidth: '240px',
-                                    width: 'auto',
-                                    border: '1px solid rgba(255, 255, 255, 0.1)',
-                                    // Mobile responsive styles
-                                    '@media (max-width: 640px)': {
-                                        right: '16px',
-                                        left: '16px',
-                                        maxWidth: 'none',
-                                        minWidth: 'auto',
-                                        bottom: '88px'
-                                    }
-                                }}
-                            >
-                                <div className="chatbot-text-wrap" style={{
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '6px',
-                                    marginBottom: '10px',
-                                    flexWrap: 'nowrap',
-                                    lineHeight: '1.3'
-                                }}>
-                                    <div style={{
-                                        backgroundColor: 'white',
-                                        borderRadius: '50%',
-                                        padding: '4px',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        border: '2px solid #3b82f6',
-                                        boxShadow: '0 2px 8px rgba(59, 130, 246, 0.2)',
-                                        flexShrink: 0
-                                    }}>
-                                        <Bot size={16} style={{ color: '#3b82f6' }} />
-                                    </div>
-                                    <span style={{
-                                        wordBreak: 'break-word',
-                                        overflow: 'hidden',
-                                        textOverflow: 'ellipsis',
-                                        flex: 1,
-                                        whiteSpace: 'normal'
-                                    }}>
-                                        💬 Hi! I'm here to help with handyman needs
-                                    </span>
-                                </div>
-
-                                <div className="chatbot-text-wrap" style={{
-                                    fontSize: '11px',
-                                    color: '#d1d5db',
-                                    marginBottom: '12px',
-                                    lineHeight: '1.3',
-                                    wordBreak: 'break-word',
-                                    whiteSpace: 'normal'
-                                }}>
-                                    Get instant help or quick action below:
-                                </div>
-
-                                {/* Quick Actions Grid */}
-                                <div style={{
-                                    display: 'grid',
-                                    gridTemplateColumns: '1fr 1fr',
-                                    gap: '6px',
-                                    marginTop: '6px'
-                                }}>
-                                    <button
-                                        onClick={() => openLeadForm && openLeadForm('emergency')}
-                                        style={{
-                                            background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '8px',
-                                            padding: '8px 10px',
-                                            fontSize: '10px',
-                                            fontWeight: '600',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s ease',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: '4px',
-                                            boxShadow: '0 4px 12px rgba(220, 38, 38, 0.3)',
-                                            minHeight: '32px',
-                                            textOverflow: 'ellipsis',
-                                            overflow: 'hidden',
-                                            wordBreak: 'keep-all'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            handleTooltipEnter();
-                                            e.target.style.transform = 'scale(1.02)';
-                                            e.target.style.boxShadow = '0 6px 16px rgba(220, 38, 38, 0.4)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            handleTooltipLeave();
-                                            e.target.style.transform = 'scale(1)';
-                                            e.target.style.boxShadow = '0 4px 12px rgba(220, 38, 38, 0.3)';
-                                        }}
-                                    >
-                                        <Phone size={12} />
-                                        <span>Emergency</span>
-                                    </button>
-
-                                    <button
-                                        onClick={() => openLeadForm && openLeadForm('quote')}
-                                        style={{
-                                            background: 'linear-gradient(135deg, #059669 0%, #047857 100%)',
-                                            color: 'white',
-                                            border: 'none',
-                                            borderRadius: '8px',
-                                            padding: '8px 10px',
-                                            fontSize: '10px',
-                                            fontWeight: '600',
-                                            cursor: 'pointer',
-                                            transition: 'all 0.2s ease',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            gap: '4px',
-                                            boxShadow: '0 4px 12px rgba(5, 150, 105, 0.3)',
-                                            minHeight: '32px',
-                                            textOverflow: 'ellipsis',
-                                            overflow: 'hidden',
-                                            wordBreak: 'keep-all'
-                                        }}
-                                        onMouseEnter={(e) => {
-                                            handleTooltipEnter();
-                                            e.target.style.transform = 'scale(1.02)';
-                                            e.target.style.boxShadow = '0 6px 16px rgba(5, 150, 105, 0.4)';
-                                        }}
-                                        onMouseLeave={(e) => {
-                                            handleTooltipLeave();
-                                            e.target.style.transform = 'scale(1)';
-                                            e.target.style.boxShadow = '0 4px 12px rgba(5, 150, 105, 0.3)';
-                                        }}
-                                    >
-                                        <Zap size={12} />
-                                        <span>Free Quote</span>
-                                    </button>
-                                </div>
-
-                                {/* Tooltip Arrow */}
-                                <div
-                                    style={{
-                                        position: 'absolute',
-                                        bottom: '-8px',
-                                        right: '28px',
-                                        width: '16px',
-                                        height: '16px',
-                                        background: 'linear-gradient(135deg, #374151 0%, #1f2937 100%)',
-                                        transform: 'rotate(45deg)',
-                                        border: '1px solid rgba(255, 255, 255, 0.1)',
-                                        borderTop: 'none',
-                                        borderLeft: 'none'
-                                    }}
-                                />
-                            </div>
-                        </>
-                    )}
-
-                    <button
-                        onClick={() => setChatOpen(true)}
-                        onMouseEnter={handleTooltipEnter}
-                        onMouseLeave={handleTooltipLeave}
-                        style={{
-                            position: 'fixed',
-                            bottom: '24px',
-                            right: '24px',
-                            width: '64px',
-                            height: '64px',
-                            borderRadius: '16px',
-                            background: hasUnreadMessages 
-                                ? 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)' 
-                                : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-                            border: hasUnreadMessages ? '3px solid #fbbf24' : 'none',
-                            cursor: 'pointer',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: 'white',
-                            fontSize: '24px',
-                            boxShadow: hasUnreadMessages 
-                                ? '0 8px 32px rgba(220, 38, 38, 0.6), 0 0 20px rgba(251, 191, 36, 0.3)' 
-                                : '0 8px 32px rgba(59, 130, 246, 0.4)',
-                            transition: 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
-                            zIndex: 99999,
-                            animation: shouldPulse 
-                                ? hasUnreadMessages ? 'urgentPulse 1.5s infinite' : 'gentlePulse 3s infinite'
-                                : 'none'
-                        }}
-                        onMouseOver={(e) => {
-                            e.target.style.transform = 'scale(1.05) translateY(-2px)';
-                            e.target.style.boxShadow = hasUnreadMessages 
-                                ? '0 12px 40px rgba(220, 38, 38, 0.7), 0 0 25px rgba(251, 191, 36, 0.4)' 
-                                : '0 12px 40px rgba(59, 130, 246, 0.5)';
-                        }}
-                        onMouseOut={(e) => {
-                            e.target.style.transform = 'scale(1) translateY(0)';
-                            e.target.style.boxShadow = hasUnreadMessages 
-                                ? '0 8px 32px rgba(220, 38, 38, 0.6), 0 0 20px rgba(251, 191, 36, 0.3)' 
-                                : '0 8px 32px rgba(59, 130, 246, 0.4)';
-                        }}
-                    >
-                        <MessageCircle size={28} />
-                        {hasUnreadMessages && (
-                            <div style={{
-                                position: 'absolute',
-                                top: '-4px',
-                                right: '-4px',
-                                width: '18px',
-                                height: '18px',
-                                borderRadius: '50%',
-                                background: '#fbbf24',
-                                display: 'flex',
-                                alignItems: 'center',
-                                justifyContent: 'center',
-                                fontSize: '10px',
-                                fontWeight: 'bold',
-                                color: '#000',
-                                animation: 'bounce 1s infinite'
-                            }}>
-                                !
-                            </div>
-                        )}
-                    </button>
-                </>
+                <button
+                    onClick={() => setChatOpen(true)}
+                    style={{
+                        position: 'fixed',
+                        bottom: '24px',
+                        right: '24px',
+                        width: '60px',
+                        height: '60px',
+                        borderRadius: '50%',
+                        background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                        border: 'none',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        color: 'white',
+                        fontSize: '24px',
+                        boxShadow: '0 8px 32px rgba(37, 99, 235, 0.3)',
+                        transition: 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+                        zIndex: 99999,
+                        animation: 'pulse 2s infinite'
+                    }}
+                    onMouseEnter={(e) => {
+                        e.target.style.transform = 'scale(1.1)';
+                        e.target.style.boxShadow = '0 12px 40px rgba(37, 99, 235, 0.4)';
+                    }}
+                    onMouseLeave={(e) => {
+                        e.target.style.transform = 'scale(1)';
+                        e.target.style.boxShadow = '0 8px 32px rgba(37, 99, 235, 0.3)';
+                    }}
+                >
+                    <MessageCircle size={28} />
+                </button>
             )}
 
             {/* Chat Window */}
@@ -587,7 +208,7 @@ const ChatbotWidget = ({
                     {/* Chat Header */}
                     <div
                         style={{
-                            background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)', // Match button color
+                            background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
                             color: 'white',
                             padding: '16px 20px',
                             display: 'flex',
@@ -602,18 +223,16 @@ const ChatbotWidget = ({
                                     width: '40px',
                                     height: '40px',
                                     borderRadius: '50%',
-                                    backgroundColor: 'white',
+                                    background: 'rgba(255, 255, 255, 0.2)',
                                     display: 'flex',
                                     alignItems: 'center',
-                                    justifyContent: 'center',
-                                    border: '2px solid #3b82f6',
-                                    boxShadow: '0 2px 8px rgba(59, 130, 246, 0.2)'
+                                    justifyContent: 'center'
                                 }}
                             >
-                                <Bot size={20} style={{ color: '#3b82f6' }} />
+                                <Bot size={20} />
                             </div>
                             <div>
-                                <div style={{ fontWeight: '600', fontSize: '16px' }}>The Scottsdale Handyman</div>
+                                <div style={{ fontWeight: '600', fontSize: '16px' }}>Handyman Assistant</div>
                                 <div style={{ fontSize: '12px', opacity: 0.9, color: '#FFD700' }}>
                                     {chatTyping ? 'Typing...' : 'Online • Ready to Help'}
                                 </div>
@@ -669,14 +288,20 @@ const ChatbotWidget = ({
                                     background: '#f8fafc',
                                     display: 'flex',
                                     flexDirection: 'column',
-                                    gap: '16px',
-                                    minHeight: '400px', // Ensure minimum height for proper content display
-                                    maxHeight: window.innerWidth <= 768 ? 'calc(100vh - 220px)' : '400px'
+                                    gap: '16px'
                                 }}
                             >
                                 {/* Quick Actions (show when no messages) */}
                                 {chatMessages.length <= 1 && (
                                     <div style={{ marginBottom: '16px' }}>
+                                        <div style={{
+                                            fontSize: '14px',
+                                            color: '#64748b',
+                                            marginBottom: '12px',
+                                            textAlign: 'center'
+                                        }}>
+                                            Quick Actions
+                                        </div>
                                         <div
                                             style={{
                                                 display: 'grid',
@@ -739,16 +364,14 @@ const ChatbotWidget = ({
                                                     width: '32px',
                                                     height: '32px',
                                                     borderRadius: '50%',
-                                                    background: 'white',
-                                                    border: '2px solid #3b82f6',
+                                                    background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                                                     display: 'flex',
                                                     alignItems: 'center',
                                                     justifyContent: 'center',
-                                                    flexShrink: 0,
-                                                    boxShadow: '0 2px 8px rgba(59, 130, 246, 0.2)'
+                                                    flexShrink: 0
                                                 }}
                                             >
-                                                <Bot size={16} color="#3b82f6" />
+                                                <Bot size={16} color="white" />
                                             </div>
                                         )}
 
@@ -758,7 +381,7 @@ const ChatbotWidget = ({
                                                 padding: '12px 16px',
                                                 borderRadius: msg.sender === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
                                                 background: msg.sender === 'user'
-                                                    ? 'linear-gradient(135deg, #dc2626, #b91c1c)'
+                                                    ? 'linear-gradient(135deg, #2563eb, #1d4ed8)'
                                                     : 'white',
                                                 color: msg.sender === 'user' ? 'white' : '#374151',
                                                 fontSize: '14px',
@@ -797,7 +420,7 @@ const ChatbotWidget = ({
                                                         Emergency
                                                     </button>
                                                     <button
-                                                        onClick={() => openLeadForm && openLeadForm('quote')}
+                                                        onClick={() => openLeadForm && openLeadForm('chat')}
                                                         style={{
                                                             background: '#10b981',
                                                             color: 'white',
@@ -845,15 +468,13 @@ const ChatbotWidget = ({
                                                 width: '32px',
                                                 height: '32px',
                                                 borderRadius: '50%',
-                                                background: 'white',
-                                                border: '2px solid #3b82f6',
+                                                background: 'linear-gradient(135deg, #2563eb, #1d4ed8)',
                                                 display: 'flex',
                                                 alignItems: 'center',
-                                                justifyContent: 'center',
-                                                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.2)'
+                                                justifyContent: 'center'
                                             }}
                                         >
-                                            <Bot size={16} color="#3b82f6" />
+                                            <Bot size={16} color="white" />
                                         </div>
                                         <div
                                             style={{
@@ -903,7 +524,7 @@ const ChatbotWidget = ({
                                 }}
                             >
                                 <form
-                                    onSubmit={handleFormSubmit}
+                                    onSubmit={handleChatSubmit}
                                     style={{ display: 'flex', gap: '8px', alignItems: 'flex-end' }}
                                 >
                                     <div style={{ flex: 1, position: 'relative' }}>
@@ -930,7 +551,7 @@ const ChatbotWidget = ({
                                             onKeyDown={(e) => {
                                                 if (e.key === 'Enter' && !e.shiftKey) {
                                                     e.preventDefault();
-                                                    handleFormSubmit(e);
+                                                    handleChatSubmit(e);
                                                 }
                                             }}
                                             rows={1}
@@ -944,7 +565,7 @@ const ChatbotWidget = ({
                                             height: '44px',
                                             borderRadius: '12px',
                                             background: chatInput.trim() && !chatTyping
-                                                ? 'linear-gradient(135deg, #dc2626, #b91c1c)'
+                                                ? 'linear-gradient(135deg, #2563eb, #1d4ed8)'
                                                 : '#d1d5db',
                                             border: 'none',
                                             cursor: chatInput.trim() && !chatTyping ? 'pointer' : 'not-allowed',
@@ -965,7 +586,7 @@ const ChatbotWidget = ({
                                     color: '#9ca3af',
                                     marginTop: '12px'
                                 }}>
-                                    Powered by <span style={{ color: '#dc2626', fontWeight: '600' }}>REMODELY</span> • Available 24/7
+                                    Powered by Scottsdale Handyman Solutions • Available 24/7
                                 </div>
                             </div>
                         </>
@@ -981,38 +602,9 @@ const ChatbotWidget = ({
           100% { transform: scale(1); }
         }
         
-        @keyframes gentlePulse {
-          0%, 100% { transform: scale(1); opacity: 1; }
-          50% { transform: scale(1.02); opacity: 0.9; }
-        }
-        
-        @keyframes urgentPulse {
-          0%, 100% { transform: scale(1); }
-          25% { transform: scale(1.05); }
-          50% { transform: scale(1.08); }
-          75% { transform: scale(1.05); }
-        }
-        
-        @keyframes bounce {
-          0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
-          40% { transform: translateY(-5px); }
-          60% { transform: translateY(-3px); }
-        }
-        
         @keyframes slideUp {
           from {
             transform: translateY(100px);
-            opacity: 0;
-          }
-          to {
-            transform: translateY(0);
-            opacity: 1;
-          }
-        }
-        
-        @keyframes slideInUp {
-          from {
-            transform: translateY(20px);
             opacity: 0;
           }
           to {

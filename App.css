@@ -88,7 +88,12 @@ html {
 }
 
 /* Typography Hierarchy - Professional Formatting */
-h1, h2, h3, h4, h5, h6 {
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
   font-family: var(--font-sans);
   font-weight: 700;
   line-height: 1.2;
@@ -175,24 +180,24 @@ p.lead {
     font-size: 2rem;
     margin-bottom: 1rem;
   }
-  
+
   h2 {
     font-size: 1.75rem;
     margin-bottom: 1rem;
     margin-top: 2rem;
   }
-  
+
   h3 {
     font-size: 1.25rem;
     margin-bottom: 0.75rem;
     margin-top: 1.5rem;
   }
-  
+
   p {
     font-size: 1rem;
     margin-bottom: 1.25rem;
   }
-  
+
   p.lead {
     font-size: 1.125rem;
   }
@@ -203,24 +208,24 @@ p.lead {
     font-size: 3rem;
     margin-bottom: 2rem;
   }
-  
+
   h2 {
     font-size: 2.25rem;
     margin-bottom: 1.5rem;
     margin-top: 4rem;
   }
-  
+
   h3 {
     font-size: 1.75rem;
     margin-bottom: 1.25rem;
     margin-top: 2.5rem;
   }
-  
+
   p {
     font-size: 1.125rem;
     margin-bottom: 1.75rem;
   }
-  
+
   p.lead {
     font-size: 1.375rem;
     margin-bottom: 2.5rem;
@@ -359,12 +364,16 @@ body.menu-open {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 2.5rem;
-  height: 2.5rem;
-  background: linear-gradient(135deg, var(--primary-600), var(--primary-700));
+  width: 3rem;
+  height: 3rem;
   border-radius: var(--radius-lg);
-  color: white;
-  box-shadow: var(--shadow-md);
+  transition: all 0.3s ease;
+  filter: drop-shadow(0 4px 8px rgba(220, 38, 38, 0.2));
+}
+
+.logo-icon:hover {
+  transform: scale(1.05);
+  filter: drop-shadow(0 6px 12px rgba(220, 38, 38, 0.3));
 }
 
 .logo-text {
@@ -374,9 +383,13 @@ body.menu-open {
 }
 
 .logo-text span:first-child {
-  font-size: 1.125rem;
-  font-weight: 700;
+  font-size: 1.25rem;
+  font-weight: 800;
   color: var(--gray-900);
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .logo-subtitle {
@@ -387,13 +400,75 @@ body.menu-open {
   letter-spacing: 0.025em;
 }
 
+/* Large Logo Variant for Hero/Special Sections */
+.logo-large .logo-icon {
+  width: 4rem;
+  height: 4rem;
+}
+
+.logo-large .logo-text span:first-child {
+  font-size: 1.5rem;
+}
+
+.logo-large .logo-subtitle {
+  font-size: 0.875rem;
+}
+
 @media (max-width: 640px) {
   .logo-text span:first-child {
     font-size: 1rem;
   }
+
   .logo-subtitle {
     font-size: 0.625rem;
   }
+
+  .logo-large .logo-icon {
+    width: 3.5rem;
+    height: 3.5rem;
+  }
+
+  .logo-large .logo-text span:first-child {
+    font-size: 1.25rem;
+  }
+}
+
+/* Logo Animation Effects */
+@keyframes logoGlow {
+
+  0%,
+  100% {
+    filter: drop-shadow(0 4px 8px rgba(220, 38, 38, 0.2));
+  }
+
+  50% {
+    filter: drop-shadow(0 4px 12px rgba(220, 38, 38, 0.4));
+  }
+}
+
+@keyframes logoPulse {
+
+  0%,
+  100% {
+    transform: scale(1);
+  }
+
+  50% {
+    transform: scale(1.02);
+  }
+}
+
+.logo-icon svg {
+  animation: logoGlow 3s ease-in-out infinite;
+}
+
+.logo:hover .logo-icon svg {
+  animation: logoPulse 0.6s ease-in-out;
+}
+
+/* Special logo effects on page load */
+.logo-loading .logo-icon svg {
+  animation: logoPulse 1s ease-in-out 3;
 }
 
 /* Desktop Navigation */
@@ -604,8 +679,15 @@ body.menu-open {
 }
 
 @keyframes float {
-  0%, 100% { transform: translateY(0px); }
-  50% { transform: translateY(-20px); }
+
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+
+  50% {
+    transform: translateY(-20px);
+  }
 }
 
 .hero-content {
@@ -799,6 +881,7 @@ body.menu-open {
 }
 
 @media (min-width: 768px) {
+
   .services,
   .contact {
     padding: 6rem 0;
@@ -806,6 +889,7 @@ body.menu-open {
 }
 
 @media (min-width: 1024px) {
+
   .services,
   .contact {
     padding: 8rem 0;
@@ -905,10 +989,16 @@ body.menu-open {
   width: 4rem;
   height: 4rem;
   background: linear-gradient(135deg, var(--primary-500), var(--primary-600));
-  border-radius: var(--radius-xl);
+  border-radius: 50%;
   color: white;
   margin-bottom: 1.5rem;
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.25), 0 4px 10px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.service-icon:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 35px rgba(59, 130, 246, 0.3), 0 6px 15px rgba(0, 0, 0, 0.15);
 }
 
 .service-title {
@@ -1389,39 +1479,39 @@ body.menu-open {
   .hero-title {
     font-size: 1.75rem;
   }
-  
+
   .hero-subtitle {
     font-size: 1rem;
   }
-  
+
   .hero-description {
     font-size: 1rem;
   }
-  
+
   .section-title {
     font-size: 1.75rem;
   }
-  
+
   .service-card {
     padding: 1.5rem;
   }
-  
+
   .contact-form {
     padding: 1.5rem;
   }
-  
+
   .trust-indicators {
     gap: 1rem;
   }
-  
+
   .trust-item {
     padding: 0.75rem;
   }
-  
+
   .trust-title {
     font-size: 0.75rem;
   }
-  
+
   .trust-subtitle {
     font-size: 0.625rem;
   }
@@ -1434,7 +1524,7 @@ body.menu-open {
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
   }
-  
+
   html {
     scroll-behavior: auto;
   }
@@ -1609,6 +1699,8 @@ body.menu-open {
   color: var(--gray-300);
   padding: 3rem 0 2rem;
   border-top: 1px solid var(--gray-800);
+  margin-top: 0;
+  /* Removed margin to sit right on top of footer */
 }
 
 .footer-content {
@@ -1636,17 +1728,18 @@ body.menu-open {
   margin: 0 0 0.5rem 0;
   font-size: 0.875rem;
   line-height: 1.6;
-  color: #d1d5db; /* Lighter gray for better readability */
+  color: #d1d5db;
+  /* Lighter gray for better readability */
 }
 
 .footer-section a {
-  color: #93c5fd;
+  color: #ffffff;
   text-decoration: none;
   transition: color 0.3s ease;
 }
 
 .footer-section a:hover {
-  color: #60a5fa;
+  color: #e5e7eb;
   text-decoration: underline;
 }
 
@@ -1675,7 +1768,7 @@ body.menu-open {
     grid-template-columns: repeat(4, 1fr);
     gap: 2rem;
   }
-  
+
   .footer-section {
     text-align: left;
   }
@@ -1692,9 +1785,12 @@ body.menu-open {
 
 /* Enhanced animations */
 @keyframes float {
-  0%, 100% {
+
+  0%,
+  100% {
     transform: translateY(0px);
   }
+
   50% {
     transform: translateY(-6px);
   }
@@ -1704,26 +1800,37 @@ body.menu-open {
   0% {
     box-shadow: 0 0 0 0 rgba(102, 126, 234, 0.4);
   }
+
   70% {
     box-shadow: 0 0 0 10px rgba(102, 126, 234, 0);
   }
+
   100% {
     box-shadow: 0 0 0 0 rgba(102, 126, 234, 0);
   }
 }
 
 @keyframes bounce {
-  0%, 20%, 53%, 80%, 100% {
-    transform: translate3d(0,0,0);
+
+  0%,
+  20%,
+  53%,
+  80%,
+  100% {
+    transform: translate3d(0, 0, 0);
   }
-  40%, 43% {
-    transform: translate3d(0,-6px,0);
+
+  40%,
+  43% {
+    transform: translate3d(0, -6px, 0);
   }
+
   70% {
-    transform: translate3d(0,-3px,0);
+    transform: translate3d(0, -3px, 0);
   }
+
   90% {
-    transform: translate3d(0,-1px,0);
+    transform: translate3d(0, -1px, 0);
   }
 }
 
@@ -1751,3 +1858,103 @@ body.menu-open {
   background: linear-gradient(135deg, #5a67d8, #6b46c1);
 }
 
+/* Chatbot Tooltip Responsive Styles */
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Chatbot Responsive Positioning */
+@media (max-width: 640px) {
+
+  /* Mobile adjustments for chatbot */
+  .chatbot-widget {
+    bottom: 20px !important;
+    right: 16px !important;
+  }
+
+  /* Ensure tooltip doesn't go off screen on mobile */
+  .chatbot-tooltip-mobile {
+    position: fixed !important;
+    bottom: 100px !important;
+    right: 16px !important;
+    left: 16px !important;
+    max-width: none !important;
+    width: auto !important;
+  }
+}
+
+@media (max-width: 480px) {
+
+  /* Extra small screens */
+  .chatbot-widget {
+    bottom: 16px !important;
+    right: 12px !important;
+  }
+
+  .chatbot-tooltip-mobile {
+    bottom: 88px !important;
+    right: 12px !important;
+    left: 12px !important;
+  }
+}
+
+/* Ensure chatbot elements stay above other content */
+.chatbot-overlay {
+  z-index: 99999 !important;
+}
+
+.chatbot-tooltip-container {
+  z-index: 99998 !important;
+}
+
+/* Text overflow protection for small screens */
+.chatbot-text-wrap {
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Lead Form Modal Styles */
+.lead-form-modal-overlay {
+  position: fixed !important;
+  top: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  bottom: 0 !important;
+  background: rgba(0, 0, 0, 0.7) !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  z-index: 100000 !important;
+  padding: 1rem !important;
+}

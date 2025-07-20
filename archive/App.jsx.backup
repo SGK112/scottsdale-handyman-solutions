@@ -960,10 +960,18 @@ function App() {
   const [chatOpen, setChatOpen] = useState(false)
   const [chatMessages, setChatMessages] = useState([
     {
-      sender: 'bot',
-      text: '🏠 Hi! I\'m your AI handyman assistant. I can help you with service information, pricing, scheduling, and emergency support. What can I help you with today?',
+      id: 1,
+      type: 'bot',
+      message: 'Hi! I\'m your AI handyman assistant. I can help you with service information, pricing, scheduling, and emergency support. What can I help you with today?',
       timestamp: new Date(),
-      isWelcome: true
+      quickReplies: [
+        { text: "⚡ Electrical Issues", action: "electrical problems" },
+        { text: "🔧 Plumbing Help", action: "plumbing repair" },
+        { text: "🎨 Painting Project", action: "painting service" },
+        { text: "🔨 General Repairs", action: "handyman repairs" },
+        { text: "💰 Get Pricing", action: "pricing information" },
+        { text: "📅 Schedule Now", action: "schedule appointment" }
+      ]
     }
   ])
   const [chatInput, setChatInput] = useState('')
@@ -1318,8 +1326,9 @@ function App() {
   // Handle quick reply selection
   const handleQuickReply = (replyText) => {
     const userMessage = {
-      sender: 'user',
-      text: replyText,
+      id: Date.now(),
+      type: 'user',
+      message: replyText,
       timestamp: new Date()
     };
 
@@ -1329,9 +1338,12 @@ function App() {
     // Process the quick reply as a regular message
     setTimeout(() => {
       const botResponse = {
-        sender: 'bot',
-        text: generateChatResponse(replyText, chatContext),
-        timestamp: new Date()
+        id: Date.now() + 1,
+        type: 'bot',
+        message: generateChatResponse(replyText, chatContext),
+        timestamp: new Date(),
+        actionButtons: chatContext.actionButtons || null,
+        quickReplies: chatContext.quickReplies || null
       };
       
       setChatMessages(prev => [...prev, botResponse]);
@@ -1388,22 +1400,7 @@ function App() {
 
   // Advanced NLP Response Generator with Enhanced Scottsdale Local Content
   const generateChatResponse = (userMessage, context = {}) => {
-    console.log('🎯 generateChatResponse called with:', {
-      userMessage,
-      type: typeof userMessage,
-      length: userMessage?.length,
-      context
-    });
-    
     const message = userMessage.toLowerCase();
-    console.log('🔍 Processing message:', message);
-    
-    // TEMPORARY: Add alert for debugging
-    if (message.includes('much') || message.includes('service')) {
-      console.log('💰 PRICING QUESTION DETECTED!');
-      alert('DEBUG: Pricing question detected! Message: ' + message);
-    }
-    
     let response = "";
     let newContext = { ...chatContext };
     let confidence = 0;
@@ -1476,20 +1473,6 @@ function App() {
       newContext.conversationStage = 'engaged';
       newContext.actionButtons = generateActionButtons(['quoteRequest', 'viewServices', 'emergencyService']);
       newContext.quickReplies = quickReplies.greeting;
-    }
-
-    // Pricing and cost inquiries
-    else if (message.match(/\b(price|cost|pricing|rates?|charge|charges|expensive|cheap|budget|money|pay|payment|fees?|estimate|quote|service|services|how much|much)\b/)) {
-      response = "💰 SCOTTSDALE HANDYMAN PRICING:\n\n🎯 **STANDARD RATES:**\n• General Handyman: $85/hour\n• Electrical Work: $125/hour  \n• Plumbing Repairs: $95/hour\n• Painting: $200-400/room\n• Drywall Repair: $85/hour\n• HVAC Service: $125/hour\n\n✅ **WHAT'S INCLUDED:**\n• Free estimates for jobs over $200\n• Upfront pricing - no surprises\n• Licensed, bonded & insured\n• 1-year warranty on workmanship\n• Same-day service available\n\n📋 **FOR ACCURATE PRICING:**\nWhat specific project are you considering? I can connect you with our team for a detailed, free estimate!";
-      newContext.conversationStage = 'pricing_inquiry';
-      newContext.actionButtons = generateActionButtons(['quoteRequest', 'scheduleService', 'contactUs']);
-    }
-
-    // General repair inquiries  
-    else if (message.match(/\b(repair|repairs|fix|fixing|broken|replace|replacement)\b/) && !matchedService) {
-      response = "🔧 REPAIR SERVICES AVAILABLE!\n\nI can help you with repairs! We handle:\n\n• **Electrical:** Outlets, switches, lights, fans\n• **Plumbing:** Faucets, toilets, leaks, clogs  \n• **Walls:** Holes, cracks, texture, painting\n• **Doors/Windows:** Adjustments, weather stripping\n• **Flooring:** Tile, wood, vinyl repairs\n• **General:** Furniture, cabinets, shelves\n\nWhat specifically needs repair? The more details you provide, the better I can help estimate the job!";
-      newContext.conversationStage = 'repair_inquiry';
-      newContext.actionButtons = generateActionButtons(['quoteRequest', 'viewServices', 'contactUs']);
     }
 
     // Service-specific responses with high confidence
@@ -1707,36 +1690,17 @@ function App() {
     // Update context
     setChatContext(newContext);
     
-    // Handle very short or unclear messages
-    if (!response || response.trim() === '') {
-      if (message.length <= 3 || message.match(/^\?+$/) || message.match(/^[^\w\s]+$/)) {
-        response = "🤔 I'm not quite sure what you're looking for. Could you give me a bit more detail?\n\nI can help with:\n• **Emergency repairs** (call 480-255-5887)\n• **Pricing information** \n• **Service quotes**\n• **Scheduling appointments**\n\nWhat handyman service do you need?";
-      } else {
-        response = '🏠 Thanks for reaching out! I\'m here to help with all your handyman needs. Could you tell me more about what you\'re looking for? Whether it\'s repairs, installations, or maintenance - I can connect you with our Scottsdale team for expert service!';
-      }
-    }
-    
     return response;
   };
 
-  const handleChatSubmit = (messageOrEvent) => {
-    console.log('📨 App handleChatSubmit called with:', messageOrEvent);
-    // Handle both event objects and direct string messages
-    let message = '';
-    if (typeof messageOrEvent === 'string') {
-      message = messageOrEvent.trim();
-      console.log('🔤 String message:', message);
-    } else if (messageOrEvent && messageOrEvent.preventDefault) {
-      messageOrEvent.preventDefault();
-      message = chatInput.trim();
-      console.log('🎯 Event message:', message);
-    }
-    
-    if (!message) return
+  const handleChatSubmit = (e) => {
+    e.preventDefault()
+    if (!chatInput.trim()) return
 
     const userMessage = {
-      sender: 'user',
-      text: message,
+      id: Date.now(),
+      type: 'user',
+      message: chatInput.trim(),
       timestamp: new Date()
     }
 
@@ -1745,37 +1709,29 @@ function App() {
     setChatTyping(true)
 
     // More realistic typing delay based on message length
-    const responseDelay = Math.min(Math.max(message.length * 50, 800), 3000)
+    const responseDelay = Math.min(Math.max(userMessage.message.length * 50, 800), 3000)
 
     setTimeout(() => {
-      try {
-        console.log('🤖 App: Generating response for:', message);
-        const responseText = generateChatResponse(message, chatContext);
-        console.log('✅ App: Generated response:', responseText);
-        
-        // Ensure we have a valid response
-        const finalResponse = responseText && typeof responseText === 'string' ? responseText : 
-          "I apologize, but I'm having trouble processing your request right now. Could you please rephrase your question or contact us directly at (480) 255-5887?";
-        
-        const botResponse = {
-          sender: 'bot',
-          text: finalResponse,
-          timestamp: new Date()
-        }
-        
-        setChatMessages(prev => [...prev, botResponse])
-      } catch (error) {
-        console.error('❌ App: Error generating response:', error);
-        const errorResponse = {
-          sender: 'bot',
-          text: "I apologize, but I'm experiencing technical difficulties. Please contact us directly at (480) 255-5887 for immediate assistance.",
-          timestamp: new Date()
-        }
-        setChatMessages(prev => [...prev, errorResponse])
-      } finally {
-        setChatTyping(false)
+      const botResponse = {
+        id: Date.now() + 1,
+        type: 'bot',
+        message: generateChatResponse(userMessage.message, chatContext),
+        timestamp: new Date(),
+        actionButtons: chatContext.actionButtons || null,
+        quickReplies: chatContext.quickReplies || null
       }
+      
+      setChatMessages(prev => [...prev, botResponse])
+      setChatTyping(false)
     }, responseDelay)
+  }
+
+  // Admin Authentication Functions
+  const handleAdminLogout = () => {
+    setIsAdmin(false)
+    localStorage.removeItem('scottsdaleAdminAuth')
+    setCurrentPage('home')
+    setAdminSection('dashboard')
   }
 
   // File Upload Utility Functions
@@ -2616,6 +2572,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       budget: "$8,000 - $15,000",
       location: "Sun City",
       features: ["Walk-in Shower", "Grab Bars", "Comfort-Height Toilet", "Non-slip Flooring", "Lever Handles", "Shower Bench"]
+    }
     },
     {
       id: 12,
@@ -15240,37 +15197,34 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             </>
           )}
           
-          </>
-        )}
-        
-        {!showSuccessPage && <Footer />}
-        
-        {/* Emergency Popup */}
-        <EmergencyPopup />
-        
-        {/* Smart Lead Form Modal */}
-        <SmartLeadForm />
-        
-        {/* Chatbot Widget */}
-        <ChatbotWidget
-          chatOpen={chatOpen}
-          setChatOpen={setChatOpen}
-          chatMessages={chatMessages}
-          setChatMessages={setChatMessages}
-          chatInput={chatInput}
-          setChatInput={setChatInput}
-          chatTyping={chatTyping}
-          setChatTyping={setChatTyping}
-          chatContext={chatContext}
-          setChatContext={setChatContext}
-          handleChatSubmit={handleChatSubmit}
-          generateChatResponse={generateChatResponse}
-          openLeadForm={openLeadForm}
-          logChatConversation={logChatConversation}
-          handleQuickReply={handleQuickReply}
-        />
-      </div>
-    )
+          {!showSuccessPage && <Footer />}
+          
+          {/* Emergency Popup */}
+          <EmergencyPopup />
+          
+          {/* Smart Lead Form Modal */}
+          <SmartLeadForm />
+          
+          {/* Chatbot Widget */}
+          <ChatbotWidget
+            chatOpen={chatOpen}
+            setChatOpen={setChatOpen}
+            chatMessages={chatMessages}
+            setChatMessages={setChatMessages}
+            chatInput={chatInput}
+            setChatInput={setChatInput}
+            chatTyping={chatTyping}
+            setChatTyping={setChatTyping}
+            chatContext={chatContext}
+        setChatContext={setChatContext}
+        handleChatSubmit={handleChatSubmit}
+        generateChatResponse={generateChatResponse}
+        openLeadForm={openLeadForm}
+        logChatConversation={logChatConversation}
+        handleQuickReply={handleQuickReply}
+      />
+    </div>
+  )
 }
 
 export default App
