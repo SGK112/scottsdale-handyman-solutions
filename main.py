@@ -22,7 +22,7 @@ from flask_mail import Mail, Message
 # Load environment variables
 load_dotenv()
 
-app = Flask(__name__, static_folder='.')
+app = Flask(__name__, static_folder='dist')
 app.config['SECRET_KEY'] = os.getenv('FLASK_SECRET_KEY', 'asdf#FGSgvasgf$5$WGT')
 
 # Configure MIME types for JavaScript modules
@@ -594,11 +594,12 @@ def serve(path):
         # Set appropriate MIME type for JavaScript modules
         if file_ext == '.js' or file_ext == '.mjs':
             response = send_from_directory(static_folder_path, path)
-            response.headers['Content-Type'] = 'application/javascript'
+            response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+            response.headers['X-Content-Type-Options'] = 'nosniff'
             return response
         elif file_ext == '.css':
             response = send_from_directory(static_folder_path, path)
-            response.headers['Content-Type'] = 'text/css'
+            response.headers['Content-Type'] = 'text/css; charset=utf-8'
             return response
         else:
             return send_from_directory(static_folder_path, path)
