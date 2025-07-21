@@ -15,7 +15,7 @@ const AdminLogin = ({ onLogin }) => {
         try {
             // In a real implementation, you'd authenticate with your backend
             // For now, using simple credentials (you should change these!)
-            if (credentials.username === 'admin' && credentials.password === 'handyman2024!') {
+            if (credentials.username === 'admin' && credentials.password === 'scottsdaleHandyman2025!') {
                 // Generate a simple token (in production, get this from your backend)
                 const token = 'admin_token_' + Date.now();
                 localStorage.setItem('adminToken', token);
@@ -97,7 +97,7 @@ const AdminLogin = ({ onLogin }) => {
                                 <input
                                     type="text"
                                     value={credentials.username}
-                                    onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
+                                    onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
                                     placeholder="Enter username"
                                     required
                                     style={{
@@ -107,7 +107,8 @@ const AdminLogin = ({ onLogin }) => {
                                         borderRadius: '8px',
                                         fontSize: '1rem',
                                         outline: 'none',
-                                        transition: 'border-color 0.2s'
+                                        transition: 'border-color 0.2s',
+                                        boxSizing: 'border-box'
                                     }}
                                     onFocus={(e) => e.target.style.borderColor = '#667eea'}
                                     onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
@@ -135,7 +136,7 @@ const AdminLogin = ({ onLogin }) => {
                                 <input
                                     type={showPassword ? 'text' : 'password'}
                                     value={credentials.password}
-                                    onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                                    onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
                                     placeholder="Enter password"
                                     required
                                     style={{
@@ -145,14 +146,18 @@ const AdminLogin = ({ onLogin }) => {
                                         borderRadius: '8px',
                                         fontSize: '1rem',
                                         outline: 'none',
-                                        transition: 'border-color 0.2s'
+                                        transition: 'border-color 0.2s',
+                                        boxSizing: 'border-box'
                                     }}
                                     onFocus={(e) => e.target.style.borderColor = '#667eea'}
                                     onBlur={(e) => e.target.style.borderColor = '#e5e7eb'}
                                 />
                                 <button
                                     type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
+                                    onClick={(e) => {
+                                        e.preventDefault();
+                                        setShowPassword(prev => !prev);
+                                    }}
                                     style={{
                                         position: 'absolute',
                                         right: '12px',
@@ -161,7 +166,11 @@ const AdminLogin = ({ onLogin }) => {
                                         background: 'none',
                                         border: 'none',
                                         cursor: 'pointer',
-                                        color: '#9ca3af'
+                                        color: '#9ca3af',
+                                        padding: '4px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center'
                                     }}
                                 >
                                     {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -215,7 +224,7 @@ const AdminLogin = ({ onLogin }) => {
                         color: '#6b7280',
                         margin: 0
                     }}>
-                        Default credentials: admin / handyman2024!
+                        Default credentials: admin / scottsdaleHandyman2025!
                         <br />
                         <strong>Change these in production!</strong>
                     </p>

@@ -8,15 +8,16 @@ export default defineConfig(({ command, mode }) => {
   return {
     plugins: [
       react({
-        // Enable React Fast Refresh for better development experience
+        // Fix React 18 compatibility issues
         fastRefresh: process.env.NODE_ENV !== 'production',
+        include: "**/*.{jsx,tsx}",
       })
     ],
 
     server: {
       proxy: {
         '/api': {
-          target: 'http://localhost:3001',
+          target: 'http://localhost:3002',
           changeOrigin: true,
           secure: false
         }
@@ -80,7 +81,12 @@ export default defineConfig(({ command, mode }) => {
         'date-fns',
         'clsx'
       ],
-      exclude: ['@radix-ui/react-slot'], // Sometimes causes issues
+      exclude: [
+        '@radix-ui/react-slot', 
+        'react/jsx-dev-runtime',
+        'react/jsx-runtime'
+      ], // Exclude problematic packages
+      force: true // Force re-optimization
     },
 
     // Preview server configuration

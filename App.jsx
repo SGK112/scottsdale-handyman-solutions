@@ -310,7 +310,7 @@ const AdminLogin = ({ onLogin }) => {
                 <input
                   type="text"
                   value={credentials.username}
-                  onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
+                  onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
                   placeholder="Enter username"
                   required
                   style={{
@@ -320,7 +320,8 @@ const AdminLogin = ({ onLogin }) => {
                     borderRadius: '8px',
                     fontSize: '1rem',
                     outline: 'none',
-                    transition: 'border-color 0.2s'
+                    transition: 'border-color 0.2s',
+                    boxSizing: 'border-box'
                   }}
                 />
               </div>
@@ -346,7 +347,7 @@ const AdminLogin = ({ onLogin }) => {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={credentials.password}
-                  onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
+                  onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
                   placeholder="Enter password"
                   required
                   style={{
@@ -356,12 +357,16 @@ const AdminLogin = ({ onLogin }) => {
                     borderRadius: '8px',
                     fontSize: '1rem',
                     outline: 'none',
-                    transition: 'border-color 0.2s'
+                    transition: 'border-color 0.2s',
+                    boxSizing: 'border-box'
                   }}
                 />
                 <button
                   type="button"
-                  onClick={() => setShowPassword(!showPassword)}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    setShowPassword(prev => !prev);
+                  }}
                   style={{
                     position: 'absolute',
                     right: '12px',
@@ -370,7 +375,11 @@ const AdminLogin = ({ onLogin }) => {
                     background: 'none',
                     border: 'none',
                     cursor: 'pointer',
-                    color: '#9ca3af'
+                    color: '#9ca3af',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
                   }}
                 >
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -987,6 +996,17 @@ function App() {
   })
   const [chatSessionId] = useState(() => `chat_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`)
 
+  // Lead collection state
+  const [leadData, setLeadData] = useState({
+    customerName: '',
+    phoneNumber: '',
+    address: '',
+    scopeOfWork: '',
+    notes: '',
+    collectingLead: false,
+    currentField: null
+  })
+
   // Simple form state (no longer needed for complex form)
   const [formData, setFormData] = useState({
     name: '',
@@ -1206,7 +1226,24 @@ function App() {
   const chatbotLinks = {
     quoteRequest: {
       text: "🔗 Get Free Quote",
-      action: () => setCurrentPage('quote'),
+      action: () => {
+        // Trigger lead collection instead of page navigation
+        setLeadData(prev => ({
+          ...prev,
+          collectingLead: true,
+          currentField: 'customerName'
+        }));
+
+        // Add a message to the chat to start lead collection
+        const leadMessage = {
+          text: "Great! I'd love to help you get a free quote. To connect you with our team, I'll need to collect some basic information.\n\nFirst, what's your name?",
+          sender: 'bot',
+          timestamp: new Date().toISOString(),
+          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        };
+
+        setChatMessages(prev => [...prev, leadMessage]);
+      },
       description: "Request a detailed free estimate for your project"
     },
     emergencyService: {
@@ -1244,7 +1281,24 @@ function App() {
     },
     scheduleService: {
       text: "📅 Schedule Service",
-      action: () => setCurrentPage('quote'),
+      action: () => {
+        // Trigger lead collection for scheduling
+        setLeadData(prev => ({
+          ...prev,
+          collectingLead: true,
+          currentField: 'customerName'
+        }));
+
+        // Add a message to the chat to start lead collection
+        const leadMessage = {
+          text: "Perfect! I'll help you schedule a service appointment. To get started, I'll need to collect some information.\n\nFirst, what's your name?",
+          sender: 'bot',
+          timestamp: new Date().toISOString(),
+          id: `msg_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+        };
+
+        setChatMessages(prev => [...prev, leadMessage]);
+      },
       description: "Book an appointment for non-emergency services"
     },
     emailUs: {
@@ -1421,7 +1475,7 @@ function App() {
   const getGrokResponse = async (userMessage, conversationHistory, context) => {
     try {
       console.log('🤖 Calling Grok API for:', userMessage);
-      
+
       // Prepare context for Grok
       const systemPrompt = `You are a helpful AI assistant for Scottsdale Handyman Solutions, a professional handyman service in Scottsdale, Arizona. 
 
@@ -1446,7 +1500,7 @@ Keep responses helpful, professional, and focused on handyman services. Always e
       // Note: In production, you would use actual Grok API credentials
       // For now, we'll simulate Grok with enhanced local AI
       const grokResponse = await simulateGrokResponse(userMessage, messages, context);
-      
+
       return grokResponse;
     } catch (error) {
       console.error('❌ Grok API error:', error);
@@ -1458,25 +1512,25 @@ Keep responses helpful, professional, and focused on handyman services. Always e
   const simulateGrokResponse = async (userMessage, messages, context) => {
     // This simulates a more intelligent AI response
     const message = userMessage.toLowerCase();
-    
+
     // Context-aware responses
     if (context.conversationHistory && context.conversationHistory.length > 2) {
       const recentMessages = context.conversationHistory.slice(-3);
-      const hasAskedAboutPricing = recentMessages.some(msg => 
-        msg.content && msg.content.toLowerCase().includes('price') || 
+      const hasAskedAboutPricing = recentMessages.some(msg =>
+        msg.content && msg.content.toLowerCase().includes('price') ||
         msg.content && msg.content.toLowerCase().includes('cost')
       );
-      
+
       if (hasAskedAboutPricing && message.includes('when')) {
         return "Since we discussed pricing, let me help with scheduling! We typically book handyman services 2-5 days out, with same-day emergency available. For the services we discussed, I recommend calling (480) 255-5887 to check our current availability and lock in a time that works for you. What time of day generally works best?";
       }
-      
-      const hasDiscussedService = recentMessages.some(msg => 
-        msg.content && (msg.content.toLowerCase().includes('electrical') || 
-                       msg.content.toLowerCase().includes('plumbing') ||
-                       msg.content.toLowerCase().includes('repair'))
+
+      const hasDiscussedService = recentMessages.some(msg =>
+        msg.content && (msg.content.toLowerCase().includes('electrical') ||
+          msg.content.toLowerCase().includes('plumbing') ||
+          msg.content.toLowerCase().includes('repair'))
       );
-      
+
       if (hasDiscussedService && message.includes('also') || message.includes('additionally')) {
         return "Absolutely! Many customers bundle multiple services together - it's more efficient and often more cost-effective. We can handle multiple handyman tasks in one visit. What additional services are you thinking about? I can help coordinate everything for a comprehensive home improvement session.";
       }
@@ -1496,16 +1550,168 @@ Keep responses helpful, professional, and focused on handyman services. Always e
     return "That's a great question about handyman services! While I try to be as helpful as possible, some situations benefit from our team's hands-on expertise. I'd love to connect you with our Scottsdale handyman professionals who can give you detailed, personalized advice. Would you prefer a phone consultation at (480) 255-5887 or should I have them email you at the address you prefer?";
   };
 
+  // Lead Collection Handler
+  const handleLeadCollection = async (userMessage) => {
+    const { currentField } = leadData;
+    let response = "";
+    let nextField = null;
+
+    switch (currentField) {
+      case 'customerName':
+        if (userMessage.trim().length > 1) {
+          setLeadData(prev => ({
+            ...prev,
+            customerName: userMessage.trim(),
+            currentField: 'phoneNumber'
+          }));
+          response = `Thanks, ${userMessage.trim()}! Now I'll need your phone number so our team can contact you.`;
+        } else {
+          response = "Please provide your full name so we can properly assist you.";
+        }
+        break;
+
+      case 'phoneNumber':
+        const phoneRegex = /[\d\s\-\(\)\.]{10,}/;
+        if (phoneRegex.test(userMessage)) {
+          setLeadData(prev => ({
+            ...prev,
+            phoneNumber: userMessage.trim(),
+            currentField: 'address'
+          }));
+          response = "Perfect! What's the address where the work needs to be done? (This helps us provide accurate estimates and scheduling)";
+        } else {
+          response = "Please provide a valid phone number (with area code) so our team can reach you.";
+        }
+        break;
+
+      case 'address':
+        setLeadData(prev => ({
+          ...prev,
+          address: userMessage.trim(),
+          currentField: 'scopeOfWork'
+        }));
+        response = "Great! Now, please describe what kind of handyman work you need done. Be as specific as possible - what needs to be fixed, installed, or repaired?";
+        break;
+
+      case 'scopeOfWork':
+        setLeadData(prev => ({
+          ...prev,
+          scopeOfWork: userMessage.trim(),
+          currentField: 'notes'
+        }));
+        response = "Excellent! Is there anything else you'd like to add? Any special requirements, timeline preferences, or additional details?";
+        break;
+
+      case 'notes':
+        const finalLeadData = {
+          ...leadData,
+          notes: userMessage.trim(),
+          collectingLead: false,
+          currentField: null
+        };
+
+        // Submit the lead
+        try {
+          const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:3002';
+          const response = await fetch(`${apiUrl}/api/submit-lead`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+              customerName: finalLeadData.customerName,
+              phoneNumber: finalLeadData.phoneNumber,
+              address: finalLeadData.address,
+              scopeOfWork: finalLeadData.scopeOfWork,
+              notes: finalLeadData.notes,
+              conversationId: chatSessionId,
+              timestamp: new Date().toISOString()
+            }),
+          });
+
+          if (response.ok) {
+            // Reset lead data
+            setLeadData({
+              customerName: '',
+              phoneNumber: '',
+              address: '',
+              scopeOfWork: '',
+              notes: '',
+              collectingLead: false,
+              currentField: null
+            });
+
+            return `Perfect! ✅ I've successfully submitted your information to our team:\n\n` +
+              `📋 **Your Request Summary:**\n` +
+              `• Name: ${finalLeadData.customerName}\n` +
+              `• Phone: ${finalLeadData.phoneNumber}\n` +
+              `• Address: ${finalLeadData.address}\n` +
+              `• Work Needed: ${finalLeadData.scopeOfWork}\n` +
+              `${finalLeadData.notes ? `• Notes: ${finalLeadData.notes}\n` : ''}` +
+              `\n🚀 **Next Steps:**\n` +
+              `• Our team will review your request\n` +
+              `• We'll contact you within 2 hours (weekdays)\n` +
+              `• Free estimate will be provided\n\n` +
+              `📞 **Need immediate help?** Call (480) 255-5887\n\n` +
+              `Thank you for choosing Scottsdale Handyman Solutions!`;
+          } else {
+            throw new Error('Failed to submit lead');
+          }
+        } catch (error) {
+          console.error('Lead submission error:', error);
+
+          // Reset lead collection state
+          setLeadData({
+            customerName: '',
+            phoneNumber: '',
+            address: '',
+            scopeOfWork: '',
+            notes: '',
+            collectingLead: false,
+            currentField: null
+          });
+
+          return `I apologize, but there was an issue submitting your information. Please call us directly at (480) 255-5887 or email help.scottsdalehandyman@gmail.com with these details:\n\n` +
+            `• Name: ${finalLeadData.customerName}\n` +
+            `• Phone: ${finalLeadData.phoneNumber}\n` +
+            `• Address: ${finalLeadData.address}\n` +
+            `• Work Needed: ${finalLeadData.scopeOfWork}\n` +
+            `${finalLeadData.notes ? `• Notes: ${finalLeadData.notes}` : ''}`;
+        }
+        break;
+
+      default:
+        // Reset if something went wrong
+        setLeadData({
+          customerName: '',
+          phoneNumber: '',
+          address: '',
+          scopeOfWork: '',
+          notes: '',
+          collectingLead: false,
+          currentField: null
+        });
+        response = "Let me start over. What's your name?";
+        setLeadData(prev => ({
+          ...prev,
+          collectingLead: true,
+          currentField: 'customerName'
+        }));
+    }
+
+    return response;
+  };
+
   // Fallback response when all else fails
   const generateFallbackResponse = (userMessage, context) => {
     const responses = [
       "I want to give you the best help possible! For questions like this, our experienced handyman team can provide much better guidance than I can. Would you like to call (480) 255-5887 or should I have them reach out to you?",
-      
+
       "That's exactly the kind of detailed question our Scottsdale handyman experts love to tackle! Rather than guess, let me connect you with someone who can give you accurate, professional advice. What's the best way to reach you - phone or email?",
-      
+
       "You know what? This deserves a proper answer from our professional team rather than my best guess. Our experienced handymen have solved thousands of similar challenges in Scottsdale homes. Can I have them give you a call to discuss this properly?"
     ];
-    
+
     const response = responses[Math.floor(Math.random() * responses.length)];
     context.actionButtons = generateActionButtons(['contactUs', 'quoteRequest', 'emailUs']);
     return response;
@@ -1523,6 +1729,25 @@ Keep responses helpful, professional, and focused on handyman services. Always e
 
     const message = userMessage.toLowerCase();
     console.log('🔍 Processing message:', message);
+
+    // LEAD COLLECTION LOGIC - Priority handling
+    if (leadData.collectingLead) {
+      return handleLeadCollection(userMessage);
+    }
+
+    // Check if user wants to get a quote or schedule service - triggers lead collection
+    if (message.match(/\b(quote|estimate|schedule|appointment|service|get started|hire|book|contact me|call me|interested|need work done|project)\b/)) {
+      const leadTriggers = ['quote', 'estimate', 'schedule', 'appointment', 'hire', 'book', 'get started', 'interested'];
+      if (leadTriggers.some(trigger => message.includes(trigger))) {
+        setLeadData(prev => ({
+          ...prev,
+          collectingLead: true,
+          currentField: 'customerName'
+        }));
+
+        return "Great! I'd love to help connect you with our handyman team. To get started, I'll need to collect some basic information.\n\nFirst, what's your name?";
+      }
+    }
 
     let response = "";
     let newContext = { ...chatContext };
@@ -1589,9 +1814,15 @@ Keep responses helpful, professional, and focused on handyman services. Always e
       newContext.actionButtons = generateActionButtons(['emergencyService', 'contactUs']);
     }
     else if (message === 'i need a free quote for my project') {
-      response = "💰 FREE SCOTTSDALE HANDYMAN QUOTE!\n\n🎯 Quote Options:\n📞 Phone estimate (5-15 min) - Great for small jobs\n🏠 In-home visit (most accurate) - Best for projects $500+\n📸 Photo estimate - Send pics via text/email\n💻 Virtual consultation - Video walkthrough\n\n🏜️ Desert Home Specialties:\n• Pool equipment & outdoor repairs\n• HVAC efficiency upgrades\n• Tile & stucco work\n• Monsoon damage prevention\n\nWhat's your project type and approx. size?";
+      // Start lead collection for quote requests
+      setLeadData(prev => ({
+        ...prev,
+        collectingLead: true,
+        currentField: 'customerName'
+      }));
+
+      response = "💰 FREE SCOTTSDALE HANDYMAN QUOTE!\n\nI'd love to connect you with our team for a personalized quote. To get started, I'll need to collect some basic information.\n\nFirst, what's your name?";
       newContext.conversationStage = 'quote_request';
-      newContext.actionButtons = generateActionButtons(['quoteRequest', 'scheduleService', 'contactUs']);
     }
     else if (message === 'what services do you offer?') {
       response = "🔧 COMPLETE SCOTTSDALE HANDYMAN SERVICES:\n\n⚡ ELECTRICAL:\n• Ceiling fans (essential for AZ!)\n• Outlets & switches\n• Light fixtures\n• Electrical troubleshooting\n\n🚿 PLUMBING:\n• Faucet & toilet repairs\n• Water heater service\n• Leak detection\n• Pipe insulation\n\n🏠 HOME REPAIRS:\n• Drywall & stucco patching\n• Tile repair & replacement\n• Door & window adjustments\n• Weather stripping\n\n🌵 DESERT HOME SPECIALS:\n• Pool equipment repairs\n• Outdoor fixture installation\n• Monsoon prep & repairs\n• Energy efficiency upgrades\n\nWhat specific service interests you?";
@@ -1672,17 +1903,17 @@ Keep responses helpful, professional, and focused on handyman services. Always e
     // Enhanced context-aware follow-up responses with conversation memory
     else if (newContext.conversationHistory && newContext.conversationHistory.length > 2) {
       const recentMessages = newContext.conversationHistory.slice(-4);
-      const hasDiscussedService = recentMessages.some(msg => 
-        msg.content && (msg.content.toLowerCase().includes('electrical') || 
-                       msg.content.toLowerCase().includes('plumbing') ||
-                       msg.content.toLowerCase().includes('repair') ||
-                       msg.content.toLowerCase().includes('install'))
+      const hasDiscussedService = recentMessages.some(msg =>
+        msg.content && (msg.content.toLowerCase().includes('electrical') ||
+          msg.content.toLowerCase().includes('plumbing') ||
+          msg.content.toLowerCase().includes('repair') ||
+          msg.content.toLowerCase().includes('install'))
       );
-      
-      const hasAskedAboutPricing = recentMessages.some(msg => 
-        msg.content && (msg.content.toLowerCase().includes('price') || 
-                       msg.content.toLowerCase().includes('cost') ||
-                       msg.content.toLowerCase().includes('how much'))
+
+      const hasAskedAboutPricing = recentMessages.some(msg =>
+        msg.content && (msg.content.toLowerCase().includes('price') ||
+          msg.content.toLowerCase().includes('cost') ||
+          msg.content.toLowerCase().includes('how much'))
       );
 
       // Context-based follow-up responses
@@ -1895,11 +2126,11 @@ Keep responses helpful, professional, and focused on handyman services. Always e
     setChatContext(newContext);
 
     // Grok AI Fallback - if response is generic, user seems confused, or after several exchanges
-    if (!response || response.includes("I'd help with your") || 
-        (newContext.messageCount > 3 && !newContext.conversationStage) ||
-        message.includes('confused') || message.includes('don\'t understand') ||
-        confidence === 0 && message.length > 20) {
-      
+    if (!response || response.includes("I'd help with your") ||
+      (newContext.messageCount > 3 && !newContext.conversationStage) ||
+      message.includes('confused') || message.includes('don\'t understand') ||
+      confidence === 0 && message.length > 20) {
+
       console.log('🤖 Attempting Grok AI fallback for complex query:', message);
       try {
         response = await getGrokResponse(userMessage, conversationHistory, newContext);
@@ -2716,7 +2947,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       id: 10,
       title: "Backyard Fire Pit Installation",
       description: "Custom fire pit area with seating and landscape integration perfect for desert evenings",
-      image: "https://images.unsplash.com/photo-1571935113485-6e36b7fb70d4?w=800&h=600&fit=crop&auto=format",
+      image: "https://picsum.photos/800/600?random=10",
       alt: "Custom stone fire pit with built-in seating and desert landscaping",
       category: "Outdoor",
       completionTime: "3 days",
@@ -8762,7 +8993,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               {adminSection === 'media' && '📁 Media Library'}
               {adminSection === 'chatbot' && '💬 Chatbot Conversations'}
             </h2>
-            
+
             {adminSection === 'blogs' && <BlogEditor />}
             {adminSection === 'gallery' && <GalleryManager />}
             {adminSection === 'media' && <MediaLibrary />}

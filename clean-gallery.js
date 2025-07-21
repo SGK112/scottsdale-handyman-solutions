@@ -114,7 +114,7 @@ const cleanProjectGallery = [
         id: 10,
         title: "Backyard Fire Pit Installation",
         description: "Custom fire pit area with seating and landscape integration perfect for desert evenings",
-        image: "https://images.unsplash.com/photo-1571935113485-6e36b7fb70d4?w=800&h=600&fit=crop&auto=format",
+        image: "https://picsum.photos/800/600?random=10",
         alt: "Custom stone fire pit with built-in seating and desert landscaping",
         category: "Outdoor",
         completionTime: "3 days",

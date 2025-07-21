@@ -476,6 +476,72 @@ def log_chatbot_conversation():
         print(f"Error logging chatbot conversation: {str(e)}")
         return jsonify({'error': 'Failed to log conversation'}), 500
 
+# Lead Submission Route
+@app.route('/api/submit-lead', methods=['POST'])
+def submit_lead():
+    """Submit lead information collected from chatbot"""
+    try:
+        data = request.json
+        
+        # Extract lead data
+        customer_name = data.get('customerName', '')
+        phone_number = data.get('phoneNumber', '')
+        address = data.get('address', '')
+        scope_of_work = data.get('scopeOfWork', '')
+        notes = data.get('notes', '')
+        conversation_id = data.get('conversationId', 'Unknown')
+        timestamp = data.get('timestamp', '')
+        
+        # Validate required fields
+        if not customer_name or not phone_number:
+            return jsonify({'error': 'Customer name and phone number are required'}), 400
+        
+        # Format lead email
+        email_subject = f'New Lead from Website Chatbot - {customer_name}'
+        email_body = f"""
+NEW LEAD SUBMISSION
+====================
+
+Customer Information:
+- Name: {customer_name}
+- Phone: {phone_number}
+- Address: {address if address else 'Not provided'}
+
+Project Details:
+- Scope of Work: {scope_of_work if scope_of_work else 'Not specified'}
+- Additional Notes: {notes if notes else 'None'}
+
+Technical Details:
+- Conversation ID: {conversation_id}
+- Submitted: {timestamp if timestamp else 'Unknown time'}
+- Source: Website Chatbot
+
+====================
+Follow up with this customer as soon as possible!
+        """
+        
+        # Send lead notification email
+        msg = Message(
+            subject=email_subject,
+            recipients=['help.scottsdalehandyman@gmail.com'],
+            body=email_body
+        )
+        
+        mail.send(msg)
+        
+        # Log to console for debugging
+        print(f"Lead submitted: {customer_name} - {phone_number}")
+        
+        return jsonify({
+            'success': True, 
+            'message': 'Lead submitted successfully',
+            'leadId': conversation_id
+        })
+        
+    except Exception as e:
+        print(f"Error submitting lead: {str(e)}")
+        return jsonify({'error': 'Failed to submit lead'}), 500
+
 # Admin Authentication Route
 @app.route('/api/admin-login', methods=['POST'])
 def admin_login():
@@ -612,4 +678,4 @@ def serve(path):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3001, debug=True)
+    app.run(host='0.0.0.0', port=3002, debug=True)
