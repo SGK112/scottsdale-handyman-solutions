@@ -18,5 +18,5 @@ pymongo==4.10.1
 redis==5.2.1
 celery==5.4.0
 flask-limiter==3.12
-flask-caching==2.4.0
+flask-caching==2.3.1
 prometheus-client==0.22.0
