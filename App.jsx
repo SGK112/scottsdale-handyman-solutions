@@ -8733,9 +8733,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               const password = e.target.password.value;
 
               if (username === 'admin' && password === 'scottsdaleHandyman2025!') {
-                setIsAdmin(true);
+                setIsAdminLoggedIn(true);
                 localStorage.setItem('scottsdaleAdminAuth', 'true');
                 setCurrentPage('admin');
+                setShowAdminLogin(false);
               } else {
                 alert('Invalid credentials');
               }
