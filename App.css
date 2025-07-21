@@ -1958,3 +1958,18 @@ body.menu-open {
   z-index: 100000 !important;
   padding: 1rem !important;
 }
+
+/* Admin Panel Responsive Layout */
+.admin-layout {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+@media (min-width: 768px) {
+  .admin-layout {
+    display: grid;
+    grid-template-columns: 250px 1fr;
+    gap: 2rem;
+  }
+}

@@ -13,22 +13,22 @@ import {
     Mail
 } from 'lucide-react';
 
-const ChatbotWidget = ({ 
-    chatOpen, 
-    setChatOpen, 
-    chatMessages, 
-    setChatMessages, 
-    chatInput, 
-    setChatInput, 
-    chatTyping, 
-    setChatTyping, 
-    chatContext, 
-    setChatContext, 
-    handleChatSubmit, 
-    generateChatResponse, 
-    openLeadForm, 
-    logChatConversation, 
-    handleQuickReply 
+const ChatbotWidget = ({
+    chatOpen,
+    setChatOpen,
+    chatMessages,
+    setChatMessages,
+    chatInput,
+    setChatInput,
+    chatTyping,
+    setChatTyping,
+    chatContext,
+    setChatContext,
+    handleChatSubmit,
+    generateChatResponse,
+    openLeadForm,
+    logChatConversation,
+    handleQuickReply
 }) => {
     const [isMinimized, setIsMinimized] = useState(false);
     const [showTooltip, setShowTooltip] = useState(false);
@@ -134,7 +134,7 @@ const ChatbotWidget = ({
 
             // Show tooltip after 10 seconds initially
             autoTooltipTimeoutRef.current = setTimeout(showPeriodicTooltip, 10000);
-            
+
             // Then show every 45 seconds
             const interval = setInterval(() => {
                 if (!showTooltip && !chatOpen) {
@@ -174,7 +174,7 @@ const ChatbotWidget = ({
                 e.preventDefault();
                 setChatOpen(!chatOpen);
             }
-            
+
             // Escape to close chat
             if (e.key === 'Escape' && chatOpen) {
                 setChatOpen(false);
@@ -257,13 +257,13 @@ const ChatbotWidget = ({
                         botResponse = getBotResponse(message.trim());
                         console.log('✅ Fallback response:', botResponse);
                     }
-                    
+
                     // Ensure we have a valid response
                     if (!botResponse || typeof botResponse !== 'string') {
                         console.warn('⚠️ Invalid response, using fallback');
                         botResponse = "I apologize, but I'm having trouble processing your request right now. Could you please rephrase your question or contact us directly at (480) 255-5887?";
                     }
-                    
+
                     setChatMessages(prev => [...prev, {
                         sender: 'bot',
                         text: botResponse,
@@ -358,14 +358,14 @@ const ChatbotWidget = ({
                                     minWidth: '240px',
                                     width: 'auto',
                                     border: '1px solid rgba(255, 255, 255, 0.1)',
-                                    // Mobile responsive styles
-                                    '@media (max-width: 640px)': {
+                                    // Mobile responsive styles handled by window.innerWidth check
+                                    ...(window.innerWidth <= 640 && {
                                         right: '16px',
                                         left: '16px',
                                         maxWidth: 'none',
                                         minWidth: 'auto',
                                         bottom: '88px'
-                                    }
+                                    })
                                 }}
                             >
                                 <div className="chatbot-text-wrap" style={{
@@ -523,8 +523,8 @@ const ChatbotWidget = ({
                             width: '64px',
                             height: '64px',
                             borderRadius: '16px',
-                            background: hasUnreadMessages 
-                                ? 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)' 
+                            background: hasUnreadMessages
+                                ? 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)'
                                 : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
                             border: hasUnreadMessages ? '3px solid #fbbf24' : 'none',
                             cursor: 'pointer',
@@ -533,25 +533,25 @@ const ChatbotWidget = ({
                             justifyContent: 'center',
                             color: 'white',
                             fontSize: '24px',
-                            boxShadow: hasUnreadMessages 
-                                ? '0 8px 32px rgba(220, 38, 38, 0.6), 0 0 20px rgba(251, 191, 36, 0.3)' 
+                            boxShadow: hasUnreadMessages
+                                ? '0 8px 32px rgba(220, 38, 38, 0.6), 0 0 20px rgba(251, 191, 36, 0.3)'
                                 : '0 8px 32px rgba(59, 130, 246, 0.4)',
                             transition: 'all 0.3s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
                             zIndex: 99999,
-                            animation: shouldPulse 
+                            animation: shouldPulse
                                 ? hasUnreadMessages ? 'urgentPulse 1.5s infinite' : 'gentlePulse 3s infinite'
                                 : 'none'
                         }}
                         onMouseOver={(e) => {
                             e.target.style.transform = 'scale(1.05) translateY(-2px)';
-                            e.target.style.boxShadow = hasUnreadMessages 
-                                ? '0 12px 40px rgba(220, 38, 38, 0.7), 0 0 25px rgba(251, 191, 36, 0.4)' 
+                            e.target.style.boxShadow = hasUnreadMessages
+                                ? '0 12px 40px rgba(220, 38, 38, 0.7), 0 0 25px rgba(251, 191, 36, 0.4)'
                                 : '0 12px 40px rgba(59, 130, 246, 0.5)';
                         }}
                         onMouseOut={(e) => {
                             e.target.style.transform = 'scale(1) translateY(0)';
-                            e.target.style.boxShadow = hasUnreadMessages 
-                                ? '0 8px 32px rgba(220, 38, 38, 0.6), 0 0 20px rgba(251, 191, 36, 0.3)' 
+                            e.target.style.boxShadow = hasUnreadMessages
+                                ? '0 8px 32px rgba(220, 38, 38, 0.6), 0 0 20px rgba(251, 191, 36, 0.3)'
                                 : '0 8px 32px rgba(59, 130, 246, 0.4)';
                         }}
                     >

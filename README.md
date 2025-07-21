@@ -10,6 +10,15 @@ A modern, responsive website for Scottsdale Handyman Solutions LLC featuring an 
 - **Flask Backend** - Python Flask API with email integration
 - **Service Showcase** - Professional presentation of handyman services
 - **Contact Forms** - Multiple contact methods with email notifications
+- **Admin System** - Content management accessible via `?admin=true` URL parameter
+
+## 🤖 For AI Agents
+
+This project includes comprehensive AI coding agent instructions in `.github/copilot-instructions.md`. Key highlights:
+- Single-file architecture pattern (intentional)
+- Dual-service monorepo deployment
+- Admin access via URL parameter `?admin=true`
+- MongoDB optional integration
 
 ## 🛠️ Tech Stack
 
@@ -52,17 +61,36 @@ FLASK_SECRET_KEY=your_secret_key
 
 ## 🏃‍♂️ Local Development
 
-**Frontend:**
+**Quick Start:**
 ```bash
-npm install
-npm run dev
+npm run setup:dev    # Initialize development environment
+npm install          # Install frontend dependencies
+pip install -r requirements.txt  # Install backend dependencies
+npm run dev:full     # Start both frontend and backend
 ```
 
-**Backend:**
+**Individual Services:**
 ```bash
-pip install -r requirements.txt
+# Frontend (port 5173)
+npm run dev
+
+# Backend (port 3000)
 python main.py
 ```
+
+**Validation:**
+```bash
+npm run validate:env      # Check environment setup
+npm run test:integration  # Test API endpoints
+npm run test:admin       # Test admin functionality
+```
+
+## 📚 Documentation
+
+- **[Developer Onboarding](DEVELOPER_ONBOARDING.md)** - Complete setup guide
+- **[MongoDB Integration](MONGODB_INTEGRATION.md)** - Optional database setup
+- **[AI Agent Instructions](.github/copilot-instructions.md)** - For GitHub Copilot and other AI tools
+- **[Documentation Testing](DOCUMENTATION_TEST_RESULTS.md)** - Validation results
 
 ## 📁 Project Structure
 

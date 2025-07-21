@@ -2,15 +2,15 @@ import React, { useState, useEffect } from 'react'
 import { loadStripe } from '@stripe/stripe-js'
 import { Elements, CardElement, useStripe, useElements } from '@stripe/react-stripe-js'
 import ChatbotWidget from './ChatbotWidget'
-import { 
-  Phone, 
-  Mail, 
-  MapPin, 
-  Clock, 
-  Star, 
-  Shield, 
-  Award, 
-  Users, 
+import {
+  Phone,
+  Mail,
+  MapPin,
+  Clock,
+  Star,
+  Shield,
+  Award,
+  Users,
   CheckCircle,
   Check,
   Wrench,
@@ -221,15 +221,25 @@ const AdminLogin = ({ onLogin }) => {
     setError('')
 
     try {
-      // Simple authentication (change these credentials in production!)
-      if (credentials.username === 'admin' && credentials.password === 'handyman2024!') {
-        const token = 'admin_token_' + Date.now()
-        localStorage.setItem('adminToken', token)
-        onLogin(token)
+      // Authenticate against backend with environment variables
+      const response = await fetch('/api/admin-login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(credentials),
+      })
+
+      const result = await response.json()
+
+      if (result.success) {
+        localStorage.setItem('adminToken', result.token)
+        onLogin(result.token)
       } else {
-        setError('Invalid username or password')
+        setError(result.error || 'Invalid username or password')
       }
     } catch (error) {
+      console.error('Login error:', error)
       setError('Login failed. Please try again.')
     } finally {
       setLoading(false)
@@ -239,7 +249,7 @@ const AdminLogin = ({ onLogin }) => {
   return (
     <div style={{
       minHeight: '100vh',
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      background: 'linear-gradient(135deg, #f8f9fa 0%, #e9ecef 50%, #dee2e6 100%)',
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
@@ -300,7 +310,7 @@ const AdminLogin = ({ onLogin }) => {
                 <input
                   type="text"
                   value={credentials.username}
-                  onChange={(e) => setCredentials({...credentials, username: e.target.value})}
+                  onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
                   placeholder="Enter username"
                   required
                   style={{
@@ -336,7 +346,7 @@ const AdminLogin = ({ onLogin }) => {
                 <input
                   type={showPassword ? 'text' : 'password'}
                   value={credentials.password}
-                  onChange={(e) => setCredentials({...credentials, password: e.target.value})}
+                  onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
                   placeholder="Enter password"
                   required
                   style={{
@@ -409,10 +419,10 @@ const AdminLogin = ({ onLogin }) => {
           borderTop: '1px solid #e5e7eb',
           textAlign: 'center'
         }}>
-          <p style={{ 
-            fontSize: '0.8rem', 
+          <p style={{
+            fontSize: '0.8rem',
             color: '#6b7280',
-            margin: 0 
+            margin: 0
           }}>
             Default: admin / handyman2024!
           </p>
@@ -512,7 +522,7 @@ const SimpleAdminPanel = ({ onLogout }) => {
                 Welcome to Admin Panel
               </h2>
               <p style={{ color: '#6b7280', lineHeight: '1.6' }}>
-                This is a simplified admin interface. The full admin panel with blog management 
+                This is a simplified admin interface. The full admin panel with blog management
                 and GitHub integration will be available once you complete the backend setup.
               </p>
               <div style={{ marginTop: '2rem', padding: '1rem', backgroundColor: '#f0f9ff', borderRadius: '8px', border: '1px solid #0ea5e9' }}>
@@ -528,7 +538,7 @@ const SimpleAdminPanel = ({ onLogout }) => {
             </div>
           </div>
         )}
-        
+
         {activeTab === 'forms' && (
           <div>
             <h1 style={{ fontSize: '2rem', fontWeight: '700', color: '#1f2937', marginBottom: '2rem' }}>
@@ -546,7 +556,7 @@ const SimpleAdminPanel = ({ onLogout }) => {
             </div>
           </div>
         )}
-        
+
         {activeTab === 'settings' && (
           <div>
             <h1 style={{ fontSize: '2rem', fontWeight: '700', color: '#1f2937', marginBottom: '2rem' }}>
@@ -573,12 +583,14 @@ function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState('home')
   const [selectedBlogPost, setSelectedBlogPost] = useState(null)
-  
+
   // Admin System State
+  const [isAdmin, setIsAdmin] = useState(false)
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false)
   const [showAdminLogin, setShowAdminLogin] = useState(false)
   const [adminToken, setAdminToken] = useState(null)
-  
+  const [adminSection, setAdminSection] = useState('dashboard')
+
   // Check for existing admin session on app load
   useEffect(() => {
     const token = localStorage.getItem('adminToken')
@@ -586,37 +598,37 @@ function App() {
       setIsAdminLoggedIn(true)
       setAdminToken(token)
     }
-    
+
     // Check for admin access via URL parameter
     const urlParams = new URLSearchParams(window.location.search)
     if (urlParams.get('admin') === 'true') {
       setShowAdminLogin(true)
     }
   }, [])
-  
+
   const handleAdminLogin = (token) => {
+    console.log('Admin login successful, setting state...', { token, isAdminLoggedIn })
     setIsAdminLoggedIn(true)
     setAdminToken(token)
     setShowAdminLogin(false)
+    console.log('Admin login state updated')
   }
-  
+
   const handleAdminLogout = () => {
     localStorage.removeItem('adminToken')
     setIsAdminLoggedIn(false)
     setAdminToken(null)
     setCurrentPage('home')
   }
-  
-  // File Upload State
-  const [uploadedFiles, setUploadedFiles] = useState([])
+
+  // File Upload State (for drag-drop in regular forms)
   const [isDragging, setIsDragging] = useState(false)
-  const [uploadProgress, setUploadProgress] = useState({})
   const [filePreview, setFilePreview] = useState(null)
-  
+
   // Success page state
   const [showSuccessPage, setShowSuccessPage] = useState(false)
   const [submittedFormData, setSubmittedFormData] = useState(null)
-  
+
   // Test input state for debugging
   const [testInput, setTestInput] = useState('')
 
@@ -692,7 +704,7 @@ function App() {
         }
       ]
     },
-    
+
     // Maintenance Plans
     'maintenance': {
       category: 'Maintenance Plans',
@@ -1010,7 +1022,7 @@ function App() {
   const formatPhoneNumber = (value) => {
     // Remove all non-numeric characters
     const phoneNumber = value.replace(/\D/g, '')
-    
+
     // Format the phone number
     if (phoneNumber.length < 4) {
       return phoneNumber
@@ -1032,7 +1044,7 @@ function App() {
     // Residential Interior Terms
     interiorTerms: {
       electrical: [
-        'outlet', 'switch', 'dimmer', 'gfci', 'circuit breaker', 'fuse box', 'electrical panel', 
+        'outlet', 'switch', 'dimmer', 'gfci', 'circuit breaker', 'fuse box', 'electrical panel',
         'junction box', 'wire nut', 'conduit', 'romex', 'voltage', 'amperage', 'ground fault',
         'chandelier', 'pendant light', 'recessed lighting', 'track lighting', 'under cabinet lighting',
         'ceiling fan', 'bathroom fan', 'range hood', 'doorbell', 'intercom', 'security system',
@@ -1203,7 +1215,7 @@ function App() {
       description: "Call (480) 255-5887 for immediate emergency assistance"
     },
     contactUs: {
-      text: "📞 Contact Us", 
+      text: "📞 Contact Us",
       action: () => {
         setCurrentPage('home');
         setTimeout(() => {
@@ -1240,7 +1252,7 @@ function App() {
       action: () => {
         const email = 'help.scottsdalehandyman@gmail.com';
         const subject = 'Service Inquiry from Website Chat';
-        
+
         // Try to copy to clipboard first
         if (navigator.clipboard && window.isSecureContext) {
           navigator.clipboard.writeText(email).then(() => {
@@ -1318,7 +1330,7 @@ function App() {
   // Handle quick reply selection
   const handleQuickReply = (replyText) => {
     console.log('🎯 App handleQuickReply called with:', replyText);
-    
+
     if (!replyText || typeof replyText !== 'string') {
       console.warn('⚠️ Invalid replyText in handleQuickReply');
       return;
@@ -1342,7 +1354,7 @@ function App() {
           text: responseText || "I apologize, but I'm having trouble processing your request. Could you please try again or contact us at (480) 255-5887?",
           timestamp: new Date()
         };
-        
+
         setChatMessages(prev => [...prev, botResponse]);
       } catch (error) {
         console.error('❌ Error in handleQuickReply:', error);
@@ -1361,11 +1373,11 @@ function App() {
   // Generate action buttons for chatbot responses
   const generateActionButtons = (linkKeys) => {
     if (!linkKeys || linkKeys.length === 0) return null;
-    
+
     return linkKeys.map(key => {
       const link = chatbotLinks[key];
       if (!link) return null;
-      
+
       return {
         text: link.text,
         action: link.action,
@@ -1413,10 +1425,10 @@ function App() {
       length: userMessage?.length,
       context
     });
-    
+
     const message = userMessage.toLowerCase();
     console.log('🔍 Processing message:', message);
-    
+
     let response = "";
     let newContext = { ...chatContext };
     let confidence = 0;
@@ -1439,8 +1451,8 @@ function App() {
 
     // Scottsdale-specific location detection
     const scottsdaleAreas = [
-      'scottsdale', 'paradise valley', 'fountain hills', 'tempe', 'phoenix', 'mesa', 
-      'cave creek', 'carefree', 'rio verde', 'mccormick ranch', 'gainey ranch', 
+      'scottsdale', 'paradise valley', 'fountain hills', 'tempe', 'phoenix', 'mesa',
+      'cave creek', 'carefree', 'rio verde', 'mccormick ranch', 'gainey ranch',
       'dc ranch', 'grayhawk', 'kierland', 'north scottsdale', 'old town scottsdale',
       'south scottsdale', 'desert ridge', 'ahwatukee'
     ];
@@ -1508,7 +1520,7 @@ function App() {
     // Service-specific responses with high confidence
     else if (matchedService && confidence > 5) {
       const serviceData = handymanKnowledgeBase.services[matchedService];
-      
+
       // Shortened, fact-finding responses
       const shortResponses = {
         electrical: "I can help with electrical work. What specifically needs attention - outlets, lights, switches, or circuit issues?",
@@ -1520,11 +1532,11 @@ function App() {
         general: "General handyman services available. What specific task - assembly, installation, or repair? Where?",
         emergency: "🚨 Emergency service available 24/7! What's the urgent issue? Call (480) 255-5887 for immediate help."
       };
-      
+
       response = shortResponses[matchedService] || serviceData.response;
       newContext.lastService = matchedService;
       newContext.conversationStage = 'service_details';
-      
+
       // Add quick replies based on service type
       if (matchedService === 'electrical') {
         newContext.quickReplies = quickReplies.electrical;
@@ -1535,7 +1547,7 @@ function App() {
       } else if (matchedService === 'general') {
         newContext.quickReplies = quickReplies.general;
       }
-      
+
       // Add action buttons based on service type
       if (matchedService === 'emergency') {
         newContext.actionButtons = generateActionButtons(['emergencyService', 'contactUs']);
@@ -1590,7 +1602,7 @@ function App() {
     else if (message.match(/\b(summer|heat|hot|cooling|air conditioning|ac|hvac|fan|monsoon|storm|winter|cold)\b/)) {
       const currentMonth = new Date().getMonth() + 1; // 1-12
       let seasonResponse = "";
-      
+
       if (currentMonth >= 5 && currentMonth <= 9) {
         // Summer months (May-September)
         seasonResponse = "🔥 ARIZONA SUMMER SERVICES (May-Sept):\n\n❄️ COOLING PRIORITIES:\n• AC tune-ups & repairs\n• Ceiling fan installation/repair\n• Window treatments for heat\n• Insulation improvements\n\n⚡ HIGH-DEMAND SERVICES:\n• Pool equipment repairs\n• Outdoor misting systems\n• Electrical safety checks\n• Emergency cooling repairs\n\n� Beat the heat with priority scheduling!";
@@ -1601,7 +1613,7 @@ function App() {
         // Cooler months
         seasonResponse = "🌡️ ARIZONA WINTER SERVICES (Oct-March):\n\n🔧 PERFECT WEATHER FOR:\n• Outdoor projects\n• Home improvements\n• Preventive maintenance\n• Major installations\n\n🏠 SEASONAL PREP:\n• Heating system checks\n• Pipe insulation\n• Weather stripping\n• Home efficiency upgrades";
       }
-      
+
       response = seasonResponse + "\n\nWhat specific service do you need?";
       newContext.conversationStage = 'seasonal_service';
       newContext.actionButtons = generateActionButtons(['quoteRequest', 'emergencyService', 'contactUs']);
@@ -1626,7 +1638,7 @@ function App() {
       response = "Perfect! Choose: Call (480) 255-5887, use the quote button below, or email us. What works best for you?";
       newContext.conversationStage = 'closing';
       newContext.actionButtons = generateActionButtons(['quoteRequest', 'contactUs', 'emailUs']);
-      
+
       // Log conversation when user shows booking intent
       setTimeout(() => logChatConversation('booking_intent'), 1000);
     }
@@ -1646,12 +1658,12 @@ function App() {
     else {
       let recognizedTerms = [];
       let specializedServices = [];
-      
+
       // Check all knowledge base categories
       Object.entries(handymanKnowledgeBase.interiorTerms).forEach(([category, terms]) => {
         terms.forEach(term => {
           if (message.includes(term.toLowerCase())) {
-            recognizedTerms.push({term, category: `interior ${category}`});
+            recognizedTerms.push({ term, category: `interior ${category}` });
           }
         });
       });
@@ -1659,7 +1671,7 @@ function App() {
       Object.entries(handymanKnowledgeBase.exteriorTerms).forEach(([category, terms]) => {
         terms.forEach(term => {
           if (message.includes(term.toLowerCase())) {
-            recognizedTerms.push({term, category: `exterior ${category}`});
+            recognizedTerms.push({ term, category: `exterior ${category}` });
           }
         });
       });
@@ -1685,9 +1697,9 @@ function App() {
       else if (recognizedTerms.length > 0) {
         const uniqueTerms = [...new Set(recognizedTerms.map(r => r.term))];
         const categories = [...new Set(recognizedTerms.map(r => r.category))];
-        
+
         response = `Great! I see you're asking about ${uniqueTerms.slice(0, 3).join(', ')}${uniqueTerms.length > 3 ? ` and ${uniqueTerms.length - 3} other items` : ''}. `;
-        
+
         // Provide specific category responses
         if (recognizedTerms.some(r => r.category.includes('electrical'))) {
           response += `These electrical components are our expertise! What specific electrical work - installation, repair, or upgrade?`;
@@ -1709,7 +1721,7 @@ function App() {
           response += `We handle these items! What specific project can I help you plan?`;
           newContext.actionButtons = generateActionButtons(['quoteRequest', 'viewServices', 'contactUs']);
         }
-        
+
         newContext.conversationStage = 'service_details';
       } else {
         response = `I'd help with your "${userMessage}" request! What's the specific project type, location, and scope? More details = better assistance!`;
@@ -1719,7 +1731,7 @@ function App() {
 
     // Update context
     setChatContext(newContext);
-    
+
     // Handle very short or unclear messages
     if (!response || response.trim() === '') {
       if (message.length <= 3 || message.match(/^\?+$/) || message.match(/^[^\w\s]+$/)) {
@@ -1728,7 +1740,7 @@ function App() {
         response = '🏠 Thanks for reaching out! I\'m here to help with all your handyman needs. Could you tell me more about what you\'re looking for? Whether it\'s repairs, installations, or maintenance - I can connect you with our Scottsdale team for expert service!';
       }
     }
-    
+
     return response;
   };
 
@@ -1746,7 +1758,7 @@ function App() {
       // Clear input for events
       setChatInput('');
     }
-    
+
     if (!message) return
 
     const userMessage = {
@@ -1766,17 +1778,17 @@ function App() {
         console.log('🤖 App: Generating response for:', message);
         const responseText = generateChatResponse(message, chatContext);
         console.log('✅ App: Generated response:', responseText);
-        
+
         // Ensure we have a valid response
-        const finalResponse = responseText && typeof responseText === 'string' ? responseText : 
+        const finalResponse = responseText && typeof responseText === 'string' ? responseText :
           "I apologize, but I'm having trouble processing your request right now. Could you please rephrase your question or contact us directly at (480) 255-5887?";
-        
+
         const botResponse = {
           sender: 'bot',
           text: finalResponse,
           timestamp: new Date()
         }
-        
+
         setChatMessages(prev => [...prev, botResponse])
       } catch (error) {
         console.error('❌ App: Error generating response:', error);
@@ -1835,7 +1847,7 @@ function App() {
           if (progress >= 100) {
             progress = 100
             clearInterval(progressInterval)
-            
+
             // Complete upload
             setUploadedFiles(prev => [...prev, newFile])
             setUploadProgress(prev => {
@@ -1856,20 +1868,6 @@ function App() {
     })
   }
 
-  const deleteUploadedFile = (fileId) => {
-    if (window.confirm('Are you sure you want to delete this file?')) {
-      setUploadedFiles(prev => prev.filter(file => file.id !== fileId))
-    }
-  }
-
-  const copyFileUrl = (file) => {
-    // In a real application, this would be the actual URL
-    const url = file.data
-    navigator.clipboard.writeText(url).then(() => {
-      alert('File URL copied to clipboard!')
-    })
-  }
-
   // Check for admin session on load
   useEffect(() => {
     const savedAuth = localStorage.getItem('scottsdaleAdminAuth')
@@ -1885,26 +1883,23 @@ function App() {
         // Get Stripe config from backend
         const response = await fetch('/api/stripe-config')
         const config = await response.json()
-        
+
         setStripeConfig(config)
-        
+
         // Initialize Stripe with publishable key
-        if (config.publishableKey) {
+        if (config.publishableKey && config.publishableKey !== 'null' && config.publishableKey.startsWith('pk_')) {
           const stripe = await loadStripe(config.publishableKey)
           setStripePromise(stripe)
+        } else {
+          console.log('Stripe not initialized: No valid publishable key provided')
         }
       } catch (error) {
         console.log('Stripe initialization error:', error)
-        // Fallback: try with a basic test key for now
-        const testStripe = await loadStripe('pk_test_51RmUDcRjM9anbUvSzLM0p0yrBNI25ULjUpjAWlSjIdGADxTLfpfwgkhvNwZtU6Xs6ycUzCUOvwN6VfQG0PUYW3cY009ruWWyDP')
-        setStripePromise(testStripe)
-        setStripeConfig({
-          publishableKey: 'pk_test_51RmUDcRjM9anbUvSzLM0p0yrBNI25ULjUpjAWlSjIdGADxTLfpfwgkhvNwZtU6Xs6ycUzCUOvwN6VfQG0PUYW3cY009ruWWyDP',
-          environment: 'development'
-        })
+        // Don't initialize Stripe if there's no valid key
+        setStripePromise(null)
       }
     }
-    
+
     initializeStripe()
   }, [])
 
@@ -2151,7 +2146,7 @@ Precise Measurements: Professional installation ensures optimal fit and maximum 
 Structural Assessment: Proper wall anchoring and support ensure systems can handle full load capacity safely over time.
 
 Warranty Protection: Professional installation typically includes warranties on both materials and workmanship, protecting your investment long-term.`,
-      author: "Scottsdale Handyman Solutions", 
+      author: "Scottsdale Handyman Solutions",
       date: "2024-10-25",
       category: "Organization",
       readTime: "7 min read",
@@ -2428,14 +2423,14 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
     }
   ]);
 
-  // Enhanced inspiration gallery with metadata - editable via admin
+  // Enhanced inspiration gallery - clean, deduplicated, optimized (Fixed: 2025-07-20)
   const [projectGallery, setProjectGallery] = useState([
     {
       id: 1,
       title: "Modern Kitchen Remodel - Desert Ridge",
       description: "Complete kitchen transformation with quartz countertops, custom white shaker cabinets, and designer lighting",
-      image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=600&fit=crop",
-      alt: "Modern kitchen remodel with white quartz countertops, custom cabinetry, and stainless steel appliances in Scottsdale home",
+      image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=600&fit=crop&auto=format",
+      alt: "Modern kitchen remodel with white quartz countertops, custom cabinetry, and stainless steel appliances",
       category: "Kitchen",
       completionTime: "3 weeks",
       budget: "$25,000 - $35,000",
@@ -2446,7 +2441,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       id: 2,
       title: "Luxury Master Bathroom - Old Town",
       description: "Spa-like master bathroom with walk-in glass shower, marble vanity, and smart home features",
-      image: "https://images.unsplash.com/photo-1620626011761-996317b8d101?w=800&h=600&fit=crop",
+      image: "https://images.unsplash.com/photo-1620626011761-996317b8d101?w=800&h=600&fit=crop&auto=format",
       alt: "Luxury bathroom renovation with walk-in glass shower, marble vanity, and modern fixtures",
       category: "Bathroom",
       completionTime: "2 weeks",
@@ -2456,10 +2451,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
     },
     {
       id: 3,
-      title: "Custom Laundry Room Makeover",
+      title: "Custom Laundry Room Organization",
       description: "Transformed basic laundry room into organized, functional space with custom storage and folding station",
-      image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800&h=600&fit=crop",
-      alt: "Custom organized laundry room with built-in storage, folding station, and utility sink",
+      image: "https://images.unsplash.com/photo-1600210492493-0946911123ea?w=800&h=600&fit=crop&auto=format",
+      alt: "Well-organized laundry room with custom storage, folding station, and utility sink",
       category: "Laundry",
       completionTime: "1 week",
       budget: "$5,000 - $10,000",
@@ -2470,7 +2465,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       id: 4,
       title: "Walk-in Closet Organization System",
       description: "Custom storage solutions maximizing space with built-in shelving and organization systems",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop",
+      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop&auto=format",
+      alt: "Walk-in closet with custom organization system and built-in shelving",
       category: "Storage",
       completionTime: "3 days",
       budget: "$3,000 - $8,000",
@@ -2481,7 +2477,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       id: 5,
       title: "Desert Outdoor Kitchen Paradise",
       description: "Ultimate entertaining space with built-in BBQ grill, bar seating, and ambient lighting perfect for Arizona climate",
-      image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop",
+      image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop&auto=format",
+      alt: "Outdoor kitchen with built-in grill, bar seating, and desert landscaping",
       category: "Outdoor",
       completionTime: "2 weeks",
       budget: "$20,000 - $40,000",
@@ -2490,20 +2487,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
     },
     {
       id: 6,
-      title: "Gourmet Kitchen Island Installation",
-      description: "Functional centerpiece with waterfall granite edges, additional storage, and breakfast bar seating",
-      image: "https://images.unsplash.com/photo-1565182999561-18d7dc61c393?w=800&h=600&fit=crop",
-      category: "Kitchen",
-      completionTime: "1 week",
-      budget: "$8,000 - $15,000",
-      location: "Paradise Valley Village",
-      features: ["Waterfall Granite Edge", "Storage Drawers", "Bar Seating for 4", "Electrical Outlets", "Wine Storage", "Pendant Light Ready"]
-    },
-    {
-      id: 7,
       title: "Executive Home Office Design",
       description: "Professional workspace with custom built-ins, cable management, and sophisticated lighting design",
-      image: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=800&h=600&fit=crop",
+      image: "https://images.unsplash.com/photo-1586953208448-b95a79798f07?w=800&h=600&fit=crop&auto=format",
+      alt: "Modern home office with built-in desk, custom storage, and professional lighting",
       category: "Office",
       completionTime: "1 week",
       budget: "$5,000 - $12,000",
@@ -2511,65 +2498,11 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       features: ["Built-in Desk", "Custom Shelving", "Task & Ambient Lighting", "Cable Management", "Built-in Filing", "USB Charging Stations"]
     },
     {
-      id: 8,
-      title: "Deck Restoration & Upgrade",
-      description: "Complete deck restoration with composite decking, modern railings, and integrated lighting",
-      image: "https://images.unsplash.com/photo-1600585152220-90363fe7e115?w=800&h=600&fit=crop",
-      category: "Outdoor",
-      completionTime: "1 week",
-      budget: "$8,000 - $15,000",
-      location: "Kierland",
-      features: ["Composite Decking", "Cable Railing System", "LED Step Lighting", "Structural Reinforcement", "Weather Sealing", "Desert Landscaping Integration"]
-    },
-    {
-      id: 9,
-      title: "Smart Garage Organization System",
-      description: "Complete garage transformation with smart storage solutions and workbench area",
-      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop",
-      category: "Storage",
-      completionTime: "2 days",
-      budget: "$2,000 - $5,000",
-      location: "Ahwatukee Foothills",
-      features: ["Wall-Mount Storage", "Overhead Racks", "Mobile Workbench", "Tool Organization", "Epoxy Floor Coating", "Motion Sensor Lighting"]
-    },
-    {
-      id: 10,
-      title: "Basement Entertainment Center",
-      description: "Transform unused basement into ultimate entertainment space with wet bar and theater seating",
-      image: "https://images.unsplash.com/photo-1555636222-cae831e670b3?w=800&h=600&fit=crop",
-      category: "Entertainment",
-      completionTime: "4 weeks",
-      budget: "$30,000 - $50,000",
-      location: "Central Scottsdale",
-      features: ["Luxury Vinyl Flooring", "Built-in Bar", "Theater Lighting", "Sound System Pre-Wire", "Mini Split HVAC", "Wet Bar with Sink"]
-    },
-    {
-      id: 11,
-      title: "Master Bedroom Suite Renovation",
-      description: "Elegant master bedroom with custom built-ins, crown molding, and luxury finishes",
-      image: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800&h=600&fit=crop",
-      category: "Bedroom",
-      completionTime: "2 weeks",
-      budget: "$12,000 - $20,000",
-      location: "Troon Village",
-      features: ["Custom Built-in Dresser", "Crown Molding", "Recessed Lighting", "Hardwood Floors", "Walk-in Closet Renovation", "Smart Thermostat"]
-    },
-    {
-      id: 12,
-      title: "Guest Bathroom Upgrade",
-      description: "Compact bathroom maximized with clever storage and modern fixtures",
-      image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800&h=600&fit=crop",
-      category: "Bathroom",
-      completionTime: "1 week",
-      budget: "$6,000 - $12,000",
-      location: "Desert Mountain",
-      features: ["Space-Saving Vanity", "Large Format Tiles", "Recessed Medicine Cabinet", "Exhaust Fan Upgrade", "Water-Efficient Fixtures", "Accent Lighting"]
-    },
-    {
-      id: 13,
-      title: "Smart Home Security Integration",
-      description: "Comprehensive smart home security system with cameras, sensors, and automation",
-      image: "https://images.unsplash.com/photo-1558002038-1055907df827?w=800&h=600&fit=crop",
+      id: 7,
+      title: "Smart Security System Installation",
+      description: "Comprehensive smart home security system with cameras, sensors, and mobile app control",
+      image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=800&h=600&fit=crop&auto=format",
+      alt: "Smart home security system with cameras and control panel",
       category: "Smart Home",
       completionTime: "2 days",
       budget: "$2,500 - $8,000",
@@ -2577,10 +2510,11 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       features: ["Smart Cameras", "Door/Window Sensors", "Smart Locks", "Mobile App Control", "Motion Detection", "Professional Installation"]
     },
     {
-      id: 14,
-      title: "Pool Equipment Room Organization",
+      id: 8,
+      title: "Pool Equipment Organization",
       description: "Organized pool equipment area with proper ventilation and maintenance access",
-      image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&h=600&fit=crop",
+      image: "https://images.unsplash.com/photo-1571902943202-507ec2618e8f?w=800&h=600&fit=crop&auto=format",
+      alt: "Well-organized pool equipment room with proper ventilation and storage",
       category: "Pool",
       completionTime: "1 day",
       budget: "$1,500 - $3,000",
@@ -2588,10 +2522,11 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       features: ["Equipment Shelving", "Ventilation Upgrade", "Chemical Storage", "Maintenance Access", "Safety Features", "Drainage Improvement"]
     },
     {
-      id: 15,
+      id: 9,
       title: "Energy-Efficient Window Upgrades",
       description: "Whole-house window replacement with energy-efficient double-pane windows",
-      image: "https://images.unsplash.com/photo-1449844908441-8829872d2607?w=800&h=600&fit=crop",
+      image: "https://images.unsplash.com/photo-1449844908441-8829872d2607?w=800&h=600&fit=crop&auto=format",
+      alt: "Modern energy-efficient windows with double-pane glass installation",
       category: "Energy Efficiency",
       completionTime: "3 days",
       budget: "$12,000 - $25,000",
@@ -2599,107 +2534,16 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       features: ["Double-Pane Glass", "Low-E Coating", "Insulated Frames", "Professional Installation", "Energy Tax Credits", "UV Protection"]
     },
     {
-      id: 16,
+      id: 10,
       title: "Backyard Fire Pit Installation",
       description: "Custom fire pit area with seating and landscape integration perfect for desert evenings",
-      image: "https://images.unsplash.com/photo-1571935113485-6e36b7fb70d4?w=800&h=600&fit=crop",
+      image: "https://images.unsplash.com/photo-1571935113485-6e36b7fb70d4?w=800&h=600&fit=crop&auto=format",
+      alt: "Custom stone fire pit with built-in seating and desert landscaping",
       category: "Outdoor",
       completionTime: "3 days",
       budget: "$3,000 - $8,000",
       location: "Cave Creek",
       features: ["Natural Stone Fire Pit", "Built-in Seating", "Gas Line Installation", "Landscape Integration", "Ambient Lighting", "Fire Safety Features"]
-    },
-    {
-      id: 17,
-      title: "Kitchen Pantry Organization",
-      description: "Custom pantry renovation with adjustable shelving and pull-out drawers",
-      image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800&h=600&fit=crop",
-      category: "Storage",
-      completionTime: "2 days",
-      budget: "$2,000 - $5,000",
-      location: "Tempe",
-      features: ["Adjustable Shelving", "Pull-out Drawers", "Wire Baskets", "Door Organizers", "LED Lighting", "Label System"]
-    },
-    {
-      id: 18,
-      title: "Bathroom Accessibility Upgrade",
-      description: "ADA-compliant bathroom modifications for aging-in-place comfort and safety",
-      image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800&h=600&fit=crop",
-      category: "Accessibility",
-      completionTime: "1 week",
-      budget: "$8,000 - $15,000",
-      location: "Sun City",
-      features: ["Walk-in Shower", "Grab Bars", "Comfort-Height Toilet", "Non-slip Flooring", "Lever Handles", "Shower Bench"]
-    },
-    {
-      id: 12,
-      title: "Front Porch Renovation",
-      description: "Welcoming entry with new decking and decorative elements",
-      image: "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w=800&h=600&fit=crop",
-      category: "Outdoor",
-      completionTime: "1 week",
-      budget: "$6,000 - $12,000",
-      features: ["Composite Decking", "New Railings", "Lighting", "Landscaping"]
-    },
-    {
-      id: 13,
-      title: "Pantry Organization",
-      description: "Custom pantry shelving for maximum storage efficiency",
-      image: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=800&h=600&fit=crop",
-      category: "Kitchen",
-      completionTime: "3 days",
-      budget: "$2,500 - $5,000",
-      features: ["Custom Shelving", "Pull-out Drawers", "Label System", "LED Strip Lights"]
-    },
-    {
-      id: 14,
-      title: "Fireplace Makeover",
-      description: "Modern fireplace surround with stone veneer and mantel",
-      image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=800&h=600&fit=crop",
-      category: "Living Room",
-      completionTime: "1 week",
-      budget: "$4,000 - $8,000",
-      features: ["Stone Veneer", "Custom Mantel", "Built-in Storage", "Accent Lighting"]
-    },
-    {
-      id: 15,
-      title: "Pool Area Renovation",
-      description: "Complete pool deck and landscaping transformation",
-      image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?w=800&h=600&fit=crop",
-      category: "Outdoor",
-      completionTime: "2 weeks",
-      budget: "$15,000 - $25,000",
-      features: ["Travertine Decking", "Pool Equipment Enclosure", "Landscape Design", "Lighting"]
-    },
-    {
-      id: 16,
-      title: "Guest Bathroom Refresh",
-      description: "Stylish powder room update with modern fixtures",
-      image: "https://images.unsplash.com/photo-1584622781564-1d987f7333c1?w=800&h=600&fit=crop",
-      category: "Bathroom",
-      completionTime: "1 week",
-      budget: "$3,000 - $6,000",
-      features: ["New Vanity", "Modern Fixtures", "Tile Work", "Mirror & Lighting"]
-    },
-    {
-      id: 17,
-      title: "Mudroom Installation",
-      description: "Functional entryway with built-in storage and bench seating",
-      image: "https://images.unsplash.com/photo-1584622650111-993a426fbf0a?w=800&h=600&fit=crop",
-      category: "Storage",
-      completionTime: "1 week",
-      budget: "$4,000 - $8,000",
-      features: ["Built-in Cubbies", "Bench Seating", "Coat Hooks", "Tile Flooring"]
-    },
-    {
-      id: 18,
-      title: "Attic Conversion",
-      description: "Transform attic space into functional bonus room",
-      image: "https://images.unsplash.com/photo-1555636222-cae831e670b3?w=800&h=600&fit=crop",
-      category: "Conversion",
-      completionTime: "3 weeks",
-      budget: "$20,000 - $35,000",
-      features: ["Insulation", "Drywall", "Flooring", "Windows", "HVAC Extension"]
     }
   ])
 
@@ -2716,7 +2560,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
   const saveBlogPost = (blogPost) => {
     if (blogPost.id) {
       // Update existing post
-      setBlogPosts(posts => posts.map(post => 
+      setBlogPosts(posts => posts.map(post =>
         post.id === blogPost.id ? blogPost : post
       ))
     } else {
@@ -2740,7 +2584,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
   const saveProjectGallery = (project) => {
     if (project.id) {
       // Update existing project
-      setProjectGallery(gallery => gallery.map(item => 
+      setProjectGallery(gallery => gallery.map(item =>
         item.id === project.id ? project : item
       ))
     } else {
@@ -2784,10 +2628,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         urgency: formData.get('urgency'),
         heard_about: formData.get('heard_about')
       }
-      
+
       // Determine form type based on which form is being submitted
       const formType = leadFormModal || 'quote'
-      
+
       // Submit to backend API
       const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:5000/api'
       const response = await fetch(`${API_BASE_URL}/forms/${formType}`, {
@@ -2797,7 +2641,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         },
         body: JSON.stringify(data),
       })
-      
+
       if (response.ok) {
         // Show success page with submitted data
         setSubmittedFormData({
@@ -2806,16 +2650,16 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         })
         setShowSuccessPage(true)
         setLeadFormModal(null)
-        
+
         // Reset the form
         e.target.reset()
-        
+
         // Hide success page after 5 seconds
         setTimeout(() => {
           setShowSuccessPage(false)
           setSubmittedFormData(null)
         }, 5000)
-        
+
       } else {
         const errorData = await response.json()
         alert('There was an error sending your message: ' + (errorData.error || 'Please try again.'))
@@ -2831,7 +2675,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
     e.preventDefault()
     setIsProcessingPayment(true)
     setPaymentError(null)
-    
+
     try {
       // Use FormData approach for reliable form handling
       const formData = new FormData(e.target)
@@ -2846,7 +2690,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         source: 'invoice_payment',
         submittedAt: new Date().toLocaleString()
       }
-      
+
       // If Stripe is available and amount > 0, process actual payment
       if (stripePromise && data.amount && parseFloat(data.amount) > 0) {
         try {
@@ -2858,44 +2702,44 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             },
             body: JSON.stringify(data)
           })
-          
+
           if (!response.ok) {
             throw new Error('Payment processing failed')
           }
-          
+
           const { client_secret } = await response.json()
           const stripe = await stripePromise
-          
+
           // For demo purposes, we'll simulate a successful payment
           // In production, you'd use proper Stripe Elements for card collection
           console.log('Would process payment with client_secret:', client_secret)
-          
+
         } catch (stripeError) {
           console.log('Stripe processing error:', stripeError)
           setPaymentError('Payment processing failed. Please try again.')
           return
         }
       }
-      
+
       // Log form submission (for demo/testing purposes)
       console.log('Payment form submitted:', data)
-      
+
       // Show success message
       setSubmittedFormData({
         type: 'payment_request',
         data: data
       })
       setShowSuccessPage(true)
-      
+
       // Reset form
       e.target.reset()
-      
+
       // Auto-close success page after 5 seconds
       setTimeout(() => {
         setShowSuccessPage(false)
         setSubmittedFormData(null)
       }, 5000)
-      
+
     } catch (error) {
       console.error('Payment submission error:', error)
       setPaymentError('An error occurred. Please try again.')
@@ -2907,7 +2751,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
   // Handle work with us form submission
   const handleWorkSubmit = async (e) => {
     e.preventDefault()
-    
+
     // Use FormData approach for reliable form handling
     const formData = new FormData(e.target)
     const data = {
@@ -2921,20 +2765,20 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       source: 'work_with_us_application',
       submittedAt: new Date().toLocaleString()
     }
-    
+
     // Here you would typically send to your applicant tracking system
     console.log('Work application submitted:', data)
-    
+
     // Show success message
     setSubmittedFormData({
       type: 'work_application',
       data: data
     })
     setShowSuccessPage(true)
-    
+
     // Reset form
     e.target.reset()
-    
+
     // Auto-close success page after 5 seconds
     setTimeout(() => {
       setShowSuccessPage(false)
@@ -2967,7 +2811,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
   const handleLeadFormSubmit = async (e) => {
     e.preventDefault()
-    
+
     // Use FormData approach (same as working contact form)
     const formData = new FormData(e.target)
     const data = {
@@ -2984,10 +2828,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       source: `${leadFormModal}_cta`,
       submittedAt: new Date().toLocaleString()
     }
-    
+
     // Here you would typically send to your CRM or email service
     console.log('Lead form submitted:', data)
-    
+
     // Show success message
     setSubmittedFormData({
       type: leadFormModal,
@@ -2995,7 +2839,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
     })
     setShowSuccessPage(true)
     setLeadFormModal(null)
-    
+
     // Auto-close success page after 5 seconds
     setTimeout(() => {
       setShowSuccessPage(false)
@@ -3012,9 +2856,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
     <header className="header">
       <div className="container">
         <div className="header-content">
-          <a 
-            href="#" 
-            className="logo" 
+          <a
+            href="#"
+            className="logo"
             onClick={(e) => {
               e.preventDefault();
               // Secret admin access: Cmd+Alt+Click on logo (Mac) or Ctrl+Alt+Click (PC)
@@ -3029,13 +2873,13 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             <div className="logo-icon">
               <svg width="52" height="52" viewBox="0 0 800 800" xmlns="http://www.w3.org/2000/svg">
                 <g transform="translate(-4318 -5714)">
-                  <circle cx="400" cy="400" r="400" transform="translate(4318 5714)" fill="#1e2749"/>
+                  <circle cx="400" cy="400" r="400" transform="translate(4318 5714)" fill="#1e2749" />
                   <g transform="translate(4523.205 5891.88)">
                     <g transform="translate(0.269 0.052)">
-                      <path d="M194.6,32.106l166.79,96.3V373.463H27.807V128.406l166.79-96.3M194.6,0,0,112.353V401.271H389.213V112.353L194.6,0Z" fill="#ffdb00"/>
-                      <path d="M257.77,133.82,87.52,34.06,61.3,51.7l168.663,98.173V374.579H257.77Z" transform="translate(48.039 26.692)" fill="#ffdb00"/>
-                      <path d="M212.1,353.7H184.292V177.137L13.15,78.323,41.207,60.7,212.1,161.085Z" transform="translate(10.305 47.568)" fill="#ffdb00"/>
-                      <path d="M129.182,173.571,12.53,106.22v32.106l88.862,51.3V318.03h27.789Z" transform="translate(9.819 83.241)" fill="#ffdb00"/>
+                      <path d="M194.6,32.106l166.79,96.3V373.463H27.807V128.406l166.79-96.3M194.6,0,0,112.353V401.271H389.213V112.353L194.6,0Z" fill="#ffdb00" />
+                      <path d="M257.77,133.82,87.52,34.06,61.3,51.7l168.663,98.173V374.579H257.77Z" transform="translate(48.039 26.692)" fill="#ffdb00" />
+                      <path d="M212.1,353.7H184.292V177.137L13.15,78.323,41.207,60.7,212.1,161.085Z" transform="translate(10.305 47.568)" fill="#ffdb00" />
+                      <path d="M129.182,173.571,12.53,106.22v32.106l88.862,51.3V318.03h27.789Z" transform="translate(9.819 83.241)" fill="#ffdb00" />
                     </g>
                   </g>
                 </g>
@@ -3048,19 +2892,19 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           </a>
 
           <nav className="nav-desktop">
-            <a href="#" className="nav-link" onClick={(e) => {e.preventDefault(); setCurrentPage('home'); setShowSuccessPage(false);}}>Home</a>
-            <a href="#" className="nav-link" onClick={(e) => {e.preventDefault(); setCurrentPage('about'); setShowSuccessPage(false);}}>About</a>
-            <a href="#" className="nav-link" onClick={(e) => {e.preventDefault(); setCurrentPage('services'); setShowSuccessPage(false);}}>Services</a>
-            <a href="#" className="nav-link" onClick={(e) => {e.preventDefault(); setCurrentPage('blog'); setShowSuccessPage(false);}}>Blog</a>
-            <a href="#" className="nav-link" onClick={(e) => {e.preventDefault(); setCurrentPage('work-with-us'); setShowSuccessPage(false);}}>Work With Us</a>
-            <a href="#" className="nav-link" onClick={(e) => {e.preventDefault(); setCurrentPage('pay'); setShowSuccessPage(false);}}>Pay Invoice</a>
-            <a href="#contact" className="emergency-btn" onClick={(e) => {e.preventDefault(); openLeadForm('emergency');}}>
+            <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); setCurrentPage('home'); setShowSuccessPage(false); }}>Home</a>
+            <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); setCurrentPage('about'); setShowSuccessPage(false); }}>About</a>
+            <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); setCurrentPage('services'); setShowSuccessPage(false); }}>Services</a>
+            <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); setCurrentPage('blog'); setShowSuccessPage(false); }}>Blog</a>
+            <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); setCurrentPage('work-with-us'); setShowSuccessPage(false); }}>Work With Us</a>
+            <a href="#" className="nav-link" onClick={(e) => { e.preventDefault(); setCurrentPage('pay'); setShowSuccessPage(false); }}>Pay Invoice</a>
+            <a href="#contact" className="emergency-btn" onClick={(e) => { e.preventDefault(); openLeadForm('emergency'); }}>
               <Phone size={16} />
               Emergency
             </a>
           </nav>
 
-          <button 
+          <button
             className="menu-btn"
             onClick={() => {
               const newMenuState = !isMenuOpen;
@@ -3080,9 +2924,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         <div className={`nav-mobile ${isMenuOpen ? 'open' : ''}`}>
           <div className="nav-mobile-content">
             <div className="nav-mobile-links">
-              <a href="#" className="nav-mobile-link" onClick={(e) => { 
+              <a href="#" className="nav-mobile-link" onClick={(e) => {
                 e.preventDefault();
-                setCurrentPage('home'); 
+                setCurrentPage('home');
                 setShowSuccessPage(false);
                 setIsMenuOpen(false);
                 document.body.classList.remove('menu-open');
@@ -3090,9 +2934,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <Home size={20} />
                 Home
               </a>
-              <a href="#" className="nav-mobile-link" onClick={(e) => { 
+              <a href="#" className="nav-mobile-link" onClick={(e) => {
                 e.preventDefault();
-                setCurrentPage('about'); 
+                setCurrentPage('about');
                 setShowSuccessPage(false);
                 setIsMenuOpen(false);
                 document.body.classList.remove('menu-open');
@@ -3100,9 +2944,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <Users size={20} />
                 About
               </a>
-              <a href="#" className="nav-mobile-link" onClick={(e) => { 
+              <a href="#" className="nav-mobile-link" onClick={(e) => {
                 e.preventDefault();
-                setCurrentPage('services'); 
+                setCurrentPage('services');
                 setShowSuccessPage(false);
                 setIsMenuOpen(false);
                 document.body.classList.remove('menu-open');
@@ -3110,9 +2954,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <Wrench size={20} />
                 Services
               </a>
-              <a href="#" className="nav-mobile-link" onClick={(e) => { 
+              <a href="#" className="nav-mobile-link" onClick={(e) => {
                 e.preventDefault();
-                setCurrentPage('blog'); 
+                setCurrentPage('blog');
                 setShowSuccessPage(false);
                 setIsMenuOpen(false);
                 document.body.classList.remove('menu-open');
@@ -3120,9 +2964,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <Star size={20} />
                 Blog
               </a>
-              <a href="#" className="nav-mobile-link" onClick={(e) => { 
+              <a href="#" className="nav-mobile-link" onClick={(e) => {
                 e.preventDefault();
-                setCurrentPage('work-with-us'); 
+                setCurrentPage('work-with-us');
                 setShowSuccessPage(false);
                 setIsMenuOpen(false);
                 document.body.classList.remove('menu-open');
@@ -3130,9 +2974,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <Users size={20} />
                 Work With Us
               </a>
-              <a href="#" className="nav-mobile-link" onClick={(e) => { 
+              <a href="#" className="nav-mobile-link" onClick={(e) => {
                 e.preventDefault();
-                setCurrentPage('pay'); 
+                setCurrentPage('pay');
                 setShowSuccessPage(false);
                 setIsMenuOpen(false);
                 document.body.classList.remove('menu-open');
@@ -3192,7 +3036,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           }}>
             🚨
           </div>
-          
+
           <h2 style={{
             fontSize: '2rem',
             fontWeight: 'bold',
@@ -3202,7 +3046,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           }}>
             EMERGENCY SERVICE
           </h2>
-          
+
           <p style={{
             fontSize: '1.1rem',
             marginBottom: '30px',
@@ -3294,8 +3138,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               ⚡ 24/7 Emergency Response
             </p>
             <p style={{ margin: '0', color: '#4b5563' }}>
-              • Plumbing emergencies • Electrical issues<br/>
-              • Gas leaks • Structural damage<br/>
+              • Plumbing emergencies • Electrical issues<br />
+              • Gas leaks • Structural damage<br />
               • Water damage • Safety hazards
             </p>
           </div>
@@ -3360,9 +3204,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
     };
 
     const config = formConfig[leadFormModal];
-    
+
     return (
-      <div 
+      <div
         className="lead-form-modal-overlay"
         onClick={closeLeadForm}
         style={{
@@ -3378,7 +3222,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           zIndex: 100000,
           padding: '1rem'
         }}>
-        <div 
+        <div
           onClick={(e) => e.stopPropagation()}
           style={{
             background: 'white',
@@ -3407,9 +3251,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           </button>
 
           <div style={{ marginBottom: '2rem' }}>
-            <h2 style={{ 
-              color: leadFormModal === 'emergency' ? '#dc2626' : 'var(--gray-900)', 
-              marginBottom: '0.5rem', 
+            <h2 style={{
+              color: leadFormModal === 'emergency' ? '#dc2626' : 'var(--gray-900)',
+              marginBottom: '0.5rem',
               fontSize: '1.75rem',
               display: 'flex',
               alignItems: 'center',
@@ -3638,8 +3482,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     resize: 'vertical'
                   }}
                   placeholder={
-                    leadFormModal === 'emergency' 
-                      ? "Please describe the emergency situation in detail..." 
+                    leadFormModal === 'emergency'
+                      ? "Please describe the emergency situation in detail..."
                       : "Describe your project, requirements, timeline, etc."
                   }
                 />
@@ -3731,11 +3575,11 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
   const HomePage = () => (
     <div>
       {/* Hero Section */}
-      <section 
-        className="hero" 
-        style={{ 
+      <section
+        className="hero"
+        style={{
           paddingBottom: '4rem',
-          backgroundImage: 'linear-gradient(135deg, rgba(26, 54, 93, 0.85) 0%, rgba(44, 82, 130, 0.9) 50%, rgba(30, 60, 114, 0.85) 100%), url("https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1600&h=900&fit=crop&auto=format")',
+          backgroundImage: 'linear-gradient(135deg, rgba(26, 54, 93, 0.5) 0%, rgba(44, 82, 130, 0.6) 50%, rgba(30, 60, 114, 0.5) 100%), url("https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=1600&h=900&fit=crop&auto=format")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',
@@ -3761,32 +3605,32 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
           <div className="hero-content" style={{ color: 'white', textShadow: '2px 2px 8px rgba(0,0,0,0.6)' }}>
-            <h1 className="hero-title" style={{ 
+            <h1 className="hero-title" style={{
               color: 'white',
               textShadow: '3px 3px 10px rgba(0,0,0,0.7)',
               marginBottom: '1.5rem'
             }}>Scottsdale's Most Trusted Handyman Solutions</h1>
-            <p className="hero-subtitle" style={{ 
+            <p className="hero-subtitle" style={{
               color: 'rgba(255,255,255,0.95)',
               fontSize: '1.3rem',
               fontWeight: '500',
               marginBottom: '1rem'
             }}>Local Experts • Quality Service • Innovative Solutions</p>
-            <p className="hero-description" style={{ 
+            <p className="hero-description" style={{
               color: 'rgba(255,255,255,0.9)',
               fontSize: '1.1rem',
               lineHeight: '1.6',
               maxWidth: '800px',
               margin: '0 auto'
             }}>
-              From quick fixes to smart home upgrades, we're your neighborhood handyman team with the expertise 
-              to handle any project. Serving Scottsdale with pride, we combine traditional 
+              From quick fixes to smart home upgrades, we're your neighborhood handyman team with the expertise
+              to handle any project. Serving Scottsdale with pride, we combine traditional
               craftsmanship with modern technology.
             </p>
-            
+
             <div className="cta-buttons" style={{ marginTop: '2.5rem', marginBottom: '3rem' }}>
-              <button 
-                className="btn-primary" 
+              <button
+                className="btn-primary"
                 onClick={() => openLeadForm('quote')}
                 style={{
                   background: 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
@@ -3799,8 +3643,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               >
                 Get Free Quote
               </button>
-              <button 
-                className="btn-secondary" 
+              <button
+                className="btn-secondary"
                 onClick={() => openLeadForm('emergency')}
                 style={{
                   background: 'rgba(220, 53, 69, 0.9)',
@@ -3814,7 +3658,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </button>
             </div>
 
-            <div className="trust-indicators" style={{ 
+            <div className="trust-indicators" style={{
               marginTop: '2.5rem',
               display: 'flex',
               justifyContent: 'space-between',
@@ -3822,9 +3666,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               gap: '2rem',
               flexWrap: 'wrap'
             }}>
-              <div className="trust-item" style={{ 
-                textAlign: 'center', 
-                flex: '1', 
+              <div className="trust-item" style={{
+                textAlign: 'center',
+                flex: '1',
                 minWidth: '200px',
                 padding: '2rem 1.5rem',
                 background: 'rgba(255, 255, 255, 0.15)',
@@ -3838,7 +3682,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
                 transition: 'all 0.3s ease'
               }}>
-                <div className="trust-icon" style={{ 
+                <div className="trust-icon" style={{
                   display: 'flex',
                   justifyContent: 'center',
                   marginBottom: '1rem'
@@ -3849,22 +3693,22 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     <MapPin size={28} />
                   </div>
                 </div>
-                <div className="trust-title" style={{ 
+                <div className="trust-title" style={{
                   fontWeight: '700',
                   fontSize: '1.2rem',
                   marginBottom: '0.5rem',
                   color: '#FFD700'
                 }}>Local Scottsdale Experts</div>
-                <div className="trust-subtitle" style={{ 
+                <div className="trust-subtitle" style={{
                   fontSize: '0.9rem',
                   opacity: '0.9',
                   lineHeight: '1.4'
                 }}>Serving the Valley with pride</div>
               </div>
-              
-              <div className="trust-item" style={{ 
-                textAlign: 'center', 
-                flex: '1', 
+
+              <div className="trust-item" style={{
+                textAlign: 'center',
+                flex: '1',
                 minWidth: '200px',
                 padding: '2rem 1.5rem',
                 background: 'rgba(255, 255, 255, 0.15)',
@@ -3878,7 +3722,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
                 transition: 'all 0.3s ease'
               }}>
-                <div className="trust-icon" style={{ 
+                <div className="trust-icon" style={{
                   display: 'flex',
                   justifyContent: 'center',
                   marginBottom: '1rem'
@@ -3889,22 +3733,22 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     <Award size={28} />
                   </div>
                 </div>
-                <div className="trust-title" style={{ 
+                <div className="trust-title" style={{
                   fontWeight: '700',
                   fontSize: '1.2rem',
                   marginBottom: '0.5rem',
                   color: '#FFD700'
                 }}>Licensed & Insured</div>
-                <div className="trust-subtitle" style={{ 
+                <div className="trust-subtitle" style={{
                   fontSize: '0.9rem',
                   opacity: '0.9',
                   lineHeight: '1.4'
                 }}>Full bonding & liability coverage</div>
               </div>
-              
-              <div className="trust-item" style={{ 
-                textAlign: 'center', 
-                flex: '1', 
+
+              <div className="trust-item" style={{
+                textAlign: 'center',
+                flex: '1',
                 minWidth: '200px',
                 padding: '2rem 1.5rem',
                 background: 'rgba(255, 255, 255, 0.15)',
@@ -3918,7 +3762,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 boxShadow: '0 8px 32px rgba(0, 0, 0, 0.2)',
                 transition: 'all 0.3s ease'
               }}>
-                <div className="trust-icon" style={{ 
+                <div className="trust-icon" style={{
                   display: 'flex',
                   justifyContent: 'center',
                   marginBottom: '1rem'
@@ -3929,13 +3773,13 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     <Star size={28} />
                   </div>
                 </div>
-                <div className="trust-title" style={{ 
+                <div className="trust-title" style={{
                   fontWeight: '700',
                   fontSize: '1.2rem',
                   marginBottom: '0.5rem',
                   color: '#FFD700'
                 }}>98% Customer Satisfaction</div>
-                <div className="trust-subtitle" style={{ 
+                <div className="trust-subtitle" style={{
                   fontSize: '0.9rem',
                   opacity: '0.9',
                   lineHeight: '1.4'
@@ -3957,8 +3801,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           </div>
 
           <div className="services-grid" style={{ gap: '2rem' }}>
-            <div className="service-card" style={{ 
-              background: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover`,
+            <div className="service-card" style={{
+              background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover`,
               color: 'white',
               position: 'relative'
             }}>
@@ -3981,8 +3825,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </button>
             </div>
 
-            <div className="service-card" style={{ 
-              background: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover`,
+            <div className="service-card" style={{
+              background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('https://images.unsplash.com/photo-1503387762-592deb58ef4e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover`,
               color: 'white',
               position: 'relative'
             }}>
@@ -4005,8 +3849,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </button>
             </div>
 
-            <div className="service-card" style={{ 
-              background: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover`,
+            <div className="service-card" style={{
+              background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('https://images.unsplash.com/photo-1513475382585-d06e58bcb0e0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover`,
               color: 'white',
               position: 'relative'
             }}>
@@ -4029,8 +3873,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </button>
             </div>
 
-            <div className="service-card" style={{ 
-              background: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1536431311719-398b6704d4cc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover`,
+            <div className="service-card" style={{
+              background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('https://images.unsplash.com/photo-1536431311719-398b6704d4cc?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover`,
               color: 'white',
               position: 'relative'
             }}>
@@ -4053,8 +3897,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </button>
             </div>
 
-            <div className="service-card" style={{ 
-              background: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1558002038-1055907df827?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover`,
+            <div className="service-card" style={{
+              background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('https://images.unsplash.com/photo-1558002038-1055907df827?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover`,
               color: 'white',
               position: 'relative'
             }}>
@@ -4077,8 +3921,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </button>
             </div>
 
-            <div className="service-card" style={{ 
-              background: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1607400201889-565b1ee75f8e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover`,
+            <div className="service-card" style={{
+              background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('https://images.unsplash.com/photo-1607400201889-565b1ee75f8e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80') center/cover`,
               color: 'white',
               position: 'relative'
             }}>
@@ -4118,7 +3962,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </div>
               <h3 className="feature-title">Licensed & Insured Protection</h3>
               <p className="feature-description">
-                We are fully licensed and insured, which means you're protected by Arizona's strict contractor regulations. 
+                We are fully licensed and insured, which means you're protected by Arizona's strict contractor regulations.
                 Full liability insurance and bonding give you peace of mind on every project.
               </p>
             </div>
@@ -4129,7 +3973,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </div>
               <h3 className="feature-title">Local Scottsdale Expertise</h3>
               <p className="feature-description">
-                We understand the unique challenges of Scottsdale homes. From desert climate considerations 
+                We understand the unique challenges of Scottsdale homes. From desert climate considerations
                 to local building codes, our team knows what works in your neighborhood.
               </p>
             </div>
@@ -4140,7 +3984,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </div>
               <h3 className="feature-title">Transparent, Fair Pricing</h3>
               <p className="feature-description">
-                No surprises, no hidden fees. We provide detailed estimates upfront and stick to our quoted prices. 
+                No surprises, no hidden fees. We provide detailed estimates upfront and stick to our quoted prices.
                 You know exactly what you're paying for before we start work.
               </p>
             </div>
@@ -4151,7 +3995,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </div>
               <h3 className="feature-title">Quality Guarantee</h3>
               <p className="feature-description">
-                Every job comes with our satisfaction guarantee and comprehensive warranty coverage. 
+                Every job comes with our satisfaction guarantee and comprehensive warranty coverage.
                 We stand behind our work because we take pride in delivering exceptional results.
               </p>
             </div>
@@ -4162,7 +4006,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </div>
               <h3 className="feature-title">Modern Technology Integration</h3>
               <p className="feature-description">
-                We're not just traditional handymen – we're technology experts too. From smart home installations 
+                We're not just traditional handymen – we're technology experts too. From smart home installations
                 to energy-efficient upgrades, we help modernize your home.
               </p>
             </div>
@@ -4173,7 +4017,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </div>
               <h3 className="feature-title">Fast, Reliable Service</h3>
               <p className="feature-description">
-                Same-day service available for most repairs. Emergency response within 1-4 hours. 
+                Same-day service available for most repairs. Emergency response within 1-4 hours.
                 We respect your time and show up when we say we will.
               </p>
             </div>
@@ -4182,8 +4026,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       </section>
 
       {/* Inspiration Gallery Section */}
-      <section className="gallery" style={{ 
-        paddingTop: '4rem', 
+      <section className="gallery" style={{
+        paddingTop: '4rem',
         paddingBottom: '4rem',
         backgroundColor: '#f8fafc'
       }}>
@@ -4212,8 +4056,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 cursor: 'pointer'
               }}>
                 <div style={{ position: 'relative', overflow: 'hidden' }}>
-                  <img 
-                    src={project.image} 
+                  <img
+                    src={project.image}
                     alt={project.alt || project.title}
                     className="gallery-image"
                     style={{
@@ -4261,9 +4105,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     <span style={{ fontWeight: '600' }}>💰 {project.budget}</span>
                   </div>
                   <div style={{ marginTop: '1rem' }}>
-                    <div style={{ 
-                      display: 'flex', 
-                      flexWrap: 'wrap', 
+                    <div style={{
+                      display: 'flex',
+                      flexWrap: 'wrap',
                       gap: '0.5rem',
                       marginTop: '0.5rem'
                     }}>
@@ -4314,8 +4158,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           <div className="testimonials-grid" style={{ gap: '2rem' }}>
             <div className="testimonial-card">
               <p className="testimonial-quote">
-                "After calling three other handyman services with no response, The Scottsdale Handyman 
-                had someone at my house within two hours. They fixed my garbage disposal and installed a new 
+                "After calling three other handyman services with no response, The Scottsdale Handyman
+                had someone at my house within two hours. They fixed my garbage disposal and installed a new
                 faucet the same day. Professional, courteous, and reasonably priced!"
               </p>
               <div className="testimonial-author">Sarah M.</div>
@@ -4324,8 +4168,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
             <div className="testimonial-card">
               <p className="testimonial-quote">
-                "I needed several electrical outlets installed in my home office, and being ROC licensed was 
-                important to me. The team did excellent work, cleaned up completely, and even gave me tips 
+                "I needed several electrical outlets installed in my home office, and being ROC licensed was
+                important to me. The team did excellent work, cleaned up completely, and even gave me tips
                 on energy efficiency."
               </p>
               <div className="testimonial-author">Mike R.</div>
@@ -4334,8 +4178,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
             <div className="testimonial-card">
               <p className="testimonial-quote">
-                "We've been using their monthly maintenance plan for over a year now. It's amazing how many 
-                small issues they catch and fix before they become big problems. The peace of mind is worth 
+                "We've been using their monthly maintenance plan for over a year now. It's amazing how many
+                small issues they catch and fix before they become big problems. The peace of mind is worth
                 every penny."
               </p>
               <div className="testimonial-author">Jennifer L.</div>
@@ -4355,19 +4199,19 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             </p>
           </div>
 
-          <div className="contact-grid" style={{ 
-            display: 'grid', 
-            gridTemplateColumns: '1fr 1fr', 
-            gap: '3rem', 
-            alignItems: 'flex-start' 
+          <div className="contact-grid" style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '3rem',
+            alignItems: 'flex-start'
           }}>
-            <div className="contact-info" style={{ 
-              display: 'grid', 
-              gridTemplateRows: 'repeat(3, 1fr)', 
-              gap: '1.5rem', 
-              height: 'fit-content' 
+            <div className="contact-info" style={{
+              display: 'grid',
+              gridTemplateRows: 'repeat(3, 1fr)',
+              gap: '1.5rem',
+              height: 'fit-content'
             }}>
-              <div className="contact-item" style={{ 
+              <div className="contact-item" style={{
                 backgroundColor: '#ffffff',
                 padding: '2rem',
                 borderRadius: '12px',
@@ -4379,34 +4223,34 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 flexDirection: 'column',
                 justifyContent: 'center'
               }}>
-                <div className="contact-item-icon" style={{ 
-                  display: 'flex', 
-                  justifyContent: 'center', 
+                <div className="contact-item-icon" style={{
+                  display: 'flex',
+                  justifyContent: 'center',
                   marginBottom: '1rem',
                   color: '#1e40af'
                 }}>
                   <Phone size={32} />
                 </div>
-                <h3 className="contact-item-title" style={{ 
+                <h3 className="contact-item-title" style={{
                   fontSize: '1.25rem',
                   fontWeight: '700',
                   marginBottom: '0.5rem',
                   color: '#1e293b'
                 }}>Call Us Today</h3>
-                <div className="contact-item-value" style={{ 
+                <div className="contact-item-value" style={{
                   fontSize: '1.125rem',
                   fontWeight: '600',
                   marginBottom: '0.5rem',
                   color: '#1e40af'
                 }}>(480) 255-5887</div>
-                <p className="contact-item-description" style={{ 
+                <p className="contact-item-description" style={{
                   fontSize: '0.875rem',
                   color: '#64748b',
                   margin: '0'
                 }}>Available during business hours & 24/7 for emergencies</p>
               </div>
 
-              <div className="contact-item" style={{ 
+              <div className="contact-item" style={{
                 backgroundColor: '#ffffff',
                 padding: '2rem',
                 borderRadius: '12px',
@@ -4418,34 +4262,34 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 flexDirection: 'column',
                 justifyContent: 'center'
               }}>
-                <div className="contact-item-icon" style={{ 
-                  display: 'flex', 
-                  justifyContent: 'center', 
+                <div className="contact-item-icon" style={{
+                  display: 'flex',
+                  justifyContent: 'center',
                   marginBottom: '1rem',
                   color: '#1e40af'
                 }}>
                   <Mail size={32} />
                 </div>
-                <h3 className="contact-item-title" style={{ 
+                <h3 className="contact-item-title" style={{
                   fontSize: '1.25rem',
                   fontWeight: '700',
                   marginBottom: '0.5rem',
                   color: '#1e293b'
                 }}>Email</h3>
-                <div className="contact-item-value" style={{ 
+                <div className="contact-item-value" style={{
                   fontSize: '1.125rem',
                   fontWeight: '600',
                   marginBottom: '0.5rem',
                   color: '#1e40af'
                 }}>info@scottsdalehandyman.com</div>
-                <p className="contact-item-description" style={{ 
+                <p className="contact-item-description" style={{
                   fontSize: '0.875rem',
                   color: '#64748b',
                   margin: '0'
                 }}>Response within 24 hours</p>
               </div>
 
-              <div className="contact-item" style={{ 
+              <div className="contact-item" style={{
                 backgroundColor: '#ffffff',
                 padding: '2rem',
                 borderRadius: '12px',
@@ -4457,27 +4301,27 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 flexDirection: 'column',
                 justifyContent: 'center'
               }}>
-                <div className="contact-item-icon" style={{ 
-                  display: 'flex', 
-                  justifyContent: 'center', 
+                <div className="contact-item-icon" style={{
+                  display: 'flex',
+                  justifyContent: 'center',
                   marginBottom: '1rem',
                   color: '#1e40af'
                 }}>
                   <Clock size={32} />
                 </div>
-                <h3 className="contact-item-title" style={{ 
+                <h3 className="contact-item-title" style={{
                   fontSize: '1.25rem',
                   fontWeight: '700',
                   marginBottom: '0.5rem',
                   color: '#1e293b'
                 }}>Business Hours</h3>
-                <div className="contact-item-value" style={{ 
+                <div className="contact-item-value" style={{
                   fontSize: '1.125rem',
                   fontWeight: '600',
                   marginBottom: '0.5rem',
                   color: '#1e40af'
                 }}>Mon-Fri: 8AM-6PM, Sat: 9AM-4PM</div>
-                <p className="contact-item-description" style={{ 
+                <p className="contact-item-description" style={{
                   fontSize: '0.875rem',
                   color: '#64748b',
                   margin: '0'
@@ -4485,19 +4329,19 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </div>
             </div>
 
-            <div className="contact-form" style={{ 
+            <div className="contact-form" style={{
               backgroundColor: '#f8fafc',
               padding: '2rem',
               borderRadius: '12px',
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)'
             }}>
-              <h3 className="form-title" style={{ 
+              <h3 className="form-title" style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
                 marginBottom: '0.5rem',
                 textAlign: 'center'
               }}>Get Your Free Estimate Today</h3>
-              <p className="form-description" style={{ 
+              <p className="form-description" style={{
                 marginBottom: '2rem',
                 textAlign: 'center',
                 color: '#64748b',
@@ -4537,7 +4381,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                       fontSize: '16px'
                     }}
                   />
-                  
+
                   <input
                     name="email"
                     type="email"
@@ -4550,7 +4394,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                       fontSize: '16px'
                     }}
                   />
-                  
+
                   <input
                     name="phone"
                     type="tel"
@@ -4565,7 +4409,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                       fontSize: '16px'
                     }}
                   />
-                  
+
                   <textarea
                     name="message"
                     placeholder="Describe your project..."
@@ -4579,7 +4423,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                       resize: 'vertical'
                     }}
                   />
-                  
+
                   <button
                     type="submit"
                     style={{
@@ -4609,8 +4453,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       </section>
 
       {/* Before & After Showcase Section */}
-      <section className="before-after-showcase" style={{ 
-        paddingTop: '4rem', 
+      <section className="before-after-showcase" style={{
+        paddingTop: '4rem',
         paddingBottom: '4rem',
         background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)'
       }}>
@@ -4636,8 +4480,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               position: 'relative'
             }}>
               <div style={{ position: 'relative' }}>
-                <img 
-                  src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=400&fit=crop" 
+                <img
+                  src="https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=600&h=400&fit=crop"
                   alt="Kitchen transformation before and after"
                   style={{ width: '100%', height: '250px', objectFit: 'cover' }}
                 />
@@ -4678,8 +4522,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               position: 'relative'
             }}>
               <div style={{ position: 'relative' }}>
-                <img 
-                  src="https://images.unsplash.com/photo-1620626011761-996317b8d101?w=600&h=400&fit=crop" 
+                <img
+                  src="https://images.unsplash.com/photo-1620626011761-996317b8d101?w=600&h=400&fit=crop"
                   alt="Bathroom renovation before and after"
                   style={{ width: '100%', height: '250px', objectFit: 'cover' }}
                 />
@@ -4900,8 +4744,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       </section>
 
       {/* Service Areas Map Section */}
-      <section className="service-areas" style={{ 
-        paddingTop: '4rem', 
+      <section className="service-areas" style={{
+        paddingTop: '4rem',
         paddingBottom: '4rem',
         backgroundColor: '#f8fafc'
       }}>
@@ -4967,7 +4811,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   </div>
                 ))}
               </div>
-              
+
               <div style={{ marginTop: '2rem', padding: '1.5rem', background: 'white', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }}>
                 <h4 style={{ fontSize: '1.125rem', fontWeight: '600', marginBottom: '1rem', color: '#1e293b' }}>
                   📍 Service Area Details
@@ -5063,22 +4907,24 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       </section>
 
       {/* Emergency Services Banner */}
-      <section className="emergency-banner" style={{ 
-        paddingTop: '3rem', 
+      <section className="emergency-banner" style={{
+        paddingTop: '3rem',
         paddingBottom: '3rem',
-        background: 'linear-gradient(135deg, #dc2626 0%, #991b1b 100%)',
-        color: 'white'
+        background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+        color: 'white',
+        border: 'none',
+        boxShadow: '0 10px 25px rgba(220, 38, 38, 0.3)'
       }}>
         <div className="container">
           <div style={{ textAlign: 'center' }}>
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
-              <AlertTriangle size={48} />
+              <AlertTriangle size={48} color="white" />
             </div>
-            <h2 style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '1rem' }}>
-              Emergency Handyman Services Available 24/7
+            <h2 style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '1rem', color: 'white' }}>
+              24/7 Emergency Handyman Services - Fast Response Guaranteed
             </h2>
-            <p style={{ fontSize: '1.2rem', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
-              Burst pipes, electrical failures, or security issues? We respond fast when you need us most.
+            <p style={{ fontSize: '1.2rem', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem', color: 'white' }}>
+              Water damage, power outages, or lock-outs? Our licensed professionals are standing by to help when emergencies strike.
             </p>
             <div style={{ display: 'flex', gap: '1rem', justifyContent: 'center', flexWrap: 'wrap' }}>
               <button className="btn-emergency" style={{
@@ -5092,7 +4938,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 cursor: 'pointer',
                 display: 'flex',
                 alignItems: 'center',
-                gap: '0.5rem'
+                gap: '0.5rem',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.2)',
+                transition: 'all 0.3s ease'
               }} onClick={() => openLeadForm('emergency')}>
                 <Phone size={20} />
                 Call Now: (480) 255-5887
@@ -5105,7 +4953,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 borderRadius: '8px',
                 fontSize: '1.125rem',
                 fontWeight: '600',
-                cursor: 'pointer'
+                cursor: 'pointer',
+                transition: 'all 0.3s ease'
               }} onClick={() => openLeadForm('emergency')}>
                 Request Emergency Service
               </button>
@@ -5119,10 +4968,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
   // About page component
   const AboutPage = () => (
     <div style={{ minHeight: 'calc(100vh - 120px)' }}>
-      <section 
+      <section
         className="hero"
         style={{
-          backgroundImage: 'linear-gradient(135deg, rgba(44, 82, 130, 0.85) 0%, rgba(26, 54, 93, 0.9) 50%, rgba(30, 60, 114, 0.85) 100%), url("https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1600&h=900&fit=crop&auto=format")',
+          backgroundImage: 'linear-gradient(135deg, rgba(44, 82, 130, 0.5) 0%, rgba(26, 54, 93, 0.6) 50%, rgba(30, 60, 114, 0.5) 100%), url("https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=1600&h=900&fit=crop&auto=format")',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundAttachment: 'fixed',
@@ -5147,34 +4996,34 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         }} />
 
         <div className="container" style={{ position: 'relative', zIndex: 2 }}>
-          <div className="hero-content" style={{ 
-            color: 'white', 
+          <div className="hero-content" style={{
+            color: 'white',
             textShadow: '3px 3px 10px rgba(0,0,0,0.7)',
             textAlign: 'center',
             maxWidth: '900px',
             margin: '0 auto'
           }}>
-            <h1 className="hero-title" style={{ 
+            <h1 className="hero-title" style={{
               color: 'white',
               fontSize: '3.2rem',
               fontWeight: '800',
               marginBottom: '1.5rem',
               lineHeight: '1.2'
             }}>About The Scottsdale Handyman</h1>
-            <p className="hero-subtitle" style={{ 
+            <p className="hero-subtitle" style={{
               color: '#FFD700',
               fontSize: '1.4rem',
               fontWeight: '600',
               marginBottom: '1.5rem'
             }}>Your Trusted Local Handyman Experts Since Day One</p>
-            <p className="hero-description" style={{ 
+            <p className="hero-description" style={{
               color: 'rgba(255,255,255,0.95)',
               fontSize: '1.15rem',
               lineHeight: '1.7',
               maxWidth: '800px',
               margin: '0 auto'
             }}>
-              We understand that your home is more than just a building – it's your sanctuary, your investment, 
+              We understand that your home is more than just a building – it's your sanctuary, your investment,
               and the place where life's most important moments unfold.
             </p>
           </div>
@@ -5188,45 +5037,45 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               <div>
                 <h2>Our Story</h2>
                 <p className="lead">
-                  The Scottsdale Handyman was founded on a simple principle: every homeowner deserves reliable, 
+                  The Scottsdale Handyman was founded on a simple principle: every homeowner deserves reliable,
                   professional service at a fair price.
                 </p>
                 <p>
-                  As licensed contractors (ROC #327266), we bring years of experience and a commitment to excellence to every project. 
-                  What started as a small local business has grown into Scottsdale's most trusted handyman service, completing over 
+                  As licensed contractors (ROC #327266), we bring years of experience and a commitment to excellence to every project.
+                  What started as a small local business has grown into Scottsdale's most trusted handyman service, completing over
                   500 projects and maintaining a 98% customer satisfaction rate.
                 </p>
                 <p>
-                  Our journey began when we recognized a significant gap in the local market. Too many homeowners were struggling 
-                  to find reliable contractors for smaller projects, while others were being overcharged for simple repairs. We saw 
-                  an opportunity to build something different – a handyman service that treats every job with the same level of 
+                  Our journey began when we recognized a significant gap in the local market. Too many homeowners were struggling
+                  to find reliable contractors for smaller projects, while others were being overcharged for simple repairs. We saw
+                  an opportunity to build something different – a handyman service that treats every job with the same level of
                   professionalism and attention to detail.
                 </p>
               </div>
-              
+
               <div>
                 <h2>Our Mission</h2>
                 <p className="lead">
                   To provide exceptional handyman services that enhance the comfort, safety, and value of your home.
                 </p>
                 <p>
-                  We combine traditional craftsmanship with modern technology to deliver solutions that exceed expectations. 
-                  Every project, whether it's a simple repair or a complex renovation, receives our full attention and 
+                  We combine traditional craftsmanship with modern technology to deliver solutions that exceed expectations.
+                  Every project, whether it's a simple repair or a complex renovation, receives our full attention and
                   professional expertise.
                 </p>
-                
+
                 <h3>Why Choose Us</h3>
                 <p>
-                  Operating under Arizona ROC License #327266, we're not just another handyman service – we're a fully licensed 
-                  contractor committed to the highest standards of professionalism and quality. This licensing means we're held 
-                  to strict state regulations, carry comprehensive insurance coverage, and have demonstrated our competency in 
+                  Operating under Arizona ROC License #327266, we're not just another handyman service – we're a fully licensed
+                  contractor committed to the highest standards of professionalism and quality. This licensing means we're held
+                  to strict state regulations, carry comprehensive insurance coverage, and have demonstrated our competency in
                   the construction trades.
                 </p>
-                
+
                 <h3>Local Expertise</h3>
                 <p>
-                  As Scottsdale natives, we understand the unique challenges that Arizona's desert climate presents to homeowners. 
-                  This local knowledge, combined with our commitment to industry best practices, ensures that every solution we 
+                  As Scottsdale natives, we understand the unique challenges that Arizona's desert climate presents to homeowners.
+                  This local knowledge, combined with our commitment to industry best practices, ensures that every solution we
                   provide is perfectly suited to our desert environment.
                 </p>
               </div>
@@ -5234,7 +5083,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           </div>
 
           {/* Professional Team Section */}
-          <div style={{ 
+          <div style={{
             background: `linear-gradient(rgba(26, 54, 93, 0.95), rgba(44, 82, 130, 0.95)), url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover`,
             padding: '80px 20px',
             borderRadius: '20px',
@@ -5253,21 +5102,21 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               background: 'linear-gradient(135deg, rgba(26, 54, 93, 0.9) 0%, rgba(44, 82, 130, 0.85) 100%)',
               borderRadius: '20px'
             }}></div>
-            
+
             <div style={{ position: 'relative', zIndex: 2 }}>
-              <h2 style={{ 
-                fontSize: '2.8rem', 
-                marginBottom: '40px', 
+              <h2 style={{
+                fontSize: '2.8rem',
+                marginBottom: '40px',
                 fontWeight: '800',
-                textShadow: '2px 2px 8px rgba(0,0,0,0.5)' 
+                textShadow: '2px 2px 8px rgba(0,0,0,0.5)'
               }}>
                 🏆 Meet Our Professional Team
               </h2>
-              
+
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '40px', maxWidth: '1000px', margin: '0 auto' }}>
-                <div style={{ 
-                  padding: '35px', 
-                  background: 'rgba(255,255,255,0.15)', 
+                <div style={{
+                  padding: '35px',
+                  background: 'rgba(255,255,255,0.15)',
                   borderRadius: '16px',
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255,255,255,0.2)',
@@ -5288,10 +5137,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     15+ years experience in residential repairs and improvements. Licensed ROC contractor specializing in electrical and plumbing.
                   </p>
                 </div>
-                
-                <div style={{ 
-                  padding: '35px', 
-                  background: 'rgba(255,255,255,0.15)', 
+
+                <div style={{
+                  padding: '35px',
+                  background: 'rgba(255,255,255,0.15)',
                   borderRadius: '16px',
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255,255,255,0.2)',
@@ -5312,10 +5161,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     Expert in home improvements and renovations. Specializes in kitchen and bathroom remodeling with 12+ years experience.
                   </p>
                 </div>
-                
-                <div style={{ 
-                  padding: '35px', 
-                  background: 'rgba(255,255,255,0.15)', 
+
+                <div style={{
+                  padding: '35px',
+                  background: 'rgba(255,255,255,0.15)',
                   borderRadius: '16px',
                   backdropFilter: 'blur(10px)',
                   border: '1px solid rgba(255,255,255,0.2)',
@@ -5352,12 +5201,12 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         <p style={{ fontSize: '1.2rem', color: '#666', marginBottom: '3rem' }}>
           Comprehensive handyman services for your Scottsdale home
         </p>
-        
+
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '3rem' }}>
-          <div style={{ 
-            background: 'white', 
-            padding: '2rem', 
-            borderRadius: '12px', 
+          <div style={{
+            background: 'white',
+            padding: '2rem',
+            borderRadius: '12px',
             boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
             border: '2px solid #FFD700'
           }}>
@@ -5365,11 +5214,11 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             <p style={{ color: '#666', marginBottom: '1rem' }}>Professional electrical work for your home</p>
             <p style={{ color: '#FFD700', fontWeight: 'bold' }}>Starting at $125</p>
           </div>
-          
-          <div style={{ 
-            background: 'white', 
-            padding: '2rem', 
-            borderRadius: '12px', 
+
+          <div style={{
+            background: 'white',
+            padding: '2rem',
+            borderRadius: '12px',
             boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
             border: '2px solid #FFD700'
           }}>
@@ -5377,11 +5226,11 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             <p style={{ color: '#666', marginBottom: '1rem' }}>Expert plumbing repairs and installations</p>
             <p style={{ color: '#FFD700', fontWeight: 'bold' }}>Starting at $95</p>
           </div>
-          
-          <div style={{ 
-            background: 'white', 
-            padding: '2rem', 
-            borderRadius: '12px', 
+
+          <div style={{
+            background: 'white',
+            padding: '2rem',
+            borderRadius: '12px',
             boxShadow: '0 4px 15px rgba(0,0,0,0.1)',
             border: '2px solid #FFD700'
           }}>
@@ -5390,15 +5239,15 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             <p style={{ color: '#FFD700', fontWeight: 'bold' }}>Starting at $85</p>
           </div>
         </div>
-        
-        <button 
-          style={{ 
-            background: '#FFD700', 
-            color: '#1a1a1a', 
-            padding: '15px 30px', 
-            border: 'none', 
-            borderRadius: '8px', 
-            fontSize: '1.1rem', 
+
+        <button
+          style={{
+            background: '#FFD700',
+            color: '#1a1a1a',
+            padding: '15px 30px',
+            border: 'none',
+            borderRadius: '8px',
+            fontSize: '1.1rem',
             fontWeight: 'bold',
             cursor: 'pointer'
           }}
@@ -5409,8 +5258,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       </div>
 
       {/* Company Story Section */}
-      <section style={{ 
-        paddingTop: '4rem', 
+      <section style={{
+        paddingTop: '4rem',
         paddingBottom: '4rem',
         backgroundColor: 'white'
       }}>
@@ -5427,12 +5276,12 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Our Story: Building Scottsdale Dreams Since 2018
               </h2>
               <p style={{ fontSize: '1.125rem', lineHeight: '1.8', color: '#64748b', marginBottom: '1.5rem' }}>
-                Founded by master craftsman Mike Rodriguez, The Scottsdale Handyman began as a vision to 
-                bring honest, reliable home improvement services to our growing community. What started 
+                Founded by master craftsman Mike Rodriguez, The Scottsdale Handyman began as a vision to
+                bring honest, reliable home improvement services to our growing community. What started
                 as a one-man operation has grown into a trusted team of skilled professionals.
               </p>
               <p style={{ fontSize: '1.125rem', lineHeight: '1.8', color: '#64748b', marginBottom: '2rem' }}>
-                We've completed over 2,500 projects, from simple repairs to complete home transformations, 
+                We've completed over 2,500 projects, from simple repairs to complete home transformations,
                 always with the same commitment to quality and customer satisfaction that started it all.
               </p>
               <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
@@ -5451,8 +5300,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </div>
             </div>
             <div>
-              <img 
-                src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop" 
+              <img
+                src="https://images.unsplash.com/photo-1560472354-b33ff0c44a43?w=600&h=400&fit=crop"
                 alt="Professional handyman team working on home improvement project"
                 style={{ width: '100%', height: '400px', objectFit: 'cover', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
               />
@@ -5462,8 +5311,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       </section>
 
       {/* Team Section */}
-      <section style={{ 
-        paddingTop: '4rem', 
+      <section style={{
+        paddingTop: '4rem',
         paddingBottom: '4rem',
         backgroundColor: '#f8fafc'
       }}>
@@ -5487,8 +5336,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
               textAlign: 'center'
             }}>
-              <img 
-                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face" 
+              <img
+                src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face"
                 alt="Mike Rodriguez - Founder & Master Craftsman"
                 style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 1.5rem' }}
               />
@@ -5499,7 +5348,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Founder & Master Craftsman
               </p>
               <p style={{ color: '#64748b', lineHeight: '1.6', marginBottom: '1rem' }}>
-                20+ years experience in residential construction and home improvement. Licensed general contractor 
+                20+ years experience in residential construction and home improvement. Licensed general contractor
                 and certified in electrical and plumbing work.
               </p>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -5519,8 +5368,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
               textAlign: 'center'
             }}>
-              <img 
-                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face" 
+              <img
+                src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=200&h=200&fit=crop&crop=face"
                 alt="David Chen - Senior Carpenter"
                 style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 1.5rem' }}
               />
@@ -5531,7 +5380,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Senior Carpenter & Project Manager
               </p>
               <p style={{ color: '#64748b', lineHeight: '1.6', marginBottom: '1rem' }}>
-                15+ years specializing in custom cabinetry, built-ins, and precision finish work. 
+                15+ years specializing in custom cabinetry, built-ins, and precision finish work.
                 Expert in kitchen and bathroom renovations.
               </p>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -5551,8 +5400,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
               textAlign: 'center'
             }}>
-              <img 
-                src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&h=200&fit=crop&crop=face" 
+              <img
+                src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=200&h=200&fit=crop&crop=face"
                 alt="Carlos Mendez - Plumbing & HVAC Specialist"
                 style={{ width: '120px', height: '120px', borderRadius: '50%', objectFit: 'cover', margin: '0 auto 1.5rem' }}
               />
@@ -5563,7 +5412,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Plumbing & HVAC Specialist
               </p>
               <p style={{ color: '#64748b', lineHeight: '1.6', marginBottom: '1rem' }}>
-                Licensed plumber with 12+ years experience. Specializes in complex pipe repairs, 
+                Licensed plumber with 12+ years experience. Specializes in complex pipe repairs,
                 water heater installation, and HVAC maintenance.
               </p>
               <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap', justifyContent: 'center' }}>
@@ -5580,8 +5429,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       </section>
 
       {/* Values & Mission Section */}
-      <section style={{ 
-        paddingTop: '4rem', 
+      <section style={{
+        paddingTop: '4rem',
         paddingBottom: '4rem',
         backgroundColor: 'white'
       }}>
@@ -5604,10 +5453,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Our Mission
               </h3>
               <p style={{ fontSize: '1.125rem', lineHeight: '1.8', color: '#64748b', marginBottom: '2rem' }}>
-                To be Scottsdale's most trusted handyman service by delivering exceptional craftsmanship, 
+                To be Scottsdale's most trusted handyman service by delivering exceptional craftsmanship,
                 transparent pricing, and outstanding customer service on every project, no matter how big or small.
               </p>
-              
+
               <div className="values-list" style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <div style={{ width: '40px', height: '40px', background: '#1e40af', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -5618,7 +5467,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     <p style={{ color: '#64748b', margin: 0, fontSize: '0.9rem' }}>Excellence in every detail, from materials to finishing touches</p>
                   </div>
                 </div>
-                
+
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <div style={{ width: '40px', height: '40px', background: '#1e40af', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Shield size={20} color="white" />
@@ -5628,7 +5477,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     <p style={{ color: '#64748b', margin: 0, fontSize: '0.9rem' }}>On-time service, honest communication, and guaranteed results</p>
                   </div>
                 </div>
-                
+
                 <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
                   <div style={{ width: '40px', height: '40px', background: '#1e40af', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                     <Heart size={20} color="white" />
@@ -5642,8 +5491,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             </div>
 
             <div>
-              <img 
-                src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&h=500&fit=crop" 
+              <img
+                src="https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=600&h=500&fit=crop"
                 alt="Professional handyman team working with precision and care"
                 style={{ width: '100%', height: '450px', objectFit: 'cover', borderRadius: '12px', boxShadow: '0 10px 25px rgba(0,0,0,0.1)' }}
               />
@@ -5653,8 +5502,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       </section>
 
       {/* Certifications & Awards Section */}
-      <section style={{ 
-        paddingTop: '4rem', 
+      <section style={{
+        paddingTop: '4rem',
         paddingBottom: '4rem',
         backgroundColor: '#f8fafc'
       }}>
@@ -5739,8 +5588,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       </section>
 
       {/* Community Involvement Section */}
-      <section style={{ 
-        paddingTop: '4rem', 
+      <section style={{
+        paddingTop: '4rem',
         paddingBottom: '4rem',
         backgroundColor: 'white'
       }}>
@@ -5768,7 +5617,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Habitat for Humanity
               </h3>
               <p style={{ color: '#64748b', lineHeight: '1.6' }}>
-                Our team volunteers monthly with Habitat for Humanity, helping build affordable housing 
+                Our team volunteers monthly with Habitat for Humanity, helping build affordable housing
                 for families in need throughout the Phoenix metro area.
               </p>
             </div>
@@ -5784,7 +5633,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Senior Assistance Program
               </h3>
               <p style={{ color: '#64748b', lineHeight: '1.6' }}>
-                We provide discounted home safety modifications and repairs for seniors on fixed incomes, 
+                We provide discounted home safety modifications and repairs for seniors on fixed incomes,
                 helping them age safely in their homes.
               </p>
             </div>
@@ -5800,7 +5649,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Trade Skills Education
               </h3>
               <p style={{ color: '#64748b', lineHeight: '1.6' }}>
-                We partner with local high schools to provide hands-on trade skills training, 
+                We partner with local high schools to provide hands-on trade skills training,
                 inspiring the next generation of skilled craftsmen.
               </p>
             </div>
@@ -5815,16 +5664,16 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
     const [searchTerm, setSearchTerm] = useState('')
     const [selectedCategory, setSelectedCategory] = useState('All')
     const [sortBy, setSortBy] = useState('newest')
-    
+
     // Get unique categories
     const categories = ['All', ...new Set(blogPosts.map(post => post.category))]
-    
+
     // Filter and sort posts
     const filteredPosts = blogPosts
       .filter(post => {
         const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                             post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                             post.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+          post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          post.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
         const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory
         return matchesSearch && matchesCategory
       })
@@ -5858,7 +5707,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             backgroundImage: `radial-gradient(circle at 20% 50%, rgba(255, 215, 0, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%), radial-gradient(circle at 40% 80%, rgba(255, 215, 0, 0.08) 0%, transparent 50%)`,
             opacity: 0.7
           }}></div>
-          
+
           {/* Animated Background Overlays */}
           <div style={{
             position: 'absolute',
@@ -5869,7 +5718,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             background: 'linear-gradient(45deg, rgba(255, 215, 0, 0.05) 0%, transparent 50%, rgba(255, 215, 0, 0.03) 100%)',
             animation: 'shimmer 8s ease-in-out infinite alternate'
           }}></div>
-          
+
           {/* Decorative Elements */}
           <div style={{
             position: 'absolute',
@@ -5893,7 +5742,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             animation: 'float 8s ease-in-out infinite reverse',
             backdropFilter: 'blur(8px)'
           }}></div>
-          
+
           <div className="container" style={{ position: 'relative', zIndex: 2 }}>
             <div style={{ textAlign: 'center', maxWidth: '900px', margin: '0 auto' }}>
               {/* Icon */}
@@ -5911,7 +5760,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               }}>
                 <BookOpen size={36} color="#FFD700" />
               </div>
-              
+
               <h1 style={{
                 fontSize: 'clamp(2.5rem, 5vw, 4rem)',
                 fontWeight: '900',
@@ -5922,7 +5771,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 letterSpacing: '-0.02em'
               }}>
                 Home Improvement<br />
-                <span style={{ 
+                <span style={{
                   background: 'linear-gradient(45deg, #FFD700, #FFA500)',
                   WebkitBackgroundClip: 'text',
                   WebkitTextFillColor: 'transparent',
@@ -5931,7 +5780,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   Insights & Tips
                 </span>
               </h1>
-              
+
               <p style={{
                 fontSize: '1.3rem',
                 marginBottom: '2.5rem',
@@ -5941,10 +5790,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 maxWidth: '700px',
                 margin: '0 auto 2.5rem'
               }}>
-                Expert guidance from Scottsdale's trusted handyman professionals. Discover maintenance tips, 
+                Expert guidance from Scottsdale's trusted handyman professionals. Discover maintenance tips,
                 renovation ideas, and seasonal advice to keep your desert home in perfect condition.
               </p>
-              
+
               {/* Enhanced Search Bar */}
               <div style={{
                 position: 'relative',
@@ -6006,7 +5855,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   </button>
                 </div>
               </div>
-              
+
               {/* Stats Row */}
               <div style={{
                 display: 'flex',
@@ -6042,7 +5891,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           {selectedBlogPost ? (
             // Individual blog post view with enhanced design
             <div style={{ maxWidth: '900px', margin: '0 auto' }}>
-              <button 
+              <button
                 onClick={() => setSelectedBlogPost(null)}
                 style={{
                   display: 'flex',
@@ -6071,27 +5920,27 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <ArrowLeft size={18} />
                 Back to Articles
               </button>
-              
+
               <article style={{
                 backgroundColor: 'white',
                 borderRadius: '15px',
                 overflow: 'hidden',
                 boxShadow: '0 10px 30px rgba(0,0,0,0.1)'
               }}>
-                <img 
-                  src={selectedBlogPost.image} 
+                <img
+                  src={selectedBlogPost.image}
                   alt={selectedBlogPost.title}
-                  style={{ 
-                    width: '100%', 
-                    height: '400px', 
+                  style={{
+                    width: '100%',
+                    height: '400px',
                     objectFit: 'cover'
                   }}
                 />
-                
+
                 <div style={{ padding: '3rem' }}>
                   {/* Article Meta */}
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
-                    <span style={{ 
+                    <span style={{
                       padding: '0.4rem 1rem',
                       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                       color: 'white',
@@ -6124,21 +5973,21 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                       </div>
                     )}
                   </div>
-                  
-                  <h1 style={{ 
-                    fontSize: '2.75rem', 
-                    fontWeight: '800', 
-                    marginBottom: '1.5rem', 
+
+                  <h1 style={{
+                    fontSize: '2.75rem',
+                    fontWeight: '800',
+                    marginBottom: '1.5rem',
                     lineHeight: '1.2',
                     color: '#212529'
                   }}>
                     {selectedBlogPost.title}
                   </h1>
-                  
-                  <p style={{ 
-                    fontSize: '1.2rem', 
-                    color: '#6c757d', 
-                    marginBottom: '3rem', 
+
+                  <p style={{
+                    fontSize: '1.2rem',
+                    color: '#6c757d',
+                    marginBottom: '3rem',
                     fontStyle: 'italic',
                     lineHeight: '1.6',
                     borderLeft: '4px solid #667eea',
@@ -6146,19 +5995,19 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   }}>
                     {selectedBlogPost.excerpt}
                   </p>
-                  
+
                   {/* Article Content with Better Typography */}
-                  <div style={{ 
-                    fontSize: '1.1rem', 
-                    lineHeight: '1.8', 
+                  <div style={{
+                    fontSize: '1.1rem',
+                    lineHeight: '1.8',
                     color: '#495057'
                   }}>
                     {selectedBlogPost.content.split('\n\n').map((paragraph, index) => (
                       <div key={index} style={{ marginBottom: '2rem' }}>
                         {paragraph.startsWith('**') && paragraph.endsWith('**') ? (
-                          <h3 style={{ 
-                            fontSize: '1.5rem', 
-                            fontWeight: '700', 
+                          <h3 style={{
+                            fontSize: '1.5rem',
+                            fontWeight: '700',
                             color: '#212529',
                             marginBottom: '1rem',
                             borderBottom: '2px solid #e9ecef',
@@ -6172,11 +6021,11 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                       </div>
                     ))}
                   </div>
-                  
+
                   {/* Call to Action */}
-                  <div style={{ 
-                    marginTop: '4rem', 
-                    padding: '2.5rem', 
+                  <div style={{
+                    marginTop: '4rem',
+                    padding: '2.5rem',
                     background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
                     borderRadius: '15px',
                     textAlign: 'center',
@@ -6188,7 +6037,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     <p style={{ fontSize: '1.1rem', marginBottom: '2rem', opacity: 0.95 }}>
                       Our licensed professionals are ready to help you implement these solutions in your Scottsdale home.
                     </p>
-                    <button 
+                    <button
                       onClick={() => openLeadForm('quote')}
                       style={{
                         padding: '12px 30px',
@@ -6223,25 +6072,25 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               {/* Featured Articles Section */}
               {featuredPosts.length > 0 && (
                 <section style={{ marginBottom: '4rem' }}>
-                  <h2 style={{ 
-                    fontSize: '2.5rem', 
-                    fontWeight: '700', 
+                  <h2 style={{
+                    fontSize: '2.5rem',
+                    fontWeight: '700',
                     marginBottom: '2rem',
                     textAlign: 'center',
                     color: '#212529'
                   }}>
                     Featured Articles
                   </h2>
-                  <div style={{ 
-                    display: 'grid', 
+                  <div style={{
+                    display: 'grid',
                     gridTemplateColumns: featuredPosts.length > 1 ? 'repeat(auto-fit, minmax(400px, 1fr))' : '1fr',
                     gap: '2rem',
                     maxWidth: '1200px',
                     margin: '0 auto'
                   }}>
                     {featuredPosts.map((post) => (
-                      <div 
-                        key={post.id} 
+                      <div
+                        key={post.id}
                         onClick={() => setSelectedBlogPost(post)}
                         style={{
                           backgroundColor: 'white',
@@ -6262,12 +6111,12 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                         }}
                       >
                         <div style={{ position: 'relative' }}>
-                          <img 
-                            src={post.image} 
+                          <img
+                            src={post.image}
                             alt={post.title}
-                            style={{ 
-                              width: '100%', 
-                              height: '250px', 
+                            style={{
+                              width: '100%',
+                              height: '250px',
                               objectFit: 'cover'
                             }}
                           />
@@ -6285,10 +6134,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                             Featured
                           </div>
                         </div>
-                        
+
                         <div style={{ padding: '2rem' }}>
                           <div style={{ marginBottom: '1rem' }}>
-                            <span style={{ 
+                            <span style={{
                               padding: '0.3rem 0.8rem',
                               backgroundColor: '#f8f9fa',
                               color: '#495057',
@@ -6303,29 +6152,29 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                               {post.readTime}
                             </span>
                           </div>
-                          
-                          <h3 style={{ 
-                            fontSize: '1.4rem', 
-                            fontWeight: '700', 
-                            marginBottom: '1rem', 
+
+                          <h3 style={{
+                            fontSize: '1.4rem',
+                            fontWeight: '700',
+                            marginBottom: '1rem',
                             lineHeight: '1.3',
                             color: '#212529'
                           }}>
                             {post.title}
                           </h3>
-                          
-                          <p style={{ 
-                            color: '#6c757d', 
-                            marginBottom: '1.5rem', 
+
+                          <p style={{
+                            color: '#6c757d',
+                            marginBottom: '1.5rem',
                             lineHeight: '1.6',
                             fontSize: '0.95rem'
                           }}>
                             {post.excerpt}
                           </p>
-                          
-                          <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
+
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
                             justifyContent: 'space-between',
                             paddingTop: '1rem',
                             borderTop: '1px solid #f1f3f4'
@@ -6333,10 +6182,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                             <span style={{ color: '#6c757d', fontSize: '0.85rem' }}>
                               {post.date}
                             </span>
-                            <div style={{ 
-                              display: 'flex', 
-                              alignItems: 'center', 
-                              gap: '0.5rem', 
+                            <div style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              gap: '0.5rem',
                               color: '#667eea',
                               fontWeight: '600',
                               fontSize: '0.9rem'
@@ -6353,28 +6202,28 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               )}
 
               {/* Enhanced Filter & Sort Section */}
-              <section style={{ 
-                marginBottom: '3rem', 
+              <section style={{
+                marginBottom: '3rem',
                 padding: '2.5rem',
                 backgroundColor: 'white',
                 borderRadius: '20px',
                 boxShadow: '0 10px 30px rgba(0,0,0,0.08)',
                 border: '1px solid rgba(102, 126, 234, 0.1)'
               }}>
-                <div style={{ 
-                  display: 'flex', 
-                  gap: '2rem', 
-                  alignItems: 'center', 
+                <div style={{
+                  display: 'flex',
+                  gap: '2rem',
+                  alignItems: 'center',
                   flexWrap: 'wrap',
                   justifyContent: 'space-between'
                 }}>
                   {/* Category Filter */}
                   <div style={{ display: 'flex', gap: '1rem', alignItems: 'center', flexWrap: 'wrap' }}>
-                    <div style={{ 
+                    <div style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.5rem',
-                      fontWeight: '600', 
+                      fontWeight: '600',
                       color: '#1e3a5f',
                       marginRight: '0.5rem'
                     }}>
@@ -6388,8 +6237,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                         style={{
                           padding: '0.6rem 1.2rem',
                           border: selectedCategory === category ? 'none' : '2px solid #e9ecef',
-                          background: selectedCategory === category 
-                            ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)' 
+                          background: selectedCategory === category
+                            ? 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
                             : 'white',
                           color: selectedCategory === category ? 'white' : '#495057',
                           borderRadius: '25px',
@@ -6397,8 +6246,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                           fontSize: '0.9rem',
                           fontWeight: '600',
                           transition: 'all 0.3s ease',
-                          boxShadow: selectedCategory === category 
-                            ? '0 4px 15px rgba(102, 126, 234, 0.3)' 
+                          boxShadow: selectedCategory === category
+                            ? '0 4px 15px rgba(102, 126, 234, 0.3)'
                             : '0 2px 8px rgba(0,0,0,0.1)',
                           transform: selectedCategory === category ? 'translateY(-2px)' : 'none'
                         }}
@@ -6425,12 +6274,12 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
                   {/* Enhanced Sort Options */}
                   <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                    <div style={{ 
+                    <div style={{
                       display: 'flex',
                       alignItems: 'center',
                       gap: '0.5rem',
-                      fontWeight: '600', 
-                      color: '#1e3a5f' 
+                      fontWeight: '600',
+                      color: '#1e3a5f'
                     }}>
                       <TrendingUp size={18} />
                       Sort by:
@@ -6471,8 +6320,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   alignItems: 'center',
                   marginBottom: '2rem'
                 }}>
-                  <h2 style={{ 
-                    fontSize: '2rem', 
+                  <h2 style={{
+                    fontSize: '2rem',
                     fontWeight: '700',
                     color: '#212529'
                   }}>
@@ -6489,7 +6338,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   gap: '2rem'
                 }}>
                   {filteredPosts.map((post) => (
-                    <article 
+                    <article
                       key={post.id}
                       onClick={() => setSelectedBlogPost(post)}
                       style={{
@@ -6510,19 +6359,19 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                         e.currentTarget.style.boxShadow = '0 4px 15px rgba(0,0,0,0.08)'
                       }}
                     >
-                      <img 
-                        src={post.image} 
+                      <img
+                        src={post.image}
                         alt={post.title}
-                        style={{ 
-                          width: '100%', 
-                          height: '200px', 
+                        style={{
+                          width: '100%',
+                          height: '200px',
                           objectFit: 'cover'
                         }}
                       />
-                      
+
                       <div style={{ padding: '1.5rem' }}>
                         <div style={{ marginBottom: '1rem' }}>
-                          <span style={{ 
+                          <span style={{
                             padding: '0.25rem 0.75rem',
                             backgroundColor: '#f8f9fa',
                             color: '#495057',
@@ -6537,29 +6386,29 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                             {post.readTime}
                           </span>
                         </div>
-                        
-                        <h3 style={{ 
-                          fontSize: '1.2rem', 
-                          fontWeight: '700', 
-                          marginBottom: '0.75rem', 
+
+                        <h3 style={{
+                          fontSize: '1.2rem',
+                          fontWeight: '700',
+                          marginBottom: '0.75rem',
                           lineHeight: '1.3',
                           color: '#212529'
                         }}>
                           {post.title}
                         </h3>
-                        
-                        <p style={{ 
-                          color: '#6c757d', 
-                          marginBottom: '1rem', 
+
+                        <p style={{
+                          color: '#6c757d',
+                          marginBottom: '1rem',
                           lineHeight: '1.5',
                           fontSize: '0.9rem'
                         }}>
                           {post.excerpt}
                         </p>
-                        
-                        <div style={{ 
-                          display: 'flex', 
-                          alignItems: 'center', 
+
+                        <div style={{
+                          display: 'flex',
+                          alignItems: 'center',
                           justifyContent: 'space-between',
                           paddingTop: '1rem',
                           borderTop: '1px solid #f1f3f4'
@@ -6567,10 +6416,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                           <span style={{ color: '#6c757d', fontSize: '0.8rem' }}>
                             {post.date}
                           </span>
-                          <div style={{ 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            gap: '0.5rem', 
+                          <div style={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '0.5rem',
                             color: '#667eea',
                             fontSize: '0.85rem',
                             fontWeight: '600'
@@ -6611,9 +6460,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
   const WorkWithUsPage = () => (
     <div style={{ minHeight: 'calc(100vh - 120px)' }}>
       {/* Hero Section */}
-      <section 
-        className="hero" 
-        style={{ 
+      <section
+        className="hero"
+        style={{
           background: 'linear-gradient(135deg, #1e3a5f 0%, #2c5aa0 50%, #3b6ec7 100%)',
           color: 'white',
           padding: '100px 0 80px 0',
@@ -6631,7 +6480,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           backgroundImage: `radial-gradient(circle at 20% 50%, rgba(255, 215, 0, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%), radial-gradient(circle at 40% 80%, rgba(255, 215, 0, 0.08) 0%, transparent 50%)`,
           opacity: 0.7
         }}></div>
-        
+
         {/* Animated Background Overlay */}
         <div style={{
           position: 'absolute',
@@ -6642,7 +6491,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           background: 'linear-gradient(45deg, rgba(255, 215, 0, 0.05) 0%, transparent 50%, rgba(255, 215, 0, 0.03) 100%)',
           animation: 'shimmer 8s ease-in-out infinite alternate'
         }}></div>
-        
+
         {/* Decorative Elements */}
         <div style={{
           position: 'absolute',
@@ -6684,8 +6533,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             }}>
               <Users size={36} color="#FFD700" />
             </div>
-            
-            <h1 className="hero-title" style={{ 
+
+            <h1 className="hero-title" style={{
               fontSize: 'clamp(2.5rem, 5vw, 4rem)',
               fontWeight: '900',
               marginBottom: '1.5rem',
@@ -6695,7 +6544,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             }}>
               Join Our Professional
               <br />
-              <span style={{ 
+              <span style={{
                 background: 'linear-gradient(45deg, #FFD700, #FFA500)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -6704,22 +6553,22 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Handyman Team
               </span>
             </h1>
-            <p className="hero-subtitle" style={{ 
-              fontSize: '1.3rem', 
+            <p className="hero-subtitle" style={{
+              fontSize: '1.3rem',
               marginBottom: '1.5rem',
               opacity: 0.95,
               lineHeight: '1.7'
             }}>
               Build a rewarding career with Scottsdale's most trusted handyman company
             </p>
-            <p className="hero-description" style={{ 
-              fontSize: '1.1rem', 
+            <p className="hero-description" style={{
+              fontSize: '1.1rem',
               lineHeight: '1.6',
               opacity: 0.85,
               maxWidth: '700px',
               margin: '0 auto'
             }}>
-              We're seeking skilled professionals who share our commitment to quality workmanship and exceptional customer service. 
+              We're seeking skilled professionals who share our commitment to quality workmanship and exceptional customer service.
               Join a team that values expertise, integrity, and professional growth.
             </p>
           </div>
@@ -6737,17 +6586,17 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               We offer more than just a job – we provide a career path with growth opportunities, competitive benefits, and a supportive work environment.
             </p>
           </div>
-          
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
-            gap: '2rem', 
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+            gap: '2rem',
             marginBottom: '3rem'
           }}>
-            <div style={{ 
-              background: 'rgba(255, 255, 255, 0.95)', 
-              borderRadius: '20px', 
-              padding: '2.5rem', 
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.95)',
+              borderRadius: '20px',
+              padding: '2.5rem',
               boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
               textAlign: 'center',
               border: '1px solid rgba(255, 215, 0, 0.2)',
@@ -6755,21 +6604,21 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               transition: 'all 0.3s ease',
               cursor: 'pointer'
             }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = 'translateY(-8px)'
-              e.currentTarget.style.boxShadow = '0 20px 60px rgba(0,0,0,0.15)'
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 10px 40px rgba(0,0,0,0.1)'
-            }}>
-              <div style={{ 
-                width: '70px', 
-                height: '70px', 
-                background: 'linear-gradient(135deg, #FFD700, #FFA500)', 
-                borderRadius: '50%', 
-                display: 'flex', 
-                alignItems: 'center', 
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'translateY(-8px)'
+                e.currentTarget.style.boxShadow = '0 20px 60px rgba(0,0,0,0.15)'
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 10px 40px rgba(0,0,0,0.1)'
+              }}>
+              <div style={{
+                width: '70px',
+                height: '70px',
+                background: 'linear-gradient(135deg, #FFD700, #FFA500)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'center',
                 margin: '0 auto 1.5rem',
                 boxShadow: '0 8px 25px rgba(255, 215, 0, 0.3)'
@@ -6790,10 +6639,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </ul>
             </div>
 
-            <div style={{ 
-              background: 'rgba(255, 255, 255, 0.95)', 
-              borderRadius: '20px', 
-              padding: '2.5rem', 
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.95)',
+              borderRadius: '20px',
+              padding: '2.5rem',
               boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
               textAlign: 'center',
               border: '1px solid rgba(255, 215, 0, 0.2)',
@@ -6801,21 +6650,21 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               transition: 'all 0.3s ease',
               cursor: 'pointer'
             }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = 'translateY(-8px)'
-              e.currentTarget.style.boxShadow = '0 20px 60px rgba(0,0,0,0.15)'
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 10px 40px rgba(0,0,0,0.1)'
-            }}>
-              <div style={{ 
-                width: '70px', 
-                height: '70px', 
-                background: 'linear-gradient(135deg, #48bb78, #38a169)', 
-                borderRadius: '50%', 
-                display: 'flex', 
-                alignItems: 'center', 
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'translateY(-8px)'
+                e.currentTarget.style.boxShadow = '0 20px 60px rgba(0,0,0,0.15)'
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 10px 40px rgba(0,0,0,0.1)'
+              }}>
+              <div style={{
+                width: '70px',
+                height: '70px',
+                background: 'linear-gradient(135deg, #48bb78, #38a169)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'center',
                 margin: '0 auto 1.5rem',
                 boxShadow: '0 8px 25px rgba(72, 187, 120, 0.3)'
@@ -6836,10 +6685,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </ul>
             </div>
 
-            <div style={{ 
-              background: 'rgba(255, 255, 255, 0.95)', 
-              borderRadius: '20px', 
-              padding: '2.5rem', 
+            <div style={{
+              background: 'rgba(255, 255, 255, 0.95)',
+              borderRadius: '20px',
+              padding: '2.5rem',
               boxShadow: '0 10px 40px rgba(0,0,0,0.1)',
               textAlign: 'center',
               border: '1px solid rgba(255, 215, 0, 0.2)',
@@ -6847,21 +6696,21 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               transition: 'all 0.3s ease',
               cursor: 'pointer'
             }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.transform = 'translateY(-8px)'
-              e.currentTarget.style.boxShadow = '0 20px 60px rgba(0,0,0,0.15)'
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.transform = 'translateY(0)'
-              e.currentTarget.style.boxShadow = '0 10px 40px rgba(0,0,0,0.1)'
-            }}>
-              <div style={{ 
-                width: '70px', 
-                height: '70px', 
-                background: 'linear-gradient(135deg, #ed8936, #dd6b20)', 
-                borderRadius: '50%', 
-                display: 'flex', 
-                alignItems: 'center', 
+              onMouseOver={(e) => {
+                e.currentTarget.style.transform = 'translateY(-8px)'
+                e.currentTarget.style.boxShadow = '0 20px 60px rgba(0,0,0,0.15)'
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.transform = 'translateY(0)'
+                e.currentTarget.style.boxShadow = '0 10px 40px rgba(0,0,0,0.1)'
+              }}>
+              <div style={{
+                width: '70px',
+                height: '70px',
+                background: 'linear-gradient(135deg, #ed8936, #dd6b20)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
                 justifyContent: 'center',
                 margin: '0 auto 1.5rem',
                 boxShadow: '0 8px 25px rgba(237, 137, 54, 0.3)'
@@ -6899,22 +6748,22 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
           <div style={{ display: 'grid', gap: '2rem', maxWidth: '800px', margin: '0 auto' }}>
             {/* Lead Handyman Position */}
-            <div style={{ 
-              background: 'white', 
-              borderRadius: '12px', 
-              padding: '2rem', 
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '2rem',
               boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
               border: '2px solid #4299e1'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#2d3748' }}>Lead Handyman</h3>
-                <span style={{ 
-                  background: 'linear-gradient(135deg, #4299e1, #3182ce)', 
-                  color: 'white', 
-                  padding: '0.5rem 1rem', 
-                  borderRadius: '20px', 
-                  fontSize: '0.9rem', 
-                  fontWeight: '600' 
+                <span style={{
+                  background: 'linear-gradient(135deg, #4299e1, #3182ce)',
+                  color: 'white',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '20px',
+                  fontSize: '0.9rem',
+                  fontWeight: '600'
                 }}>
                   $35-$45+/hr
                 </span>
@@ -6945,22 +6794,22 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             </div>
 
             {/* General Handyman Position */}
-            <div style={{ 
-              background: 'white', 
-              borderRadius: '12px', 
-              padding: '2rem', 
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '2rem',
               boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
               border: '1px solid #e2e8f0'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#2d3748' }}>General Handyman</h3>
-                <span style={{ 
-                  background: 'linear-gradient(135deg, #48bb78, #38a169)', 
-                  color: 'white', 
-                  padding: '0.5rem 1rem', 
-                  borderRadius: '20px', 
-                  fontSize: '0.9rem', 
-                  fontWeight: '600' 
+                <span style={{
+                  background: 'linear-gradient(135deg, #48bb78, #38a169)',
+                  color: 'white',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '20px',
+                  fontSize: '0.9rem',
+                  fontWeight: '600'
                 }}>
                   $25-$35/hr
                 </span>
@@ -6991,22 +6840,22 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             </div>
 
             {/* Apprentice Position */}
-            <div style={{ 
-              background: 'white', 
-              borderRadius: '12px', 
-              padding: '2rem', 
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '2rem',
               boxShadow: '0 4px 20px rgba(0,0,0,0.08)',
               border: '1px solid #e2e8f0'
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
                 <h3 style={{ fontSize: '1.5rem', fontWeight: '600', color: '#2d3748' }}>Apprentice/Helper</h3>
-                <span style={{ 
-                  background: 'linear-gradient(135deg, #ed8936, #dd6b20)', 
-                  color: 'white', 
-                  padding: '0.5rem 1rem', 
-                  borderRadius: '20px', 
-                  fontSize: '0.9rem', 
-                  fontWeight: '600' 
+                <span style={{
+                  background: 'linear-gradient(135deg, #ed8936, #dd6b20)',
+                  color: 'white',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '20px',
+                  fontSize: '0.9rem',
+                  fontWeight: '600'
                 }}>
                   $20-$25/hr
                 </span>
@@ -7059,8 +6908,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             marginBottom: '4rem'
           }}>
             <div>
-              <img 
-                src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&h=400&fit=crop" 
+              <img
+                src="https://images.unsplash.com/photo-1504384308090-c894fdcc538d?w=600&h=400&fit=crop"
                 alt="Professional handyman team collaborating on project"
                 style={{ width: '100%', height: '400px', objectFit: 'cover', borderRadius: '15px', boxShadow: '0 15px 35px rgba(0,0,0,0.1)' }}
               />
@@ -7069,7 +6918,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               <h3 style={{ fontSize: '2rem', fontWeight: '700', marginBottom: '1.5rem', color: '#2d3748' }}>
                 What Our Team Says
               </h3>
-              
+
               {/* Team Testimonials */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: '2rem' }}>
                 <div style={{
@@ -7081,8 +6930,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   position: 'relative'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                    <img 
-                      src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=60&h=60&fit=crop&crop=face" 
+                    <img
+                      src="https://images.unsplash.com/photo-1560250097-0b93528c311a?w=60&h=60&fit=crop&crop=face"
                       alt="Team member"
                       style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }}
                     />
@@ -7092,7 +6941,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     </div>
                   </div>
                   <p style={{ color: '#4a5568', lineHeight: '1.6', fontStyle: 'italic' }}>
-                    "This is the best company I've ever worked for. They truly care about their employees and provide 
+                    "This is the best company I've ever worked for. They truly care about their employees and provide
                     opportunities to grow. The work is diverse and challenging, and I love helping customers."
                   </p>
                   <div style={{
@@ -7118,8 +6967,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   position: 'relative'
                 }}>
                   <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1rem' }}>
-                    <img 
-                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face" 
+                    <img
+                      src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=60&h=60&fit=crop&crop=face"
                       alt="Team member"
                       style={{ width: '50px', height: '50px', borderRadius: '50%', objectFit: 'cover' }}
                     />
@@ -7129,7 +6978,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     </div>
                   </div>
                   <p style={{ color: '#4a5568', lineHeight: '1.6', fontStyle: 'italic' }}>
-                    "Started as an apprentice and now I'm running my own jobs. The training and mentorship here 
+                    "Started as an apprentice and now I'm running my own jobs. The training and mentorship here
                     is incredible. They invested in my certifications and career advancement."
                   </p>
                   <div style={{
@@ -7192,7 +7041,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Comprehensive Onboarding
               </h3>
               <p style={{ color: '#4a5568', lineHeight: '1.6', marginBottom: '1.5rem' }}>
-                2-week intensive training covering safety protocols, company standards, customer service, 
+                2-week intensive training covering safety protocols, company standards, customer service,
                 and technical skills assessment.
               </p>
               <ul style={{ textAlign: 'left', color: '#4a5568', fontSize: '0.9rem' }}>
@@ -7227,7 +7076,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Skills Development
               </h3>
               <p style={{ color: '#4a5568', lineHeight: '1.6', marginBottom: '1.5rem' }}>
-                Ongoing training workshops, certification support, and mentorship programs to advance 
+                Ongoing training workshops, certification support, and mentorship programs to advance
                 your expertise in specialized trades.
               </p>
               <ul style={{ textAlign: 'left', color: '#4a5568', fontSize: '0.9rem' }}>
@@ -7262,7 +7111,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Career Advancement
               </h3>
               <p style={{ color: '#4a5568', lineHeight: '1.6', marginBottom: '1.5rem' }}>
-                Clear career progression paths from apprentice to lead positions, with leadership training 
+                Clear career progression paths from apprentice to lead positions, with leadership training
                 and business development opportunities.
               </p>
               <ul style={{ textAlign: 'left', color: '#4a5568', fontSize: '0.9rem' }}>
@@ -7312,7 +7161,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Quality Excellence
               </h3>
               <p style={{ color: '#4a5568', lineHeight: '1.6' }}>
-                Every project reflects our commitment to superior craftsmanship and attention to detail. 
+                Every project reflects our commitment to superior craftsmanship and attention to detail.
                 We take pride in exceeding customer expectations.
               </p>
             </div>
@@ -7336,7 +7185,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Team Respect
               </h3>
               <p style={{ color: '#4a5568', lineHeight: '1.6' }}>
-                We value every team member's contributions and foster an environment of mutual respect, 
+                We value every team member's contributions and foster an environment of mutual respect,
                 collaboration, and professional growth.
               </p>
             </div>
@@ -7360,7 +7209,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Safety First
               </h3>
               <p style={{ color: '#4a5568', lineHeight: '1.6' }}>
-                Safety is non-negotiable. We maintain the highest safety standards and provide ongoing 
+                Safety is non-negotiable. We maintain the highest safety standards and provide ongoing
                 training to ensure every team member returns home safely.
               </p>
             </div>
@@ -7384,7 +7233,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Community Impact
               </h3>
               <p style={{ color: '#4a5568', lineHeight: '1.6' }}>
-                We're committed to improving our Scottsdale community through quality work, 
+                We're committed to improving our Scottsdale community through quality work,
                 volunteer service, and supporting local initiatives.
               </p>
             </div>
@@ -7417,7 +7266,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     Do I need to have my own tools?
                   </h4>
                   <p style={{ color: '#4a5568', lineHeight: '1.6' }}>
-                    Basic hand tools are expected, but we provide a tool allowance and will supply specialized equipment, 
+                    Basic hand tools are expected, but we provide a tool allowance and will supply specialized equipment,
                     power tools, and company vehicles. We'll discuss specific requirements during your interview.
                   </p>
                 </div>
@@ -7434,7 +7283,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     What kind of training do you provide?
                   </h4>
                   <p style={{ color: '#4a5568', lineHeight: '1.6' }}>
-                    We offer comprehensive onboarding, ongoing skills training, safety certifications, and will pay for 
+                    We offer comprehensive onboarding, ongoing skills training, safety certifications, and will pay for
                     relevant professional certifications. Our senior team members provide mentorship throughout your career.
                   </p>
                 </div>
@@ -7451,7 +7300,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     What are the typical work hours?
                   </h4>
                   <p style={{ color: '#4a5568', lineHeight: '1.6' }}>
-                    Standard hours are Monday-Friday, 7:00 AM - 4:00 PM, with occasional evening or weekend work available. 
+                    Standard hours are Monday-Friday, 7:00 AM - 4:00 PM, with occasional evening or weekend work available.
                     We respect work-life balance and provide advance notice for any schedule changes.
                   </p>
                 </div>
@@ -7468,7 +7317,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     How quickly can I advance?
                   </h4>
                   <p style={{ color: '#4a5568', lineHeight: '1.6' }}>
-                    Career advancement is based on performance, skills development, and leadership abilities. 
+                    Career advancement is based on performance, skills development, and leadership abilities.
                     Many team members have advanced within 12-18 months with our structured development programs.
                   </p>
                 </div>
@@ -7485,7 +7334,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     Do you offer health benefits?
                   </h4>
                   <p style={{ color: '#4a5568', lineHeight: '1.6' }}>
-                    Yes! We provide comprehensive health, dental, and vision insurance, plus 401(k) matching, 
+                    Yes! We provide comprehensive health, dental, and vision insurance, plus 401(k) matching,
                     paid time off, and holiday pay. Benefits begin after 90 days of employment.
                   </p>
                 </div>
@@ -7508,11 +7357,11 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </p>
             </div>
 
-            <div style={{ 
-              background: 'white', 
-              borderRadius: '12px', 
-              padding: '2.5rem', 
-              boxShadow: '0 4px 20px rgba(0,0,0,0.08)' 
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '2.5rem',
+              boxShadow: '0 4px 20px rgba(0,0,0,0.08)'
             }}>
               <form onSubmit={handleWorkSubmit}>
                 <div style={{ display: 'grid', gap: '1.5rem' }}>
@@ -7697,8 +7546,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   </div>
                 </div>
 
-                <button 
-                  type="submit" 
+                <button
+                  type="submit"
                   style={{
                     width: '100%',
                     padding: '1rem 2rem',
@@ -7720,10 +7569,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </form>
 
               {/* Process Steps */}
-              <div style={{ 
-                marginTop: '2.5rem', 
-                padding: '1.5rem', 
-                background: '#f7fafc', 
+              <div style={{
+                marginTop: '2.5rem',
+                padding: '1.5rem',
+                background: '#f7fafc',
                 borderRadius: '8px',
                 border: '1px solid #e2e8f0'
               }}>
@@ -7959,7 +7808,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               borderRadius: '8px',
               backgroundColor: 'white'
             }}>
-              <CardElement 
+              <CardElement
                 options={{
                   style: {
                     base: {
@@ -8051,7 +7900,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               borderRadius: '8px',
               fontSize: '0.875rem'
             }}>
-              <strong>ACH Processing:</strong> ACH payments typically take 3-5 business days to process. 
+              <strong>ACH Processing:</strong> ACH payments typically take 3-5 business days to process.
               You'll receive email confirmation when the payment is complete.
             </div>
           </>
@@ -8060,11 +7909,11 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         {/* Payment Method Selection */}
         <div className="form-group">
           <label className="form-label">Payment Method</label>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: '1fr 1fr', 
-            gap: '1rem', 
-            marginTop: '0.5rem' 
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: '1fr 1fr',
+            gap: '1rem',
+            marginTop: '0.5rem'
           }}>
             <button
               type="button"
@@ -8139,10 +7988,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           </div>
         )}
 
-        <button 
-          type="submit" 
+        <button
+          type="submit"
           disabled={!stripe || processing}
-          style={{ 
+          style={{
             width: '100%',
             padding: '1rem 2rem',
             background: (!stripe || processing) ? '#9ca3af' : 'linear-gradient(135deg, #FFD700 0%, #FFA500 100%)',
@@ -8176,9 +8025,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
   // Payment page component
   const PaymentPage = () => (
     <div style={{ minHeight: 'calc(100vh - 120px)' }}>
-      <section 
-        className="hero" 
-        style={{ 
+      <section
+        className="hero"
+        style={{
           background: 'linear-gradient(135deg, #1e3a5f 0%, #2c5aa0 50%, #3b6ec7 100%)',
           color: 'white',
           padding: '100px 0 80px 0',
@@ -8196,7 +8045,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           backgroundImage: `radial-gradient(circle at 20% 50%, rgba(255, 215, 0, 0.15) 0%, transparent 50%), radial-gradient(circle at 80% 20%, rgba(255, 215, 0, 0.1) 0%, transparent 50%), radial-gradient(circle at 40% 80%, rgba(255, 215, 0, 0.08) 0%, transparent 50%)`,
           opacity: 0.7
         }}></div>
-        
+
         {/* Animated Background Overlay */}
         <div style={{
           position: 'absolute',
@@ -8207,7 +8056,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           background: 'linear-gradient(45deg, rgba(255, 215, 0, 0.05) 0%, transparent 50%, rgba(255, 215, 0, 0.03) 100%)',
           animation: 'shimmer 8s ease-in-out infinite alternate'
         }}></div>
-        
+
         {/* Decorative Elements */}
         <div style={{
           position: 'absolute',
@@ -8249,8 +8098,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             }}>
               <CreditCard size={36} color="#FFD700" />
             </div>
-            
-            <h1 className="hero-title" style={{ 
+
+            <h1 className="hero-title" style={{
               fontSize: 'clamp(2.5rem, 5vw, 4rem)',
               fontWeight: '900',
               marginBottom: '1.5rem',
@@ -8260,7 +8109,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             }}>
               Pay Your Invoice
               <br />
-              <span style={{ 
+              <span style={{
                 background: 'linear-gradient(45deg, #FFD700, #FFA500)',
                 WebkitBackgroundClip: 'text',
                 WebkitTextFillColor: 'transparent',
@@ -8269,25 +8118,25 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Online & Secure
               </span>
             </h1>
-            <p className="hero-subtitle" style={{ 
-              fontSize: '1.3rem', 
+            <p className="hero-subtitle" style={{
+              fontSize: '1.3rem',
               marginBottom: '1.5rem',
               opacity: 0.95,
               lineHeight: '1.7'
             }}>
               Secure, fast, and convenient payment processing
             </p>
-            <p className="hero-description" style={{ 
-              fontSize: '1.1rem', 
+            <p className="hero-description" style={{
+              fontSize: '1.1rem',
               lineHeight: '1.6',
               opacity: 0.85,
               maxWidth: '700px',
               margin: '0 auto'
             }}>
-              Pay your The Scottsdale Handyman invoice quickly and securely online. 
+              Pay your The Scottsdale Handyman invoice quickly and securely online.
               We accept all major credit cards, ACH transfers, and digital payment methods.
             </p>
-            
+
             {/* Trust Badges */}
             <div style={{
               display: 'flex',
@@ -8296,9 +8145,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               marginTop: '3rem',
               flexWrap: 'wrap'
             }}>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
                 gap: '0.5rem',
                 backgroundColor: 'rgba(255, 215, 0, 0.1)',
                 padding: '0.75rem 1.5rem',
@@ -8309,9 +8158,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <Shield size={20} color="#FFD700" />
                 <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>SSL Encrypted</span>
               </div>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
                 gap: '0.5rem',
                 backgroundColor: 'rgba(255, 215, 0, 0.1)',
                 padding: '0.75rem 1.5rem',
@@ -8322,9 +8171,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <Lock size={20} color="#FFD700" />
                 <span style={{ fontSize: '0.9rem', fontWeight: '500' }}>PCI Compliant</span>
               </div>
-              <div style={{ 
-                display: 'flex', 
-                alignItems: 'center', 
+              <div style={{
+                display: 'flex',
+                alignItems: 'center',
                 gap: '0.5rem',
                 backgroundColor: 'rgba(255, 215, 0, 0.1)',
                 padding: '0.75rem 1.5rem',
@@ -8343,11 +8192,11 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       <section className="contact" style={{ paddingTop: '2rem' }}>
         <div className="container">
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '3rem', alignItems: 'flex-start' }}>
-            
+
             {/* Payment Information */}
             <div>
               <h2 style={{ fontSize: '1.5rem', fontWeight: '700', marginBottom: '1.5rem' }}>Payment Information</h2>
-              
+
               <div style={{ backgroundColor: '#f8fafc', padding: '2rem', borderRadius: '12px', marginBottom: '2rem' }}>
                 <h3 style={{ fontSize: '1.25rem', fontWeight: '600', marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                   <CreditCard size={24} />
@@ -8376,7 +8225,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               <div style={{ backgroundColor: '#f0fdf4', border: '1px solid #bbf7d0', padding: '1.5rem', borderRadius: '8px', marginBottom: '2rem' }}>
                 <h4 style={{ color: '#15803d', fontWeight: '600', marginBottom: '0.5rem' }}>Secure Processing</h4>
                 <p style={{ color: '#166534', fontSize: '0.875rem' }}>
-                  All payments are processed through our secure, PCI-compliant payment gateway. 
+                  All payments are processed through our secure, PCI-compliant payment gateway.
                   Your financial information is encrypted and protected.
                 </p>
               </div>
@@ -8393,21 +8242,21 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             </div>
 
             {/* Payment Form */}
-            <div className="contact-form" style={{ 
+            <div className="contact-form" style={{
               backgroundColor: '#ffffff',
               padding: '2rem',
               borderRadius: '12px',
               boxShadow: '0 10px 25px -5px rgba(0, 0, 0, 0.1)',
               border: '1px solid #e5e7eb'
             }}>
-              <h3 className="form-title" style={{ 
+              <h3 className="form-title" style={{
                 fontSize: '1.5rem',
                 fontWeight: '700',
                 marginBottom: '0.5rem',
                 textAlign: 'center',
                 color: '#1f2937'
               }}>Invoice Payment Form</h3>
-              <p className="form-description" style={{ 
+              <p className="form-description" style={{
                 marginBottom: '2rem',
                 textAlign: 'center',
                 color: '#6b7280',
@@ -8440,19 +8289,19 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
   )
 
   // Admin Panel Component
-  const AdminPanel = () => {
-    if (!isAdmin) {
+  const AdminPanel = ({ onLogout }) => {
+    if (!isAdminLoggedIn) {
       return (
-        <div style={{ 
-          minHeight: '100vh', 
-          display: 'flex', 
-          alignItems: 'center', 
+        <div style={{
+          minHeight: '100vh',
+          display: 'flex',
+          alignItems: 'center',
           justifyContent: 'center',
           background: 'linear-gradient(135deg, #2c3e50, #3498db)',
           color: 'white'
         }}>
-          <div style={{ 
-            background: 'white', 
+          <div style={{
+            background: 'white',
             padding: '40px',
             borderRadius: '15px',
             boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
@@ -8467,12 +8316,12 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Access the content management system
               </p>
             </div>
-            
+
             <form onSubmit={(e) => {
               e.preventDefault();
               const username = e.target.username.value;
               const password = e.target.password.value;
-              
+
               if (username === 'admin' && password === 'scottsdaleHandyman2025!') {
                 setIsAdmin(true);
                 localStorage.setItem('scottsdaleAdminAuth', 'true');
@@ -8500,7 +8349,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   required
                 />
               </div>
-              
+
               <div style={{ marginBottom: '30px', position: 'relative' }}>
                 <input
                   name="password"
@@ -8539,7 +8388,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              
+
               <button
                 type="submit"
                 style={{
@@ -8560,7 +8409,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 Login to Admin Panel
               </button>
             </form>
-            
+
             <div style={{ textAlign: 'center', marginTop: '20px' }}>
               <button
                 onClick={() => setCurrentPage('home')}
@@ -8582,416 +8431,168 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
     }
 
     return (
-      <div style={{ minHeight: '100vh', background: 'var(--gray-100)' }}>
-        {/* Admin Header */}
+      <div style={{ minHeight: '100vh', background: '#f8f9fa', padding: '20px' }}>
+        {/* Simple Admin Header */}
         <div style={{
           background: 'white',
-          borderBottom: '1px solid var(--gray-200)',
-          padding: '1rem 0',
-          position: 'sticky',
-          top: 0,
-          zIndex: 1000
+          borderRadius: '8px',
+          padding: '20px',
+          marginBottom: '20px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center'
         }}>
-          <div className="container">
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-                <Settings size={24} color="var(--primary-600)" />
-                <h1 style={{ color: 'var(--gray-900)', fontSize: '1.5rem', margin: 0 }}>
-                  Scottsdale Handyman - Admin Panel
-                </h1>
-              </div>
-              
-              <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                <button
-                  onClick={() => setCurrentPage('home')}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    background: 'var(--gray-200)',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                >
-                  <Eye size={16} />
-                  View Site
-                </button>
-                
-                <button
-                  onClick={handleAdminLogout}
-                  style={{
-                    padding: '0.5rem 1rem',
-                    background: 'var(--error)',
-                    color: 'white',
-                    border: 'none',
-                    borderRadius: '6px',
-                    cursor: 'pointer',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                >
-                  <LogOut size={16} />
-                  Logout
-                </button>
-              </div>
+          <div>
+            <h1 style={{ margin: 0, color: '#1f2937', fontSize: '24px' }}>
+              🛠️ Admin Dashboard
+            </h1>
+            <p style={{ margin: '5px 0 0 0', color: '#6b7280' }}>
+              Welcome back! Manage your website content.
+            </p>
+          </div>
+          <div style={{ display: 'flex', gap: '10px' }}>
+            <button
+              onClick={() => setCurrentPage('home')}
+              style={{
+                padding: '8px 16px',
+                background: '#f3f4f6',
+                border: '1px solid #d1d5db',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              🏠 View Site
+            </button>
+            <button
+              onClick={onLogout}
+              style={{
+                padding: '8px 16px',
+                background: '#ef4444',
+                color: 'white',
+                border: 'none',
+                borderRadius: '6px',
+                cursor: 'pointer'
+              }}
+            >
+              🚪 Logout
+            </button>
+          </div>
+        </div>
+
+        {/* Admin Content Grid */}
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
+          gap: '20px'
+        }}>
+          {/* Dashboard Stats */}
+          <div style={{
+            background: 'white',
+            borderRadius: '8px',
+            padding: '20px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}>
+            <h3 style={{ margin: '0 0 15px 0', color: '#1f2937' }}>📊 Website Stats</h3>
+            <div style={{ color: '#6b7280' }}>
+              <p>• Total Pages: 8</p>
+              <p>• Admin Status: Active</p>
+              <p>• Last Login: {new Date().toLocaleDateString()}</p>
+              <p>• System Status: ✅ Online</p>
+            </div>
+          </div>
+
+          {/* Quick Actions */}
+          <div style={{
+            background: 'white',
+            borderRadius: '8px',
+            padding: '20px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+          }}>
+            <h3 style={{ margin: '0 0 15px 0', color: '#1f2937' }}>⚡ Quick Actions</h3>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <button
+                onClick={() => setAdminSection('blogs')}
+                style={{
+                  padding: '10px',
+                  background: adminSection === 'blogs' ? '#dbeafe' : '#f8f9fa',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  textAlign: 'left'
+                }}
+              >
+                📝 Manage Blog Posts
+              </button>
+              <button
+                onClick={() => setAdminSection('gallery')}
+                style={{
+                  padding: '10px',
+                  background: adminSection === 'gallery' ? '#dbeafe' : '#f8f9fa',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  textAlign: 'left'
+                }}
+              >
+                🖼️ Photo Gallery
+              </button>
+              <button
+                onClick={() => setAdminSection('media')}
+                style={{
+                  padding: '10px',
+                  background: adminSection === 'media' ? '#dbeafe' : '#f8f9fa',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  textAlign: 'left'
+                }}
+              >
+                📁 Media Library
+              </button>
+              <button
+                onClick={() => setAdminSection('chatbot')}
+                style={{
+                  padding: '10px',
+                  background: adminSection === 'chatbot' ? '#dbeafe' : '#f8f9fa',
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '6px',
+                  cursor: 'pointer',
+                  textAlign: 'left'
+                }}
+              >
+                💬 Chatbot Logs
+              </button>
             </div>
           </div>
         </div>
 
-        <div className="container" style={{ paddingTop: '2rem', paddingBottom: '2rem' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '250px 1fr', gap: '2rem' }}>
-            {/* Sidebar */}
-            <div style={{
-              background: 'white',
-              borderRadius: '12px',
-              padding: '1.5rem',
-              height: 'fit-content',
-              border: '1px solid var(--gray-200)'
-            }}>
-              <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>Management</h3>
-              
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
-                <button
-                  onClick={() => setAdminSection('dashboard')}
-                  style={{
-                    padding: '0.75rem',
-                    background: adminSection === 'dashboard' ? 'var(--primary-100)' : 'transparent',
-                    color: adminSection === 'dashboard' ? 'var(--primary-700)' : 'var(--gray-600)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                >
-                  <Database size={16} />
-                  Dashboard
-                </button>
-                
-                <button
-                  onClick={() => setAdminSection('blogs')}
-                  style={{
-                    padding: '0.75rem',
-                    background: adminSection === 'blogs' ? 'var(--primary-100)' : 'transparent',
-                    color: adminSection === 'blogs' ? 'var(--primary-700)' : 'var(--gray-600)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                >
-                  <BookOpen size={16} />
-                  Blog Posts
-                </button>
-                
-                <button
-                  onClick={() => setAdminSection('gallery')}
-                  style={{
-                    padding: '0.75rem',
-                    background: adminSection === 'gallery' ? 'var(--primary-100)' : 'transparent',
-                    color: adminSection === 'gallery' ? 'var(--primary-700)' : 'var(--gray-600)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                >
-                  <Image size={16} />
-                  Inspiration Gallery
-                </button>
-                
-                <button
-                  onClick={() => setAdminSection('media')}
-                  style={{
-                    padding: '0.75rem',
-                    background: adminSection === 'media' ? 'var(--primary-100)' : 'transparent',
-                    color: adminSection === 'media' ? 'var(--primary-700)' : 'var(--gray-600)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                >
-                  <Upload size={16} />
-                  Media Library
-                </button>
-                
-                <button
-                  onClick={() => setAdminSection('content')}
-                  style={{
-                    padding: '0.75rem',
-                    background: adminSection === 'content' ? 'var(--primary-100)' : 'transparent',
-                    color: adminSection === 'content' ? 'var(--primary-700)' : 'var(--gray-600)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                >
-                  <Type size={16} />
-                  Site Content
-                </button>
-                
-                <button
-                  onClick={() => setAdminSection('chatbot')}
-                  style={{
-                    padding: '0.75rem',
-                    background: adminSection === 'chatbot' ? 'var(--primary-100)' : 'transparent',
-                    color: adminSection === 'chatbot' ? 'var(--primary-700)' : 'var(--gray-600)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                >
-                  <Bot size={16} />
-                  Chatbot Controls
-                </button>
-                
-                <button
-                  onClick={() => setAdminSection('payments')}
-                  style={{
-                    padding: '0.75rem',
-                    background: adminSection === 'payments' ? 'var(--primary-100)' : 'transparent',
-                    color: adminSection === 'payments' ? 'var(--primary-700)' : 'var(--gray-600)',
-                    border: 'none',
-                    borderRadius: '8px',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '0.5rem'
-                  }}
-                >
-                  <CreditCard size={16} />
-                  Payment Settings
-                </button>
-              </div>
-            </div>
-
-            {/* Main Content */}
-            <div>
-              {adminSection === 'dashboard' && <AdminDashboard />}
-              {adminSection === 'blogs' && <AdminBlogs />}
-              {adminSection === 'gallery' && <AdminGallery />}
-              {adminSection === 'media' && <AdminMediaLibrary />}
-              {adminSection === 'content' && <AdminContent />}
-              {adminSection === 'chatbot' && <AdminChatbot />}
-              {adminSection === 'payments' && <AdminPayments />}
-            </div>
+        {/* Selected Section Content */}
+        {adminSection !== 'dashboard' && (
+          <div style={{
+            background: 'white',
+            borderRadius: '8px',
+            padding: '20px',
+            marginTop: '20px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
+            minHeight: '400px'
+          }}>
+            <h2 style={{ margin: '0 0 20px 0', color: '#1f2937' }}>
+              {adminSection === 'blogs' && '📝 Blog Management'}
+              {adminSection === 'gallery' && '🖼️ Gallery Management'}
+              {adminSection === 'media' && '📁 Media Library'}
+              {adminSection === 'chatbot' && '💬 Chatbot Conversations'}
+            </h2>
+            
+            {adminSection === 'blogs' && <BlogEditor />}
+            {adminSection === 'gallery' && <GalleryManager />}
+            {adminSection === 'media' && <MediaLibrary />}
+            {adminSection === 'chatbot' && <ChatbotLogs />}
           </div>
-        </div>
+        )}
       </div>
     );
   };
-
-  // Admin Dashboard Component
-  const AdminDashboard = () => (
-    <div style={{ display: 'grid', gap: '1.5rem' }}>
-      <h2 style={{ color: 'var(--gray-900)', marginBottom: '1rem' }}>Dashboard Overview</h2>
-      
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-        <div style={{
-          background: 'white',
-          padding: '1.5rem',
-          borderRadius: '12px',
-          border: '1px solid var(--gray-200)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem'
-        }}>
-          <div style={{
-            background: 'var(--primary-100)',
-            padding: '0.75rem',
-            borderRadius: '10px',
-            color: 'var(--primary-600)'
-          }}>
-            <BookOpen size={24} />
-          </div>
-          <div>
-            <h3 style={{ margin: 0, color: 'var(--gray-900)' }}>{blogPosts.length}</h3>
-            <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem' }}>Blog Posts</p>
-          </div>
-        </div>
-        
-        <div style={{
-          background: 'white',
-          padding: '1.5rem',
-          borderRadius: '12px',
-          border: '1px solid var(--gray-200)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem'
-        }}>
-          <div style={{
-            background: 'var(--accent-100)',
-            padding: '0.75rem',
-            borderRadius: '10px',
-            color: 'var(--accent-600)'
-          }}>
-            <Image size={24} />
-          </div>
-          <div>
-            <h3 style={{ margin: 0, color: 'var(--gray-900)' }}>{projectGallery.length}</h3>
-            <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem' }}>Gallery Items</p>
-          </div>
-        </div>
-        
-        <div style={{
-          background: 'white',
-          padding: '1.5rem',
-          borderRadius: '12px',
-          border: '1px solid var(--gray-200)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem'
-        }}>
-          <div style={{
-            background: 'var(--success)',
-            padding: '0.75rem',
-            borderRadius: '10px',
-            color: 'white'
-          }}>
-            <Settings size={24} />
-          </div>
-          <div>
-            <h3 style={{ margin: 0, color: 'var(--gray-900)' }}>Active</h3>
-            <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem' }}>Admin Session</p>
-          </div>
-        </div>
-        
-        <div style={{
-          background: 'white',
-          padding: '1.5rem',
-          borderRadius: '12px',
-          border: '1px solid var(--gray-200)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem'
-        }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #8b5cf6, #3b82f6)',
-            padding: '0.75rem',
-            borderRadius: '10px',
-            color: 'white'
-          }}>
-            <Upload size={24} />
-          </div>
-          <div>
-            <h3 style={{ margin: 0, color: 'var(--gray-900)' }}>{uploadedFiles.length}</h3>
-            <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem' }}>Media Files</p>
-          </div>
-        </div>
-        
-        <div style={{
-          background: 'white',
-          padding: '1.5rem',
-          borderRadius: '12px',
-          border: '1px solid var(--gray-200)',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '1rem'
-        }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #06b6d4, #3b82f6)',
-            padding: '0.75rem',
-            borderRadius: '10px',
-            color: 'white'
-          }}>
-            <Bot size={24} />
-          </div>
-          <div>
-            <h3 style={{ margin: 0, color: 'var(--gray-900)' }}>{chatMessages.length > 1 ? chatMessages.length - 1 : 0}</h3>
-            <p style={{ margin: 0, color: 'var(--gray-600)', fontSize: '0.9rem' }}>Chat Messages</p>
-          </div>
-        </div>
-      </div>
-      
-      <div style={{
-        background: 'white',
-        padding: '1.5rem',
-        borderRadius: '12px',
-        border: '1px solid var(--gray-200)'
-      }}>
-        <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>Quick Actions</h3>
-        <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
-          <button
-            onClick={() => setAdminSection('blogs')}
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: 'var(--primary-600)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}
-          >
-            <Plus size={16} />
-            New Blog Post
-          </button>
-          
-          <button
-            onClick={() => setAdminSection('gallery')}
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: 'var(--accent-500)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}
-          >
-            <Upload size={16} />
-            Add Project
-          </button>
-          
-          <button
-            onClick={() => setAdminSection('media')}
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: 'var(--gray-600)',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.5rem'
-            }}
-          >
-            <Image size={16} />
-            Media Library
-          </button>
-        </div>
-      </div>
-    </div>
-  );
 
   // Admin Blogs Component
   const AdminBlogs = () => (
@@ -9036,7 +8637,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>
             {editingBlog.id ? 'Edit Blog Post' : 'Create New Blog Post'}
           </h3>
-          
+
           <div style={{ display: 'grid', gap: '1rem' }}>
             <div>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--gray-700)' }}>
@@ -9045,7 +8646,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               <input
                 type="text"
                 value={editingBlog.title}
-                onChange={(e) => setEditingBlog({...editingBlog, title: e.target.value})}
+                onChange={(e) => setEditingBlog({ ...editingBlog, title: e.target.value })}
                 style={{
                   width: '100%',
                   padding: '0.75rem',
@@ -9055,14 +8656,14 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 }}
               />
             </div>
-            
+
             <div>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--gray-700)' }}>
                 Excerpt
               </label>
               <textarea
                 value={editingBlog.excerpt}
-                onChange={(e) => setEditingBlog({...editingBlog, excerpt: e.target.value})}
+                onChange={(e) => setEditingBlog({ ...editingBlog, excerpt: e.target.value })}
                 rows={3}
                 style={{
                   width: '100%',
@@ -9074,7 +8675,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 }}
               />
             </div>
-            
+
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--gray-700)' }}>
@@ -9083,7 +8684,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <input
                   type="text"
                   value={editingBlog.category}
-                  onChange={(e) => setEditingBlog({...editingBlog, category: e.target.value})}
+                  onChange={(e) => setEditingBlog({ ...editingBlog, category: e.target.value })}
                   style={{
                     width: '100%',
                     padding: '0.75rem',
@@ -9093,7 +8694,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   }}
                 />
               </div>
-              
+
               <div>
                 <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--gray-700)' }}>
                   Read Time
@@ -9101,7 +8702,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <input
                   type="text"
                   value={editingBlog.readTime}
-                  onChange={(e) => setEditingBlog({...editingBlog, readTime: e.target.value})}
+                  onChange={(e) => setEditingBlog({ ...editingBlog, readTime: e.target.value })}
                   placeholder="e.g., 5 min read"
                   style={{
                     width: '100%',
@@ -9113,7 +8714,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 />
               </div>
             </div>
-            
+
             <div>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--gray-700)' }}>
                 Featured Image
@@ -9122,7 +8723,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <input
                   type="url"
                   value={editingBlog.image}
-                  onChange={(e) => setEditingBlog({...editingBlog, image: e.target.value})}
+                  onChange={(e) => setEditingBlog({ ...editingBlog, image: e.target.value })}
                   placeholder="Enter image URL or select from media library"
                   style={{
                     flex: 1,
@@ -9154,12 +8755,12 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               </div>
               {editingBlog.image && (
                 <div style={{ marginTop: '0.5rem' }}>
-                  <img 
-                    src={editingBlog.image} 
+                  <img
+                    src={editingBlog.image}
                     alt="Featured image preview"
-                    style={{ 
-                      maxWidth: '200px', 
-                      maxHeight: '120px', 
+                    style={{
+                      maxWidth: '200px',
+                      maxHeight: '120px',
                       objectFit: 'cover',
                       borderRadius: '6px',
                       border: '1px solid var(--gray-300)'
@@ -9171,14 +8772,14 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 </div>
               )}
             </div>
-            
+
             <div>
               <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '600', color: 'var(--gray-700)' }}>
                 Content (Markdown supported)
               </label>
               <textarea
                 value={editingBlog.content}
-                onChange={(e) => setEditingBlog({...editingBlog, content: e.target.value})}
+                onChange={(e) => setEditingBlog({ ...editingBlog, content: e.target.value })}
                 rows={15}
                 style={{
                   width: '100%',
@@ -9191,7 +8792,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 }}
               />
             </div>
-            
+
             <div style={{ display: 'flex', gap: '1rem', paddingTop: '1rem' }}>
               <button
                 onClick={() => saveBlogPost(editingBlog)}
@@ -9210,7 +8811,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <Save size={16} />
                 Save Post
               </button>
-              
+
               <button
                 onClick={() => setEditingBlog(null)}
                 style={{
@@ -9271,7 +8872,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <X size={20} />
               </button>
             </div>
-            
+
             {uploadedFiles.filter(file => file.type.startsWith('image/')).length > 0 ? (
               <div style={{
                 display: 'grid',
@@ -9279,11 +8880,11 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 gap: '1rem'
               }}>
                 {uploadedFiles.filter(file => file.type.startsWith('image/')).map(file => (
-                  <div 
+                  <div
                     key={file.id}
                     onClick={() => {
                       if (editingBlog) {
-                        setEditingBlog({...editingBlog, image: file.data})
+                        setEditingBlog({ ...editingBlog, image: file.data })
                       } else if (editingProject) {
                         // For project editing, we need to update the form input directly
                         const imageInput = document.querySelector('input[name="image"]')
@@ -9308,17 +8909,17 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                       e.target.style.borderColor = 'transparent'
                     }}
                   >
-                    <img 
-                      src={file.data} 
+                    <img
+                      src={file.data}
                       alt={file.name}
-                      style={{ 
-                        width: '100%', 
-                        height: '100px', 
+                      style={{
+                        width: '100%',
+                        height: '100px',
                         objectFit: 'cover',
                         display: 'block'
                       }}
                     />
-                    <div style={{ 
+                    <div style={{
                       padding: '0.5rem',
                       background: 'white',
                       fontSize: '0.8rem',
@@ -9370,7 +8971,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         <div style={{ padding: '1rem 1.5rem', borderBottom: '1px solid var(--gray-200)' }}>
           <h3 style={{ margin: 0, color: 'var(--gray-900)' }}>All Blog Posts</h3>
         </div>
-        
+
         <div style={{ padding: '0' }}>
           {blogPosts.map((post) => (
             <div
@@ -9393,7 +8994,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   <span>{post.date}</span>
                 </div>
               </div>
-              
+
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button
                   onClick={() => setEditingBlog(post)}
@@ -9408,7 +9009,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 >
                   <Edit3 size={14} />
                 </button>
-                
+
                 <button
                   onClick={() => deleteBlogPost(post.id)}
                   style={{
@@ -9433,7 +9034,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
   // Drag and Drop Upload Component
   const DragDropUpload = ({ onFilesUploaded, accept = "image/*,application/pdf,.doc,.docx,.txt", multiple = true }) => {
     const [dragActive, setDragActive] = useState(false)
-    
+
     const handleDrag = (e) => {
       e.preventDefault()
       e.stopPropagation()
@@ -9448,7 +9049,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       e.preventDefault()
       e.stopPropagation()
       setDragActive(false)
-      
+
       if (e.dataTransfer.files && e.dataTransfer.files[0]) {
         handleFileUpload(e.dataTransfer.files)
         if (onFilesUploaded) {
@@ -9500,24 +9101,24 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             cursor: 'pointer'
           }}
         />
-        
+
         <div style={{ pointerEvents: 'none' }}>
-          <Upload 
-            size={48} 
-            style={{ 
+          <Upload
+            size={48}
+            style={{
               color: dragActive ? 'var(--primary-500)' : 'var(--gray-400)',
               marginBottom: '1rem'
-            }} 
+            }}
           />
-          <h3 style={{ 
-            margin: '0 0 0.5rem 0', 
+          <h3 style={{
+            margin: '0 0 0.5rem 0',
             color: dragActive ? 'var(--primary-700)' : 'var(--gray-700)',
             fontSize: '1.1rem'
           }}>
             {dragActive ? 'Drop files here' : 'Drag & drop files here'}
           </h3>
-          <p style={{ 
-            margin: 0, 
+          <p style={{
+            margin: 0,
             color: 'var(--gray-500)',
             fontSize: '0.9rem'
           }}>
@@ -9532,7 +9133,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
   const FilePreview = ({ file, onDelete, onCopy }) => {
     const isImage = file.type.startsWith('image/')
     const fileSize = (file.size / 1024 / 1024).toFixed(2) + ' MB'
-    
+
     return (
       <div style={{
         background: 'white',
@@ -9541,14 +9142,14 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         overflow: 'hidden',
         transition: 'transform 0.2s ease, box-shadow 0.2s ease'
       }}
-      onMouseEnter={(e) => {
-        e.target.style.transform = 'translateY(-2px)'
-        e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
-      }}
-      onMouseLeave={(e) => {
-        e.target.style.transform = 'translateY(0)'
-        e.target.style.boxShadow = 'none'
-      }}
+        onMouseEnter={(e) => {
+          e.target.style.transform = 'translateY(-2px)'
+          e.target.style.boxShadow = '0 4px 12px rgba(0,0,0,0.1)'
+        }}
+        onMouseLeave={(e) => {
+          e.target.style.transform = 'translateY(0)'
+          e.target.style.boxShadow = 'none'
+        }}
       >
         {isImage ? (
           <div style={{
@@ -9665,10 +9266,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             </div>
           </div>
         )}
-        
+
         <div style={{ padding: '0.75rem' }}>
-          <h4 style={{ 
-            margin: '0 0 0.25rem 0', 
+          <h4 style={{
+            margin: '0 0 0.25rem 0',
             fontSize: '0.9rem',
             color: 'var(--gray-900)',
             overflow: 'hidden',
@@ -9677,9 +9278,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           }}>
             {file.name}
           </h4>
-          <div style={{ 
-            display: 'flex', 
-            justifyContent: 'space-between', 
+          <div style={{
+            display: 'flex',
+            justifyContent: 'space-between',
             alignItems: 'center',
             fontSize: '0.75rem',
             color: 'var(--gray-500)'
@@ -9692,25 +9293,150 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
     )
   }
 
-  // Admin Media Library Component
+  // Admin Media Library Component - MongoDB Connected
   const AdminMediaLibrary = () => {
     const [filterType, setFilterType] = useState('all')
     const [searchTerm, setSearchTerm] = useState('')
-    
-    const filteredFiles = uploadedFiles.filter(file => {
-      const matchesType = filterType === 'all' || 
-        (filterType === 'images' && file.type.startsWith('image/')) ||
-        (filterType === 'documents' && !file.type.startsWith('image/'))
-      
-      const matchesSearch = file.name.toLowerCase().includes(searchTerm.toLowerCase())
-      
-      return matchesType && matchesSearch
-    })
+    const [mediaFiles, setMediaFiles] = useState([])
+    const [loading, setLoading] = useState(true)
+    const [uploading, setUploading] = useState(false)
+    const [currentPage, setCurrentPage] = useState(1)
+    const [totalPages, setTotalPages] = useState(1)
+    const [selectedFile, setSelectedFile] = useState(null)
+    const [editingFile, setEditingFile] = useState(null)
+
+    // Load media files from MongoDB
+    const loadMediaFiles = async (page = 1) => {
+      setLoading(true)
+      try {
+        const params = new URLSearchParams({
+          page: page.toString(),
+          limit: '20',
+          type: filterType,
+          search: searchTerm
+        })
+
+        const response = await fetch(`/api/media-library?${params}`)
+        const data = await response.json()
+
+        if (data.success) {
+          setMediaFiles(data.files)
+          setTotalPages(data.pagination.pages)
+          setCurrentPage(data.pagination.page)
+        } else {
+          console.error('Failed to load media files:', data.error)
+        }
+      } catch (error) {
+        console.error('Error loading media files:', error)
+      } finally {
+        setLoading(false)
+      }
+    }
+
+    // Upload file to MongoDB
+    const uploadFileToMongo = async (file) => {
+      setUploading(true)
+      try {
+        // Convert file to base64
+        const reader = new FileReader()
+        reader.onload = async () => {
+          try {
+            const base64Data = reader.result.split(',')[1]
+
+            const uploadData = {
+              title: file.name.replace(/\.[^/.]+$/, ''), // Remove extension
+              description: `Uploaded file: ${file.name}`,
+              filename: file.name,
+              contentType: file.type,
+              fileSize: file.size,
+              imageData: base64Data,
+              category: file.type.startsWith('image/') ? 'gallery' : 'document',
+              tags: [file.type.split('/')[0]], // 'image' or other type
+              uploadDate: new Date().toISOString()
+            }
+
+            const response = await fetch('/api/upload-image', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify(uploadData)
+            })
+
+            const result = await response.json()
+
+            if (result.success) {
+              // Reload media library
+              loadMediaFiles(currentPage)
+              alert('File uploaded successfully!')
+            } else {
+              alert('Upload failed: ' + result.error)
+            }
+          } catch (error) {
+            console.error('Upload error:', error)
+            alert('Upload failed: ' + error.message)
+          } finally {
+            setUploading(false)
+          }
+        }
+        reader.readAsDataURL(file)
+      } catch (error) {
+        console.error('File reading error:', error)
+        setUploading(false)
+      }
+    }
+
+    // Delete file
+    const deleteFile = async (fileId) => {
+      if (!confirm('Are you sure you want to delete this file?')) return
+
+      try {
+        const response = await fetch(`/api/media/${fileId}`, { method: 'DELETE' })
+        const result = await response.json()
+
+        if (result.success) {
+          loadMediaFiles(currentPage)
+        } else {
+          alert('Delete failed: ' + result.error)
+        }
+      } catch (error) {
+        console.error('Delete error:', error)
+        alert('Delete failed: ' + error.message)
+      }
+    }
+
+    // Update file metadata
+    const updateFile = async (fileId, updateData) => {
+      try {
+        const response = await fetch(`/api/media/${fileId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(updateData)
+        })
+
+        const result = await response.json()
+
+        if (result.success) {
+          loadMediaFiles(currentPage)
+          setEditingFile(null)
+        } else {
+          alert('Update failed: ' + result.error)
+        }
+      } catch (error) {
+        console.error('Update error:', error)
+        alert('Update failed: ' + error.message)
+      }
+    }
+
+    // Load files on component mount and when filters change
+    useEffect(() => {
+      loadMediaFiles(1)
+    }, [filterType, searchTerm])
+
+    const filteredFiles = mediaFiles // Files are already filtered by the backend
 
     return (
       <div>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-          <h2 style={{ color: 'var(--gray-900)', margin: 0 }}>Media Library</h2>
+          <h2 style={{ color: 'var(--gray-900)', margin: 0 }}>Media Library - MongoDB</h2>
           <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               <Filter size={16} color="var(--gray-500)" />
@@ -9729,7 +9455,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <option value="documents">Documents</option>
               </select>
             </div>
-            
+
             <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
               <Search size={16} color="var(--gray-500)" />
               <input
@@ -9750,68 +9476,195 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         </div>
 
         {/* Upload Area */}
-        <div style={{ marginBottom: '2rem' }}>
-          <DragDropUpload />
-          
-          {/* Upload Progress */}
-          {Object.keys(uploadProgress).length > 0 && (
-            <div style={{ marginTop: '1rem' }}>
-              <h4 style={{ marginBottom: '0.5rem', color: 'var(--gray-700)' }}>Uploading...</h4>
-              {Object.entries(uploadProgress).map(([fileId, progress]) => (
-                <div key={fileId} style={{ marginBottom: '0.5rem' }}>
-                  <div style={{
-                    background: 'var(--gray-200)',
-                    borderRadius: '4px',
-                    height: '8px',
-                    overflow: 'hidden'
-                  }}>
-                    <div style={{
-                      background: 'var(--primary-500)',
-                      height: '100%',
-                      width: `${progress}%`,
-                      transition: 'width 0.3s ease',
-                      borderRadius: '4px'
-                    }} />
-                  </div>
-                  <div style={{ fontSize: '0.75rem', color: 'var(--gray-500)', marginTop: '0.25rem' }}>
-                    {Math.round(progress)}% complete
-                  </div>
-                </div>
-              ))}
-            </div>
-          )}
+        <div style={{
+          marginBottom: '2rem',
+          border: '2px dashed var(--gray-300)',
+          borderRadius: '12px',
+          padding: '2rem',
+          textAlign: 'center',
+          backgroundColor: uploading ? 'var(--gray-50)' : 'white'
+        }}>
+          <input
+            type="file"
+            multiple
+            accept="image/*,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+            onChange={(e) => {
+              Array.from(e.target.files).forEach(uploadFileToMongo)
+            }}
+            style={{ display: 'none' }}
+            id="file-upload"
+            disabled={uploading}
+          />
+          <label htmlFor="file-upload" style={{ cursor: uploading ? 'not-allowed' : 'pointer' }}>
+            <Upload size={48} color="var(--primary-500)" style={{ marginBottom: '1rem' }} />
+            <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--gray-700)' }}>
+              {uploading ? 'Uploading...' : 'Upload Files to MongoDB'}
+            </h3>
+            <p style={{ margin: 0, color: 'var(--gray-500)' }}>
+              {uploading ? 'Please wait...' : 'Drag files here or click to browse'}
+            </p>
+          </label>
         </div>
 
+        {/* Loading State */}
+        {loading && (
+          <div style={{ textAlign: 'center', padding: '2rem' }}>
+            <p>Loading files from MongoDB...</p>
+          </div>
+        )}
+
         {/* Files Grid */}
-        {filteredFiles.length > 0 ? (
+        {!loading && filteredFiles.length > 0 ? (
           <div>
-            <div style={{ 
-              display: 'flex', 
-              justifyContent: 'space-between', 
+            <div style={{
+              display: 'flex',
+              justifyContent: 'space-between',
               alignItems: 'center',
               marginBottom: '1rem'
             }}>
               <h3 style={{ margin: 0, color: 'var(--gray-700)' }}>
                 {filteredFiles.length} {filteredFiles.length === 1 ? 'file' : 'files'}
               </h3>
+
+              {/* Pagination */}
+              <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                <button
+                  onClick={() => loadMediaFiles(currentPage - 1)}
+                  disabled={currentPage <= 1}
+                  style={{
+                    padding: '0.5rem',
+                    border: '1px solid var(--gray-300)',
+                    borderRadius: '4px',
+                    backgroundColor: 'white',
+                    cursor: currentPage <= 1 ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  Previous
+                </button>
+                <span style={{ padding: '0 1rem' }}>
+                  Page {currentPage} of {totalPages}
+                </span>
+                <button
+                  onClick={() => loadMediaFiles(currentPage + 1)}
+                  disabled={currentPage >= totalPages}
+                  style={{
+                    padding: '0.5rem',
+                    border: '1px solid var(--gray-300)',
+                    borderRadius: '4px',
+                    backgroundColor: 'white',
+                    cursor: currentPage >= totalPages ? 'not-allowed' : 'pointer'
+                  }}
+                >
+                  Next
+                </button>
+              </div>
             </div>
-            
+
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
               gap: '1rem'
             }}>
               {filteredFiles.map(file => (
-                <FilePreview
-                  key={file.id}
-                  file={file}
-                  onDelete={deleteUploadedFile}
-                  onCopy={copyFileUrl}
-                />
+                <div key={file._id} style={{
+                  background: 'white',
+                  border: '1px solid var(--gray-200)',
+                  borderRadius: '8px',
+                  overflow: 'hidden',
+                  transition: 'transform 0.2s, box-shadow 0.2s'
+                }}>
+                  {/* File Preview */}
+                  <div style={{
+                    height: '200px',
+                    backgroundColor: 'var(--gray-50)',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    overflow: 'hidden'
+                  }}>
+                    {file.contentType?.startsWith('image/') ? (
+                      <img
+                        src={file.thumbnailUrl}
+                        alt={file.title}
+                        style={{
+                          maxWidth: '100%',
+                          maxHeight: '100%',
+                          objectFit: 'cover'
+                        }}
+                      />
+                    ) : (
+                      <FileText size={48} color="var(--gray-400)" />
+                    )}
+                  </div>
+
+                  {/* File Info */}
+                  <div style={{ padding: '1rem' }}>
+                    <h4 style={{ margin: '0 0 0.5rem 0', color: 'var(--gray-900)' }}>
+                      {file.title}
+                    </h4>
+                    <p style={{ margin: '0 0 0.5rem 0', color: 'var(--gray-600)', fontSize: '0.875rem' }}>
+                      {file.filename}
+                    </p>
+                    <div style={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      marginTop: '1rem'
+                    }}>
+                      <span style={{ fontSize: '0.75rem', color: 'var(--gray-500)' }}>
+                        {file.fileSize ? Math.round(file.fileSize / 1024) + 'KB' : 'N/A'}
+                      </span>
+                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                        <button
+                          onClick={() => setEditingFile(file)}
+                          style={{
+                            padding: '0.25rem',
+                            border: 'none',
+                            backgroundColor: 'var(--primary-100)',
+                            color: 'var(--primary-700)',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <Edit3 size={14} />
+                        </button>
+                        <button
+                          onClick={() => {
+                            navigator.clipboard.writeText(file.fullUrl)
+                            alert('URL copied to clipboard!')
+                          }}
+                          style={{
+                            padding: '0.25rem',
+                            border: 'none',
+                            backgroundColor: 'var(--gray-100)',
+                            color: 'var(--gray-700)',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <Share2 size={14} />
+                        </button>
+                        <button
+                          onClick={() => deleteFile(file._id)}
+                          style={{
+                            padding: '0.25rem',
+                            border: 'none',
+                            backgroundColor: 'var(--red-100)',
+                            color: 'var(--red-700)',
+                            borderRadius: '4px',
+                            cursor: 'pointer'
+                          }}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               ))}
             </div>
           </div>
-        ) : (
+        ) : !loading ? (
           <div style={{
             background: 'white',
             border: '1px solid var(--gray-200)',
@@ -9820,13 +9673,97 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             textAlign: 'center',
             color: 'var(--gray-500)'
           }}>
-            <Image size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
+            <Database size={48} style={{ marginBottom: '1rem', opacity: 0.5 }} />
             <h3 style={{ margin: '0 0 0.5rem 0', color: 'var(--gray-600)' }}>
-              {searchTerm ? 'No files match your search' : 'No files uploaded yet'}
+              {searchTerm ? 'No files match your search' : 'No files in MongoDB yet'}
             </h3>
             <p style={{ margin: 0 }}>
               {searchTerm ? 'Try adjusting your search terms' : 'Upload your first file using the area above'}
             </p>
+          </div>
+        ) : null}
+
+        {/* Edit File Modal */}
+        {editingFile && (
+          <div style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            right: 0,
+            bottom: 0,
+            backgroundColor: 'rgba(0,0,0,0.5)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            zIndex: 1000
+          }}>
+            <div style={{
+              backgroundColor: 'white',
+              borderRadius: '12px',
+              padding: '2rem',
+              maxWidth: '500px',
+              width: '90%'
+            }}>
+              <h3 style={{ margin: '0 0 1rem 0' }}>Edit File</h3>
+              <form onSubmit={(e) => {
+                e.preventDefault()
+                const formData = new FormData(e.target)
+                updateFile(editingFile._id, {
+                  title: formData.get('title'),
+                  description: formData.get('description'),
+                  category: formData.get('category'),
+                  tags: formData.get('tags').split(',').map(t => t.trim()).filter(Boolean)
+                })
+              }}>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label>Title:</label>
+                  <input
+                    name="title"
+                    defaultValue={editingFile.title}
+                    style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--gray-300)', borderRadius: '4px' }}
+                  />
+                </div>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label>Description:</label>
+                  <textarea
+                    name="description"
+                    defaultValue={editingFile.description}
+                    style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--gray-300)', borderRadius: '4px' }}
+                  />
+                </div>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label>Category:</label>
+                  <input
+                    name="category"
+                    defaultValue={editingFile.category}
+                    style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--gray-300)', borderRadius: '4px' }}
+                  />
+                </div>
+                <div style={{ marginBottom: '1rem' }}>
+                  <label>Tags (comma separated):</label>
+                  <input
+                    name="tags"
+                    defaultValue={editingFile.tags?.join(', ') || ''}
+                    style={{ width: '100%', padding: '0.5rem', border: '1px solid var(--gray-300)', borderRadius: '4px' }}
+                  />
+                </div>
+                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                  <button
+                    type="button"
+                    onClick={() => setEditingFile(null)}
+                    style={{ padding: '0.5rem 1rem', border: '1px solid var(--gray-300)', borderRadius: '4px', backgroundColor: 'white' }}
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    style={{ padding: '0.5rem 1rem', border: 'none', borderRadius: '4px', backgroundColor: 'var(--primary-500)', color: 'white' }}
+                  >
+                    Update
+                  </button>
+                </div>
+              </form>
+            </div>
           </div>
         )}
       </div>
@@ -9885,7 +9822,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 objectFit: 'cover'
               }}
             />
-            
+
             <div style={{ padding: '1rem' }}>
               <h4 style={{ margin: 0, marginBottom: '0.5rem', color: 'var(--gray-900)' }}>
                 {project.title}
@@ -9893,9 +9830,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               <p style={{ margin: 0, marginBottom: '0.75rem', color: 'var(--gray-600)', fontSize: '0.875rem' }}>
                 {project.description}
               </p>
-              
+
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                <span style={{ 
+                <span style={{
                   padding: '0.25rem 0.75rem',
                   background: 'var(--primary-100)',
                   color: 'var(--primary-700)',
@@ -9909,7 +9846,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   {project.budget}
                 </span>
               </div>
-              
+
               <div style={{ display: 'flex', gap: '0.5rem' }}>
                 <button
                   onClick={() => editProject(project)}
@@ -9930,7 +9867,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   <Edit3 size={14} />
                   Edit
                 </button>
-                
+
                 <button
                   onClick={() => deleteProject(project.id)}
                   style={{
@@ -9974,7 +9911,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             overflow: 'auto'
           }}>
             <h3 style={{ margin: '0 0 1.5rem 0' }}>Edit Project</h3>
-            
+
             <form onSubmit={(e) => {
               e.preventDefault();
               const formData = new FormData(e.target);
@@ -10118,12 +10055,12 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 </div>
                 {editingProject.image && (
                   <div style={{ marginTop: '0.5rem' }}>
-                    <img 
-                      src={editingProject.image} 
+                    <img
+                      src={editingProject.image}
                       alt="Project image preview"
-                      style={{ 
-                        maxWidth: '200px', 
-                        maxHeight: '120px', 
+                      style={{
+                        maxWidth: '200px',
+                        maxHeight: '120px',
                         objectFit: 'cover',
                         borderRadius: '6px',
                         border: '1px solid var(--gray-300)'
@@ -10196,7 +10133,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
   const AdminContent = () => (
     <div>
       <h2 style={{ color: 'var(--gray-900)', marginBottom: '1.5rem' }}>Site Content Management</h2>
-      
+
       <div style={{ display: 'grid', gap: '1.5rem' }}>
         <div style={{
           background: 'white',
@@ -10221,7 +10158,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             Edit Hero Content
           </button>
         </div>
-        
+
         <div style={{
           background: 'white',
           padding: '1.5rem',
@@ -10245,7 +10182,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             Edit Services
           </button>
         </div>
-        
+
         <div style={{
           background: 'white',
           padding: '1.5rem',
@@ -10322,7 +10259,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
     const updatePaymentMethod = (method, enabled) => {
       setPaymentSettings(prev => ({
         ...prev,
-        acceptedMethods: enabled 
+        acceptedMethods: enabled
           ? [...prev.acceptedMethods, method]
           : prev.acceptedMethods.filter(m => m !== method)
       }));
@@ -10392,7 +10329,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
     return (
       <div>
         <h2 style={{ color: 'var(--gray-900)', marginBottom: '1.5rem' }}>Payment Settings</h2>
-        
+
         <div style={{ display: 'grid', gap: '1.5rem' }}>
           {/* Payment Configuration */}
           <div style={{
@@ -10402,7 +10339,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             border: '1px solid var(--gray-200)'
           }}>
             <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>Payment Configuration</h3>
-            
+
             <div style={{ display: 'grid', gap: '1rem', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))' }}>
               <div>
                 <label style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.5rem' }}>
@@ -10412,7 +10349,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   type="number"
                   step="0.1"
                   value={paymentSettings.processingFee}
-                  onChange={(e) => setPaymentSettings(prev => ({...prev, processingFee: e.target.value}))}
+                  onChange={(e) => setPaymentSettings(prev => ({ ...prev, processingFee: e.target.value }))}
                   style={{
                     width: '100%',
                     padding: '0.75rem',
@@ -10422,7 +10359,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   }}
                 />
               </div>
-              
+
               <div>
                 <label style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.5rem' }}>
                   Minimum Amount ($)
@@ -10431,7 +10368,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   type="number"
                   step="0.01"
                   value={paymentSettings.minAmount}
-                  onChange={(e) => setPaymentSettings(prev => ({...prev, minAmount: e.target.value}))}
+                  onChange={(e) => setPaymentSettings(prev => ({ ...prev, minAmount: e.target.value }))}
                   style={{
                     width: '100%',
                     padding: '0.75rem',
@@ -10441,7 +10378,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   }}
                 />
               </div>
-              
+
               <div>
                 <label style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.5rem' }}>
                   Maximum Amount ($)
@@ -10450,7 +10387,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   type="number"
                   step="0.01"
                   value={paymentSettings.maxAmount}
-                  onChange={(e) => setPaymentSettings(prev => ({...prev, maxAmount: e.target.value}))}
+                  onChange={(e) => setPaymentSettings(prev => ({ ...prev, maxAmount: e.target.value }))}
                   style={{
                     width: '100%',
                     padding: '0.75rem',
@@ -10471,7 +10408,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             border: '1px solid var(--gray-200)'
           }}>
             <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>Payment Gateway Configuration</h3>
-            
+
             {/* Gateway Provider Selection */}
             <div style={{ marginBottom: '1.5rem' }}>
               <label style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.5rem' }}>
@@ -10749,7 +10686,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             border: '1px solid var(--gray-200)'
           }}>
             <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>Accepted Payment Methods</h3>
-            
+
             <div style={{ display: 'flex', gap: '1rem', flexWrap: 'wrap' }}>
               {[
                 { key: 'card', label: 'Credit/Debit Card', icon: '💳' },
@@ -10810,19 +10747,19 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   <div>
                     <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
                       <h4 style={{ margin: 0, color: 'var(--gray-900)' }}>{pkg.name}</h4>
-                      {pkg.recurring && <span style={{ 
-                        background: 'var(--primary-100)', 
-                        color: 'var(--primary-700)', 
-                        padding: '0.25rem 0.5rem', 
-                        borderRadius: '4px', 
-                        fontSize: '0.75rem' 
+                      {pkg.recurring && <span style={{
+                        background: 'var(--primary-100)',
+                        color: 'var(--primary-700)',
+                        padding: '0.25rem 0.5rem',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem'
                       }}>Recurring</span>}
-                      {pkg.customPrice && <span style={{ 
-                        background: 'var(--orange-100)', 
-                        color: 'var(--orange-700)', 
-                        padding: '0.25rem 0.5rem', 
-                        borderRadius: '4px', 
-                        fontSize: '0.75rem' 
+                      {pkg.customPrice && <span style={{
+                        background: 'var(--orange-100)',
+                        color: 'var(--orange-700)',
+                        padding: '0.25rem 0.5rem',
+                        borderRadius: '4px',
+                        fontSize: '0.75rem'
                       }}>Custom Quote</span>}
                     </div>
                     <p style={{ margin: '0 0 0.5rem 0', color: 'var(--gray-600)', fontSize: '0.875rem' }}>{pkg.description}</p>
@@ -10830,7 +10767,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                       {pkg.customPrice ? 'Quote Required' : `$${pkg.price}${pkg.recurring ? '/month' : ''}`}
                     </div>
                   </div>
-                  
+
                   <div style={{ display: 'flex', gap: '0.5rem' }}>
                     <button
                       onClick={() => setEditingPackage(pkg.id)}
@@ -10888,7 +10825,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>
                     {editingPackage === 'new' ? 'Add New Package' : 'Edit Package'}
                   </h3>
-                  
+
                   <div style={{ display: 'grid', gap: '1rem', marginBottom: '1.5rem' }}>
                     <div>
                       <label style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.5rem' }}>
@@ -10897,8 +10834,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                       <input
                         type="text"
                         value={editingPackage === 'new' ? newPackage.name : paymentSettings.servicePackages.find(p => p.id === editingPackage)?.name || ''}
-                        onChange={(e) => editingPackage === 'new' 
-                          ? setNewPackage(prev => ({...prev, name: e.target.value}))
+                        onChange={(e) => editingPackage === 'new'
+                          ? setNewPackage(prev => ({ ...prev, name: e.target.value }))
                           : updateServicePackage(editingPackage, { name: e.target.value })
                         }
                         style={{
@@ -10911,15 +10848,15 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                         placeholder="e.g., Basic Repair Service"
                       />
                     </div>
-                    
+
                     <div>
                       <label style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.5rem' }}>
                         Description
                       </label>
                       <textarea
                         value={editingPackage === 'new' ? newPackage.description : paymentSettings.servicePackages.find(p => p.id === editingPackage)?.description || ''}
-                        onChange={(e) => editingPackage === 'new' 
-                          ? setNewPackage(prev => ({...prev, description: e.target.value}))
+                        onChange={(e) => editingPackage === 'new'
+                          ? setNewPackage(prev => ({ ...prev, description: e.target.value }))
                           : updateServicePackage(editingPackage, { description: e.target.value })
                         }
                         style={{
@@ -10933,7 +10870,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                         placeholder="Describe what's included in this package"
                       />
                     </div>
-                    
+
                     <div>
                       <label style={{ fontSize: '0.875rem', fontWeight: '600', color: '#374151', display: 'block', marginBottom: '0.5rem' }}>
                         Price ($)
@@ -10943,8 +10880,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                         step="0.01"
                         disabled={editingPackage === 'new' ? newPackage.customPrice : paymentSettings.servicePackages.find(p => p.id === editingPackage)?.customPrice}
                         value={editingPackage === 'new' ? newPackage.price : paymentSettings.servicePackages.find(p => p.id === editingPackage)?.price || ''}
-                        onChange={(e) => editingPackage === 'new' 
-                          ? setNewPackage(prev => ({...prev, price: e.target.value}))
+                        onChange={(e) => editingPackage === 'new'
+                          ? setNewPackage(prev => ({ ...prev, price: e.target.value }))
                           : updateServicePackage(editingPackage, { price: e.target.value })
                         }
                         style={{
@@ -10958,26 +10895,26 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                         placeholder="0.00"
                       />
                     </div>
-                    
+
                     <div style={{ display: 'flex', gap: '1rem' }}>
                       <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                         <input
                           type="checkbox"
                           checked={editingPackage === 'new' ? newPackage.recurring : paymentSettings.servicePackages.find(p => p.id === editingPackage)?.recurring || false}
-                          onChange={(e) => editingPackage === 'new' 
-                            ? setNewPackage(prev => ({...prev, recurring: e.target.checked}))
+                          onChange={(e) => editingPackage === 'new'
+                            ? setNewPackage(prev => ({ ...prev, recurring: e.target.checked }))
                             : updateServicePackage(editingPackage, { recurring: e.target.checked })
                           }
                         />
                         <span style={{ color: 'var(--gray-700)' }}>Recurring Service</span>
                       </label>
-                      
+
                       <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
                         <input
                           type="checkbox"
                           checked={editingPackage === 'new' ? newPackage.customPrice : paymentSettings.servicePackages.find(p => p.id === editingPackage)?.customPrice || false}
-                          onChange={(e) => editingPackage === 'new' 
-                            ? setNewPackage(prev => ({...prev, customPrice: e.target.checked}))
+                          onChange={(e) => editingPackage === 'new'
+                            ? setNewPackage(prev => ({ ...prev, customPrice: e.target.checked }))
                             : updateServicePackage(editingPackage, { customPrice: e.target.checked })
                           }
                         />
@@ -10985,7 +10922,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                       </label>
                     </div>
                   </div>
-                  
+
                   <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
                     <button
                       onClick={() => setEditingPackage(null)}
@@ -11027,12 +10964,12 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             border: '1px solid var(--gray-200)'
           }}>
             <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>Integration Instructions</h3>
-            
+
             <div style={{ background: 'var(--blue-50)', padding: '1rem', borderRadius: '8px', marginBottom: '1rem' }}>
               <h4 style={{ color: 'var(--blue-800)', marginBottom: '0.5rem', fontSize: '1rem' }}>
                 📋 Setup Steps for {paymentSettings.gateway.provider.charAt(0).toUpperCase() + paymentSettings.gateway.provider.slice(1)}
               </h4>
-              
+
               {paymentSettings.gateway.provider === 'stripe' && (
                 <ol style={{ color: 'var(--blue-700)', margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
                   <li>Create a Stripe account at <a href="https://dashboard.stripe.com/register" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--blue-600)' }}>https://dashboard.stripe.com</a></li>
@@ -11043,7 +10980,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   <li>Copy the webhook signing secret and paste it above</li>
                 </ol>
               )}
-              
+
               {paymentSettings.gateway.provider === 'paypal' && (
                 <ol style={{ color: 'var(--blue-700)', margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
                   <li>Create a PayPal Developer account at <a href="https://developer.paypal.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--blue-600)' }}>https://developer.paypal.com</a></li>
@@ -11053,7 +10990,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   <li>Configure return URLs for successful/cancelled payments</li>
                 </ol>
               )}
-              
+
               {paymentSettings.gateway.provider === 'square' && (
                 <ol style={{ color: 'var(--blue-700)', margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
                   <li>Create a Square Developer account at <a href="https://developer.squareup.com" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--blue-600)' }}>https://developer.squareup.com</a></li>
@@ -11063,7 +11000,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   <li>Set sandbox/production environment as needed</li>
                 </ol>
               )}
-              
+
               {paymentSettings.gateway.provider === 'authorize_net' && (
                 <ol style={{ color: 'var(--blue-700)', margin: '0.5rem 0', paddingLeft: '1.5rem' }}>
                   <li>Sign up for Authorize.Net at <a href="https://www.authorize.net" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--blue-600)' }}>https://www.authorize.net</a></li>
@@ -11207,7 +11144,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
     const testChatbot = () => {
       if (!testMessage.trim()) return;
-      
+
       // Use the existing generateChatResponse function
       const response = generateChatResponse(testMessage, {});
       setTestResponse(response);
@@ -11237,7 +11174,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         recentMessages: chatMessages,
         exportDate: new Date().toISOString()
       };
-      
+
       const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -11417,7 +11354,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             border: '1px solid var(--gray-200)'
           }}>
             <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>Chatbot Settings</h3>
-            
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
               <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
                 <label style={{ color: 'var(--gray-700)' }}>Enable Chatbot</label>
@@ -11483,8 +11420,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <input
                   type="checkbox"
                   checked={chatbotSettings.quickReplies.enabled}
-                  onChange={(e) => setChatbotSettings(prev => ({ 
-                    ...prev, 
+                  onChange={(e) => setChatbotSettings(prev => ({
+                    ...prev,
                     quickReplies: { ...prev.quickReplies, enabled: e.target.checked }
                   }))}
                   style={{ transform: 'scale(1.2)' }}
@@ -11496,8 +11433,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <input
                   type="checkbox"
                   checked={chatbotSettings.actionButtons.enabled}
-                  onChange={(e) => setChatbotSettings(prev => ({ 
-                    ...prev, 
+                  onChange={(e) => setChatbotSettings(prev => ({
+                    ...prev,
                     actionButtons: { ...prev.actionButtons, enabled: e.target.checked }
                   }))}
                   style={{ transform: 'scale(1.2)' }}
@@ -11534,7 +11471,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             border: '1px solid var(--gray-200)'
           }}>
             <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>Test Chatbot</h3>
-            
+
             <div style={{ marginBottom: '1rem' }}>
               <label style={{ display: 'block', marginBottom: '0.5rem', color: 'var(--gray-700)' }}>
                 Test Message
@@ -11606,7 +11543,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             border: '1px solid var(--gray-200)'
           }}>
             <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>Popular Services</h3>
-            
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {chatStats.mostPopularServices.map((service, index) => (
                 <div key={index} style={{
@@ -11642,7 +11579,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             border: '1px solid var(--gray-200)'
           }}>
             <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>Recent Queries</h3>
-            
+
             <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
               {chatStats.recentQueries.map((query, index) => (
                 <div key={index} style={{
@@ -11670,7 +11607,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           border: '1px solid var(--gray-200)'
         }}>
           <h3 style={{ marginBottom: '1rem', color: 'var(--gray-900)' }}>Knowledge Base</h3>
-          
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
             {Object.entries(chatbotSettings.knowledgeBase).map(([category, enabled]) => (
               <div key={category} style={{
@@ -11682,7 +11619,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 alignItems: 'center',
                 justifyContent: 'space-between'
               }}>
-                <span style={{ 
+                <span style={{
                   color: enabled ? 'var(--success-700)' : 'var(--gray-600)',
                   textTransform: 'capitalize',
                   fontWeight: '500'
@@ -11723,19 +11660,19 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
           <div className="footer-section">
             <h3>Services</h3>
-            <p><a href="#" onClick={(e) => {e.preventDefault(); setCurrentPage('home-repairs'); setShowSuccessPage(false);}}>Home Repairs</a></p>
-            <p><a href="#" onClick={(e) => {e.preventDefault(); setCurrentPage('maintenance-plans'); setShowSuccessPage(false);}}>Maintenance Plans</a></p>
-            <p><a href="#" onClick={(e) => {e.preventDefault(); setCurrentPage('home-improvements'); setShowSuccessPage(false);}}>Home Improvements</a></p>
-            <p><a href="#" onClick={(e) => {e.preventDefault(); setCurrentPage('emergency-services'); setShowSuccessPage(false);}}>Emergency Services</a></p>
-            <p><a href="#" onClick={(e) => {e.preventDefault(); setCurrentPage('smart-home-solutions'); setShowSuccessPage(false);}}>Smart Home Solutions</a></p>
+            <p><a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('home-repairs'); setShowSuccessPage(false); }}>Home Repairs</a></p>
+            <p><a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('maintenance-plans'); setShowSuccessPage(false); }}>Maintenance Plans</a></p>
+            <p><a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('home-improvements'); setShowSuccessPage(false); }}>Home Improvements</a></p>
+            <p><a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('emergency-services'); setShowSuccessPage(false); }}>Emergency Services</a></p>
+            <p><a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('smart-home-solutions'); setShowSuccessPage(false); }}>Smart Home Solutions</a></p>
           </div>
 
           <div className="footer-section">
             <h3>Company</h3>
-            <p><a href="#" onClick={(e) => {e.preventDefault(); setCurrentPage('about'); setShowSuccessPage(false);}}>About Us</a></p>
-            <p><a href="#" onClick={(e) => {e.preventDefault(); setCurrentPage('blog'); setShowSuccessPage(false);}}>Blog</a></p>
-            <p><a href="#" onClick={(e) => {e.preventDefault(); setCurrentPage('work-with-us'); setShowSuccessPage(false);}}>Careers</a></p>
-            <p><a href="#" onClick={(e) => {e.preventDefault(); setCurrentPage('pay'); setShowSuccessPage(false);}}>Pay Invoice</a></p>
+            <p><a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('about'); setShowSuccessPage(false); }}>About Us</a></p>
+            <p><a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('blog'); setShowSuccessPage(false); }}>Blog</a></p>
+            <p><a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('work-with-us'); setShowSuccessPage(false); }}>Careers</a></p>
+            <p><a href="#" onClick={(e) => { e.preventDefault(); setCurrentPage('pay'); setShowSuccessPage(false); }}>Pay Invoice</a></p>
           </div>
 
           <div className="footer-section">
@@ -11767,7 +11704,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           const url = category ? `/api/gallery-images?category=${category}` : '/api/gallery-images'
           const response = await fetch(url)
           const data = await response.json()
-          
+
           if (data.success) {
             setImages(data.images)
           }
@@ -11783,8 +11720,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
     if (loading) {
       return (
-        <div style={{ 
-          textAlign: 'center', 
+        <div style={{
+          textAlign: 'center',
           padding: '2rem',
           color: '#666'
         }}>
@@ -11795,10 +11732,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
     return (
       <div style={{ margin: '2rem 0' }}>
-        <div style={{ 
-          display: 'grid', 
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-          gap: '1rem' 
+        <div style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+          gap: '1rem'
         }}>
           {images.map((image) => (
             <div
@@ -11846,7 +11783,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
         {/* Modal for selected image */}
         {selectedImage && (
-          <div 
+          <div
             style={{
               position: 'fixed',
               top: 0,
@@ -11918,7 +11855,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
         {/* Hero Section with Background Image */}
         <div style={{
-          background: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1581878542071-8ad02062a5ca?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover`,
+          background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('https://images.unsplash.com/photo-1581878542071-8ad02062a5ca?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover`,
           padding: '80px 40px',
           borderRadius: '16px',
           color: 'white',
@@ -11937,11 +11874,11 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             background: 'rgba(0, 0, 0, 0.4)',
             borderRadius: '16px'
           }}></div>
-          
+
           <div style={{ position: 'relative', zIndex: 2 }}>
-            <h1 style={{ 
-              fontSize: '3.5rem', 
-              marginBottom: '24px', 
+            <h1 style={{
+              fontSize: '3.5rem',
+              marginBottom: '24px',
               fontWeight: '800',
               color: 'white',
               textShadow: '2px 2px 8px rgba(0,0,0,0.5)',
@@ -11949,10 +11886,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             }}>
               🏠 Professional Home Repairs
             </h1>
-            <p style={{ 
-              fontSize: '1.4rem', 
-              maxWidth: '900px', 
-              margin: '0 auto 30px', 
+            <p style={{
+              fontSize: '1.4rem',
+              maxWidth: '900px',
+              margin: '0 auto 30px',
               color: 'white',
               lineHeight: '1.6',
               textShadow: '1px 1px 4px rgba(0,0,0,0.4)',
@@ -12004,9 +11941,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '3rem', marginBottom: '10px' }}>🏡</div>
-                  <h3 style={{ 
-                    margin: 0, 
-                    fontSize: '1.8rem', 
+                  <h3 style={{
+                    margin: 0,
+                    fontSize: '1.8rem',
                     fontWeight: '800',
                     color: 'white',
                     textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
@@ -12070,9 +12007,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '3rem', marginBottom: '10px' }}>🏘️</div>
-                  <h3 style={{ 
-                    margin: 0, 
-                    fontSize: '1.8rem', 
+                  <h3 style={{
+                    margin: 0,
+                    fontSize: '1.8rem',
                     fontWeight: '800',
                     color: 'white',
                     textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
@@ -12136,9 +12073,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               }}>
                 <div style={{ textAlign: 'center' }}>
                   <div style={{ fontSize: '3rem', marginBottom: '10px' }}>⚡</div>
-                  <h3 style={{ 
-                    margin: 0, 
-                    fontSize: '1.8rem', 
+                  <h3 style={{
+                    margin: 0,
+                    fontSize: '1.8rem',
                     fontWeight: '800',
                     color: 'white',
                     textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
@@ -12193,7 +12130,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           }}>
             <h3 style={{ margin: 0, fontSize: '2.2rem', fontWeight: '800' }}>⭐ Why Choose Our Repair Services?</h3>
           </div>
-          
+
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: '40px', marginBottom: '50px' }}>
             <div style={{
               background: '#f8f9fa',
@@ -12240,7 +12177,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               <p style={{ color: '#666', lineHeight: '1.6', fontSize: '1rem' }}>All repairs backed by our 100% satisfaction guarantee and warranty protection.</p>
             </div>
           </div>
-          
+
           {/* Service Packages */}
           <div style={{
             background: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
@@ -12251,10 +12188,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           }}>
             <h3 style={{ margin: 0, fontSize: '2rem', fontWeight: '800' }}>🛠️ Home Repair Service Packages</h3>
           </div>
-          
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
+
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
             gap: '30px',
             marginBottom: '40px'
           }}>
@@ -12278,18 +12215,18 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 }}>
                   <h4 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '700' }}>{pkg.name}</h4>
                 </div>
-                <div style={{ 
-                  fontSize: '2.5rem', 
-                  fontWeight: '800', 
-                  color: '#1e3c72', 
+                <div style={{
+                  fontSize: '2.5rem',
+                  fontWeight: '800',
+                  color: '#1e3c72',
                   marginBottom: '20px',
                   textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
                 }}>
                   ${pkg.price}
                 </div>
-                <p style={{ 
-                  color: '#666', 
-                  marginBottom: '25px', 
+                <p style={{
+                  color: '#666',
+                  marginBottom: '25px',
                   fontSize: '1rem',
                   lineHeight: '1.5',
                   fontWeight: '500'
@@ -12372,7 +12309,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
         {/* Hero Section with Background Image */}
         <div style={{
-          background: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover`,
+          background: `linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.2)), url('https://images.unsplash.com/photo-1560472354-b33ff0c44a43?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover`,
           padding: '80px 40px',
           borderRadius: '16px',
           color: 'white',
@@ -12391,11 +12328,11 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             background: 'linear-gradient(135deg, rgba(40, 167, 69, 0.9) 0%, rgba(52, 206, 87, 0.8) 100%)',
             borderRadius: '16px'
           }}></div>
-          
+
           <div style={{ position: 'relative', zIndex: 2 }}>
-            <h1 style={{ 
-              fontSize: '3.5rem', 
-              marginBottom: '24px', 
+            <h1 style={{
+              fontSize: '3.5rem',
+              marginBottom: '24px',
               fontWeight: '800',
               color: 'white',
               textShadow: '2px 2px 8px rgba(0,0,0,0.5)',
@@ -12403,10 +12340,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             }}>
               🛠️ Maintenance Plans
             </h1>
-            <p style={{ 
-              fontSize: '1.4rem', 
-              maxWidth: '900px', 
-              margin: '0 auto 30px', 
+            <p style={{
+              fontSize: '1.4rem',
+              maxWidth: '900px',
+              margin: '0 auto 30px',
               color: 'white',
               lineHeight: '1.6',
               textShadow: '1px 1px 4px rgba(0,0,0,0.4)',
@@ -12475,7 +12412,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   <span style={{ fontWeight: '500', fontSize: '1rem' }}>Priority scheduling</span>
                 </li>
               </ul>
-              <button 
+              <button
                 onClick={() => {
                   setSelectedService(servicePackages['maintenance'].packages.find(pkg => pkg.id === 'maintenance-basic'));
                   setCurrentPage('checkout');
@@ -12572,7 +12509,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   <span style={{ fontWeight: '500', fontSize: '1rem' }}>Emergency service priority</span>
                 </li>
               </ul>
-              <button 
+              <button
                 onClick={() => {
                   setSelectedService(servicePackages['maintenance'].packages.find(pkg => pkg.id === 'maintenance-premium'));
                   setCurrentPage('checkout');
@@ -12652,7 +12589,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   <span style={{ fontWeight: '500', fontSize: '1rem' }}>24/7 emergency response</span>
                 </li>
               </ul>
-              <button 
+              <button
                 onClick={() => {
                   setSelectedService(servicePackages['maintenance'].packages.find(pkg => pkg.id === 'maintenance-elite'));
                   setCurrentPage('checkout');
@@ -12704,21 +12641,21 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             background: 'rgba(0, 0, 0, 0.4)',
             borderRadius: '20px'
           }}></div>
-          
+
           <div style={{ position: 'relative', zIndex: 2 }}>
-            <h2 style={{ 
-              fontSize: '2.8rem', 
-              marginBottom: '40px', 
+            <h2 style={{
+              fontSize: '2.8rem',
+              marginBottom: '40px',
               fontWeight: '800',
-              textShadow: '2px 2px 8px rgba(0,0,0,0.5)' 
+              textShadow: '2px 2px 8px rgba(0,0,0,0.5)'
             }}>
               🌟 Why Choose Our Maintenance Plans?
             </h2>
-            
+
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px', maxWidth: '1000px', margin: '0 auto' }}>
-              <div style={{ 
-                padding: '35px', 
-                background: 'rgba(255,255,255,0.15)', 
+              <div style={{
+                padding: '35px',
+                background: 'rgba(255,255,255,0.15)',
                 borderRadius: '16px',
                 backdropFilter: 'blur(10px)',
                 border: '1px solid rgba(255,255,255,0.2)',
@@ -12730,10 +12667,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   Regular maintenance prevents costly emergency repairs and extends the life of your home systems by up to 50%.
                 </p>
               </div>
-              
-              <div style={{ 
-                padding: '35px', 
-                background: 'rgba(255,255,255,0.15)', 
+
+              <div style={{
+                padding: '35px',
+                background: 'rgba(255,255,255,0.15)',
                 borderRadius: '16px',
                 backdropFilter: 'blur(10px)',
                 border: '1px solid rgba(255,255,255,0.2)',
@@ -12745,10 +12682,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   Your home is professionally maintained and monitored year-round by Scottsdale's trusted handyman experts.
                 </p>
               </div>
-              
-              <div style={{ 
-                padding: '35px', 
-                background: 'rgba(255,255,255,0.15)', 
+
+              <div style={{
+                padding: '35px',
+                background: 'rgba(255,255,255,0.15)',
                 borderRadius: '16px',
                 backdropFilter: 'blur(10px)',
                 border: '1px solid rgba(255,255,255,0.2)',
@@ -12784,32 +12721,32 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             background: 'linear-gradient(135deg, rgba(255, 215, 0, 0.9) 0%, rgba(255, 165, 0, 0.85) 100%)',
             borderRadius: '20px'
           }}></div>
-          
+
           <div style={{ position: 'relative', zIndex: 2 }}>
-            <h2 style={{ 
-              fontSize: '2.8rem', 
-              marginBottom: '25px', 
+            <h2 style={{
+              fontSize: '2.8rem',
+              marginBottom: '25px',
               fontWeight: '800',
               color: '#1a1a1a',
-              textShadow: '2px 2px 8px rgba(255,255,255,0.3)' 
+              textShadow: '2px 2px 8px rgba(255,255,255,0.3)'
             }}>
               🏠 Ready to Protect Your Investment?
             </h2>
-            <p style={{ 
-              fontSize: '1.3rem', 
-              marginBottom: '40px', 
-              maxWidth: '800px', 
+            <p style={{
+              fontSize: '1.3rem',
+              marginBottom: '40px',
+              maxWidth: '800px',
               margin: '0 auto 40px',
               lineHeight: '1.6',
               fontWeight: '600',
               color: '#1a1a1a'
             }}>
-              Join hundreds of satisfied Scottsdale homeowners who trust us with their property maintenance. 
+              Join hundreds of satisfied Scottsdale homeowners who trust us with their property maintenance.
               Get started today and protect your home's value!
             </p>
-            
+
             <div style={{ display: 'flex', gap: '20px', justifyContent: 'center', flexWrap: 'wrap' }}>
-              <button 
+              <button
                 onClick={() => setCurrentPage('contact')}
                 style={{
                   background: 'linear-gradient(135deg, #28a745 0%, #34ce57 100%)',
@@ -12835,8 +12772,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               >
                 📞 Get Free Consultation
               </button>
-              
-              <button 
+
+              <button
                 onClick={() => setCurrentPage('services')}
                 style={{
                   background: 'rgba(255,255,255,0.95)',
@@ -12865,7 +12802,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 🔧 View All Services
               </button>
             </div>
-            
+
             <div style={{ marginTop: '30px', color: '#1a1a1a' }}>
               <div style={{ fontSize: '1.1rem', fontWeight: '600', marginBottom: '10px' }}>
                 🌟 Trusted by 500+ Scottsdale Homeowners
@@ -13047,11 +12984,11 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         {/* Home Improvement Service Packages */}
         <div style={{ marginBottom: '40px' }}>
           <h3 style={{ color: '#f39c12', marginBottom: '30px', fontSize: '2rem', textAlign: 'center' }}>Home Improvement Packages</h3>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
             gap: '20px',
-            marginBottom: '40px' 
+            marginBottom: '40px'
           }}>
             {servicePackages['home-improvements'].packages.map((pkg, index) => (
               <div key={pkg.id} style={{
@@ -13191,7 +13128,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             border: '3px solid #FFD700',
             transition: 'transform 0.3s ease, box-shadow 0.3s ease'
           }}>
-            <div style={{ 
+            <div style={{
               background: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)',
               color: 'white',
               padding: '15px',
@@ -13233,7 +13170,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             border: '3px solid #FFD700',
             transition: 'transform 0.3s ease, box-shadow 0.3s ease'
           }}>
-            <div style={{ 
+            <div style={{
               background: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)',
               color: 'white',
               padding: '15px',
@@ -13275,7 +13212,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             border: '3px solid #FFD700',
             transition: 'transform 0.3s ease, box-shadow 0.3s ease'
           }}>
-            <div style={{ 
+            <div style={{
               background: 'linear-gradient(135deg, #dc3545 0%, #c82333 100%)',
               color: 'white',
               padding: '15px',
@@ -13428,43 +13365,43 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               <h3 style={{ margin: 0, fontSize: '1.5rem', fontWeight: '700' }}>💰 Emergency Rates</h3>
             </div>
             <ul style={{ listStyle: 'none', padding: 0, margin: 0 }}>
-              <li style={{ 
-                padding: '15px 0', 
-                color: '#333', 
-                borderBottom: '1px solid #f0f0f0', 
-                display: 'flex', 
+              <li style={{
+                padding: '15px 0',
+                color: '#333',
+                borderBottom: '1px solid #f0f0f0',
+                display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center'
               }}>
                 <span style={{ fontWeight: '500' }}>🌅 Weekday Evenings (6PM-10PM)</span>
                 <strong style={{ color: '#dc3545', fontSize: '1.1rem' }}>$150/hour</strong>
               </li>
-              <li style={{ 
-                padding: '15px 0', 
-                color: '#333', 
-                borderBottom: '1px solid #f0f0f0', 
-                display: 'flex', 
+              <li style={{
+                padding: '15px 0',
+                color: '#333',
+                borderBottom: '1px solid #f0f0f0',
+                display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center'
               }}>
                 <span style={{ fontWeight: '500' }}>🗓️ Weekends (All Day)</span>
                 <strong style={{ color: '#dc3545', fontSize: '1.1rem' }}>$175/hour</strong>
               </li>
-              <li style={{ 
-                padding: '15px 0', 
-                color: '#333', 
-                borderBottom: '1px solid #f0f0f0', 
-                display: 'flex', 
+              <li style={{
+                padding: '15px 0',
+                color: '#333',
+                borderBottom: '1px solid #f0f0f0',
+                display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center'
               }}>
                 <span style={{ fontWeight: '500' }}>🌙 Overnight (10PM-6AM)</span>
                 <strong style={{ color: '#dc3545', fontSize: '1.1rem' }}>$200/hour</strong>
               </li>
-              <li style={{ 
-                padding: '15px 0', 
-                color: '#333', 
-                display: 'flex', 
+              <li style={{
+                padding: '15px 0',
+                color: '#333',
+                display: 'flex',
                 justifyContent: 'space-between',
                 alignItems: 'center'
               }}>
@@ -13536,10 +13473,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               <h3 style={{ margin: 0, fontSize: '2rem', fontWeight: '700' }}>🚨 Emergency Service Packages</h3>
             </div>
           </div>
-          <div style={{ 
-            display: 'grid', 
-            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', 
-            gap: '30px' 
+          <div style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+            gap: '30px'
           }}>
             {servicePackages['emergency'].packages.map((pkg, index) => (
               <div key={pkg.id} style={{
@@ -13561,18 +13498,18 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 }}>
                   <h4 style={{ margin: 0, fontSize: '1.4rem', fontWeight: '700' }}>{pkg.name}</h4>
                 </div>
-                <div style={{ 
-                  fontSize: '2.5rem', 
-                  fontWeight: '800', 
-                  color: '#dc3545', 
+                <div style={{
+                  fontSize: '2.5rem',
+                  fontWeight: '800',
+                  color: '#dc3545',
                   marginBottom: '20px',
                   textShadow: '2px 2px 4px rgba(0,0,0,0.1)'
                 }}>
                   ${pkg.price}
                 </div>
-                <p style={{ 
-                  color: '#666', 
-                  marginBottom: '25px', 
+                <p style={{
+                  color: '#666',
+                  marginBottom: '25px',
                   fontSize: '1rem',
                   lineHeight: '1.5',
                   fontWeight: '500'
@@ -13588,9 +13525,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 }}>
                   <ul style={{ listStyle: 'none', padding: 0, margin: 0, textAlign: 'left' }}>
                     {pkg.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} style={{ 
-                        color: '#333', 
-                        padding: '8px 0', 
+                      <li key={featureIndex} style={{
+                        color: '#333',
+                        padding: '8px 0',
                         fontSize: '0.95rem',
                         display: 'flex',
                         alignItems: 'center'
@@ -13655,21 +13592,21 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             background: 'linear-gradient(135deg, rgba(220, 53, 69, 0.9) 0%, rgba(200, 35, 51, 0.85) 100%)',
             borderRadius: '20px'
           }}></div>
-          
+
           <div style={{ position: 'relative', zIndex: 2 }}>
-            <h2 style={{ 
-              fontSize: '2.8rem', 
-              marginBottom: '40px', 
+            <h2 style={{
+              fontSize: '2.8rem',
+              marginBottom: '40px',
               fontWeight: '800',
-              textShadow: '2px 2px 8px rgba(0,0,0,0.5)' 
+              textShadow: '2px 2px 8px rgba(0,0,0,0.5)'
             }}>
               🚨 Fast Emergency Response Team
             </h2>
-            
+
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: '40px', maxWidth: '1000px', margin: '0 auto' }}>
-              <div style={{ 
-                padding: '35px', 
-                background: 'rgba(255,255,255,0.15)', 
+              <div style={{
+                padding: '35px',
+                background: 'rgba(255,255,255,0.15)',
                 borderRadius: '16px',
                 backdropFilter: 'blur(10px)',
                 border: '1px solid rgba(255,255,255,0.2)',
@@ -13689,10 +13626,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   Our emergency team is equipped and ready to respond to your call within 30 minutes, day or night.
                 </p>
               </div>
-              
-              <div style={{ 
-                padding: '35px', 
-                background: 'rgba(255,255,255,0.15)', 
+
+              <div style={{
+                padding: '35px',
+                background: 'rgba(255,255,255,0.15)',
                 borderRadius: '16px',
                 backdropFilter: 'blur(10px)',
                 border: '1px solid rgba(255,255,255,0.2)',
@@ -13712,10 +13649,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   Professional tools, safety equipment, and emergency supplies ready for any situation that arises.
                 </p>
               </div>
-              
-              <div style={{ 
-                padding: '35px', 
-                background: 'rgba(255,255,255,0.15)', 
+
+              <div style={{
+                padding: '35px',
+                background: 'rgba(255,255,255,0.15)',
                 borderRadius: '16px',
                 backdropFilter: 'blur(10px)',
                 border: '1px solid rgba(255,255,255,0.2)',
@@ -13854,34 +13791,34 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             background: 'linear-gradient(135deg, rgba(111, 66, 193, 0.8) 0%, rgba(0, 123, 255, 0.8) 100%)',
             borderRadius: '16px'
           }}></div>
-          
+
           <div style={{ position: 'relative', zIndex: 2 }}>
-            <h1 style={{ 
-              fontSize: '3.5rem', 
-              marginBottom: '24px', 
+            <h1 style={{
+              fontSize: '3.5rem',
+              marginBottom: '24px',
               fontWeight: '700',
               color: 'white',
               textShadow: '2px 2px 4px rgba(0,0,0,0.3)'
             }}>
               Smart Home Solutions
             </h1>
-            <p style={{ 
-              fontSize: '1.3rem', 
-              maxWidth: '800px', 
-              margin: '0 auto', 
+            <p style={{
+              fontSize: '1.3rem',
+              maxWidth: '800px',
+              margin: '0 auto',
               color: 'white',
               lineHeight: '1.6',
               textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
             }}>
-              Transform your Scottsdale home into an intelligent living space with cutting-edge smart technology. 
+              Transform your Scottsdale home into an intelligent living space with cutting-edge smart technology.
               Professional installation and setup of home automation systems that enhance comfort, security, and efficiency.
             </p>
-            
+
             {/* Hero Action Buttons */}
-            <div style={{ 
-              display: 'flex', 
-              gap: '20px', 
-              justifyContent: 'center', 
+            <div style={{
+              display: 'flex',
+              gap: '20px',
+              justifyContent: 'center',
               marginTop: '40px',
               flexWrap: 'wrap'
             }}>
@@ -13897,14 +13834,14 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 transition: 'all 0.3s ease',
                 boxShadow: '0 4px 15px rgba(0,0,0,0.2)'
               }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
-              }}>
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 6px 20px rgba(0,0,0,0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = '0 4px 15px rgba(0,0,0,0.2)';
+                }}>
                 Get Free Consultation
               </button>
               <button style={{
@@ -13918,14 +13855,14 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 cursor: 'pointer',
                 transition: 'all 0.3s ease'
               }}
-              onMouseEnter={(e) => {
-                e.target.style.background = 'rgba(255, 255, 255, 0.1)';
-                e.target.style.transform = 'translateY(-2px)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.background = 'transparent';
-                e.target.style.transform = 'translateY(0)';
-              }}>
+                onMouseEnter={(e) => {
+                  e.target.style.background = 'rgba(255, 255, 255, 0.1)';
+                  e.target.style.transform = 'translateY(-2px)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.background = 'transparent';
+                  e.target.style.transform = 'translateY(0)';
+                }}>
                 View Packages
               </button>
             </div>
@@ -13941,14 +13878,14 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             overflow: 'hidden',
             transition: 'transform 0.3s ease, box-shadow 0.3s ease'
           }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-5px)';
-            e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.15)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.1)';
-          }}>
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-5px)';
+              e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.1)';
+            }}>
             <div style={{
               height: '200px',
               background: 'linear-gradient(135deg, #6f42c1, #8b5cf6), url("https://images.unsplash.com/photo-1556075798-4825dfaaf498?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80") center/cover',
@@ -14012,14 +13949,14 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             overflow: 'hidden',
             transition: 'transform 0.3s ease, box-shadow 0.3s ease'
           }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-5px)';
-            e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.15)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.1)';
-          }}>
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-5px)';
+              e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.1)';
+            }}>
             <div style={{
               height: '200px',
               background: 'linear-gradient(135deg, #007bff, #0056b3), url("https://images.unsplash.com/photo-1621905251918-48416bd8575a?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80") center/cover',
@@ -14076,14 +14013,14 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             overflow: 'hidden',
             transition: 'transform 0.3s ease, box-shadow 0.3s ease'
           }}
-          onMouseEnter={(e) => {
-            e.currentTarget.style.transform = 'translateY(-5px)';
-            e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.15)';
-          }}
-          onMouseLeave={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.1)';
-          }}>
+            onMouseEnter={(e) => {
+              e.currentTarget.style.transform = 'translateY(-5px)';
+              e.currentTarget.style.boxShadow = '0 12px 40px rgba(0,0,0,0.15)';
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 8px 32px rgba(0,0,0,0.1)';
+            }}>
             <div style={{
               height: '200px',
               background: 'linear-gradient(135deg, #10b981, #059669), url("https://images.unsplash.com/photo-1540932239986-30128078f3c5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80") center/cover',
@@ -14150,7 +14087,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         }}>
           <h3 style={{ color: '#6f42c1', marginBottom: '30px', fontSize: '2rem', textAlign: 'center' }}>Popular Smart Home Packages</h3>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '30px' }}>
-            
+
             <div style={{
               border: '2px solid #e9ecef',
               borderRadius: '12px',
@@ -14168,32 +14105,32 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <li style={{ padding: '8px 0', color: '#666', borderBottom: '1px solid #eee' }}>✓ Smart door lock</li>
                 <li style={{ padding: '8px 0', color: '#666' }}>✓ Basic setup & training</li>
               </ul>
-              <button 
+              <button
                 onClick={() => {
                   setSelectedService(servicePackages['smart-home'].packages.find(pkg => pkg.id === 'smart-starter'));
                   setCurrentPage('checkout');
                 }}
                 style={{
-                width: '100%',
-                marginTop: '20px',
-                background: '#6f42c1',
-                color: 'white',
-                padding: '12px',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '1rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 4px 12px rgba(111, 66, 193, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = 'none';
-              }}>
+                  width: '100%',
+                  marginTop: '20px',
+                  background: '#6f42c1',
+                  color: 'white',
+                  padding: '12px',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(111, 66, 193, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}>
                 Choose Starter
               </button>
             </div>
@@ -14231,32 +14168,32 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <li style={{ padding: '8px 0', color: '#666', borderBottom: '1px solid #eee' }}>✓ Automated blinds (living areas)</li>
                 <li style={{ padding: '8px 0', color: '#666' }}>✓ Full integration & training</li>
               </ul>
-              <button 
+              <button
                 onClick={() => {
                   setSelectedService(servicePackages['smart-home'].packages.find(pkg => pkg.id === 'smart-complete'));
                   setCurrentPage('checkout');
                 }}
                 style={{
-                width: '100%',
-                marginTop: '20px',
-                background: '#007bff',
-                color: 'white',
-                padding: '12px',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '1rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 4px 12px rgba(0, 123, 255, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = 'none';
-              }}>
+                  width: '100%',
+                  marginTop: '20px',
+                  background: '#007bff',
+                  color: 'white',
+                  padding: '12px',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(0, 123, 255, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}>
                 Choose Complete
               </button>
             </div>
@@ -14279,32 +14216,32 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <li style={{ padding: '8px 0', color: '#666', borderBottom: '1px solid #eee' }}>✓ Energy monitoring dashboard</li>
                 <li style={{ padding: '8px 0', color: '#666' }}>✓ 1-year maintenance included</li>
               </ul>
-              <button 
+              <button
                 onClick={() => {
                   setSelectedService(servicePackages['smart-home'].packages.find(pkg => pkg.id === 'smart-premium'));
                   setCurrentPage('checkout');
                 }}
                 style={{
-                width: '100%',
-                marginTop: '20px',
-                background: '#6f42c1',
-                color: 'white',
-                padding: '12px',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '1rem',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'all 0.3s ease'
-              }}
-              onMouseEnter={(e) => {
-                e.target.style.transform = 'translateY(-2px)';
-                e.target.style.boxShadow = '0 4px 12px rgba(111, 66, 193, 0.3)';
-              }}
-              onMouseLeave={(e) => {
-                e.target.style.transform = 'translateY(0)';
-                e.target.style.boxShadow = 'none';
-              }}>
+                  width: '100%',
+                  marginTop: '20px',
+                  background: '#6f42c1',
+                  color: 'white',
+                  padding: '12px',
+                  border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '1rem',
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'all 0.3s ease'
+                }}
+                onMouseEnter={(e) => {
+                  e.target.style.transform = 'translateY(-2px)';
+                  e.target.style.boxShadow = '0 4px 12px rgba(111, 66, 193, 0.3)';
+                }}
+                onMouseLeave={(e) => {
+                  e.target.style.transform = 'translateY(0)';
+                  e.target.style.boxShadow = 'none';
+                }}>
                 Choose Premium
               </button>
             </div>
@@ -14313,16 +14250,16 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
         {/* Smart Home Benefits with Background */}
         <div style={{
-          background: `linear-gradient(rgba(0, 0, 0, 0.7), rgba(0, 0, 0, 0.7)), url('https://images.unsplash.com/photo-1560472355-536de3962603?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover`,
+          background: `linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)), url('https://images.unsplash.com/photo-1560472355-536de3962603?ixlib=rb-4.0.3&auto=format&fit=crop&w=2000&q=80') center/cover`,
           padding: '80px 40px',
           borderRadius: '16px',
           marginBottom: '60px',
           color: 'white'
         }}>
-          <h3 style={{ 
-            color: 'white', 
-            marginBottom: '50px', 
-            fontSize: '2.5rem', 
+          <h3 style={{
+            color: 'white',
+            marginBottom: '50px',
+            fontSize: '2.5rem',
             textAlign: 'center',
             fontWeight: '700',
             textShadow: '2px 2px 4px rgba(0,0,0,0.5)'
@@ -14418,8 +14355,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           textAlign: 'center',
           marginBottom: '40px'
         }}>
-          <h3 style={{ 
-            marginBottom: '24px', 
+          <h3 style={{
+            marginBottom: '24px',
             fontSize: '2.5rem',
             fontWeight: '700',
             color: 'white',
@@ -14427,21 +14364,21 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           }}>
             Ready to Transform Your Home?
           </h3>
-          <p style={{ 
-            fontSize: '1.2rem', 
-            marginBottom: '40px', 
+          <p style={{
+            fontSize: '1.2rem',
+            marginBottom: '40px',
             color: 'white',
             maxWidth: '600px',
             margin: '0 auto 40px auto',
             lineHeight: '1.6',
             textShadow: '1px 1px 2px rgba(0,0,0,0.3)'
           }}>
-            Schedule a free consultation to design the perfect smart home system for your Scottsdale lifestyle and budget. 
+            Schedule a free consultation to design the perfect smart home system for your Scottsdale lifestyle and budget.
             Our experts will assess your home and create a custom automation plan.
           </p>
-          <div style={{ 
-            display: 'flex', 
-            gap: '20px', 
+          <div style={{
+            display: 'flex',
+            gap: '20px',
             justifyContent: 'center',
             flexWrap: 'wrap'
           }}>
@@ -14534,7 +14471,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         ...prev,
         [name]: type === 'checkbox' ? checked : value
       }))
-      
+
       // Clear error when user starts typing
       if (errors[name]) {
         setErrors(prev => ({
@@ -14546,7 +14483,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
     const validateForm = () => {
       const newErrors = {}
-      
+
       if (!formData.customerName.trim()) newErrors.customerName = 'Name is required'
       if (!formData.email.trim()) newErrors.email = 'Email is required'
       else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email)) newErrors.email = 'Invalid email format'
@@ -14563,15 +14500,15 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
     const handleSubmit = async (e) => {
       e.preventDefault()
-      
+
       if (!validateForm()) return
-      
+
       setIsSubmitting(true)
-      
+
       try {
         // Simulate form submission
         await new Promise(resolve => setTimeout(resolve, 2000))
-        
+
         // Show success page
         setSubmittedFormData({
           ...formData,
@@ -14584,7 +14521,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         })
         setShowSuccessPage(true)
         setCurrentPage('home')
-        
+
       } catch (error) {
         console.error('Submission error:', error)
       } finally {
@@ -14606,7 +14543,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '0 20px' }}>
           {/* Header */}
           <div style={{ textAlign: 'center', marginBottom: '40px' }}>
-            <button 
+            <button
               onClick={() => setCurrentPage('services')}
               style={{
                 background: 'none',
@@ -14633,7 +14570,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             {/* Order Form */}
             <div style={{ background: 'white', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
               <h2 style={{ marginBottom: '20px', color: '#333' }}>Service Details & Contact Information</h2>
-              
+
               <form onSubmit={handleSubmit}>
                 {/* Customer Information */}
                 <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '25px' }}>
@@ -14897,7 +14834,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                       style={{ marginTop: '4px' }}
                     />
                     <span style={{ color: errors.agreedToTerms ? '#dc3545' : '#333', fontSize: '0.9rem' }}>
-                      I agree to the <a href="#" style={{ color: '#007bff' }}>terms and conditions</a> and 
+                      I agree to the <a href="#" style={{ color: '#007bff' }}>terms and conditions</a> and
                       authorize Scottsdale Handyman Solutions to contact me regarding this service request.
                     </span>
                   </label>
@@ -14929,12 +14866,12 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             {/* Order Summary */}
             <div style={{ background: 'white', padding: '30px', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)', position: 'sticky', top: '140px' }}>
               <h3 style={{ marginBottom: '20px', color: '#333' }}>Service Summary</h3>
-              
+
               <div style={{ marginBottom: '20px', paddingBottom: '20px', borderBottom: '1px solid #eee' }}>
                 <h4 style={{ color: '#007bff', marginBottom: '5px' }}>{selectedService.category}</h4>
                 <h5 style={{ margin: '0 0 10px 0', fontSize: '1.2rem' }}>{selectedService.name}</h5>
                 <p style={{ color: '#666', fontSize: '0.9rem', marginBottom: '15px' }}>{selectedService.description}</p>
-                
+
                 <div style={{ fontSize: '1.5rem', fontWeight: '700', color: '#28a745' }}>
                   ${selectedService.price.toLocaleString()}
                   {selectedService.recurring && <span style={{ fontSize: '1rem', fontWeight: '400' }}>/month</span>}
@@ -15046,7 +14983,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             <Clock size={20} color="#2563eb" />
             What Happens Next?
           </h3>
-          
+
           <div style={{
             display: 'grid',
             gap: '1rem'
@@ -15075,7 +15012,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 </p>
               </div>
             </div>
-            
+
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
               <div style={{
                 width: '28px',
@@ -15100,7 +15037,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 </p>
               </div>
             </div>
-            
+
             <div style={{ display: 'flex', alignItems: 'flex-start', gap: '1rem' }}>
               <div style={{
                 width: '28px',
@@ -15137,7 +15074,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           marginBottom: '1.5rem'
         }}>
           <button
-            onClick={() => {setShowSuccessPage(false); setCurrentPage('home');}}
+            onClick={() => { setShowSuccessPage(false); setCurrentPage('home'); }}
             style={{
               padding: '1rem 2rem',
               background: '#2563eb',
@@ -15221,14 +15158,14 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       {showAdminLogin && !isAdminLoggedIn && (
         <AdminLogin onLogin={handleAdminLogin} />
       )}
-      
+
       {/* Admin Panel */}
       {isAdminLoggedIn ? (
-        <SimpleAdminPanel onLogout={handleAdminLogout} />
+        <AdminPanel onLogout={handleAdminLogout} />
       ) : (
         <>
           <Navigation />
-          
+
           {showSuccessPage ? (
             <SuccessPage />
           ) : (
@@ -15244,48 +15181,49 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               {currentPage === 'home-improvements' && <HomeImprovementsPage />}
               {currentPage === 'emergency-services' && <EmergencyServicesPage />}
               {currentPage === 'smart-home-solutions' && <SmartHomeSolutionsPage />}
+              {currentPage === 'admin' && <AdminPanel />}
               {currentPage === 'checkout' && (
-                <UniversalCheckoutPage 
+                <UniversalCheckoutPage
                   selectedService={selectedService}
-                  currentPage={currentPage} 
-                  setCurrentPage={setCurrentPage} 
+                  currentPage={currentPage}
+                  setCurrentPage={setCurrentPage}
                 />
               )}
             </>
           )}
-          
-          </>
-        )}
-        
-        {!showSuccessPage && <Footer />}
-        
-        {/* Emergency Popup */}
-        <EmergencyPopup />
-        
-        {/* Smart Lead Form Modal */}
-        <SmartLeadForm />
-        
-        {/* Chatbot Widget */}
-        <ChatbotWidget
-          chatOpen={chatOpen}
-          setChatOpen={setChatOpen}
-          chatMessages={chatMessages}
-          setChatMessages={setChatMessages}
-          chatInput={chatInput}
-          setChatInput={setChatInput}
-          chatTyping={chatTyping}
-          setChatTyping={setChatTyping}
-          chatContext={chatContext}
-          setChatContext={setChatContext}
-          handleChatSubmit={handleChatSubmit}
-          generateChatResponse={generateChatResponse}
-          openLeadForm={openLeadForm}
-          logChatConversation={logChatConversation}
-          handleQuickReply={handleQuickReply}
-        />
-      </div>
-    )
-}
 
-export default App
+        </>
+      )}
+
+      {!showSuccessPage && <Footer />}
+
+      {/* Emergency Popup */}
+      <EmergencyPopup />
+
+      {/* Smart Lead Form Modal */}
+      <SmartLeadForm />
+
+      {/* Chatbot Widget */}
+      <ChatbotWidget
+        chatOpen={chatOpen}
+        setChatOpen={setChatOpen}
+        chatMessages={chatMessages}
+        setChatMessages={setChatMessages}
+        chatInput={chatInput}
+        setChatInput={setChatInput}
+        chatTyping={chatTyping}
+        setChatTyping={setChatTyping}
+        chatContext={chatContext}
+        setChatContext={setChatContext}
+        handleChatSubmit={handleChatSubmit}
+        generateChatResponse={generateChatResponse}
+        openLeadForm={openLeadForm}
+        logChatConversation={logChatConversation}
+        handleQuickReply={handleQuickReply}
+      />
+    </div>
+  );
+};
+
+export default App;
 

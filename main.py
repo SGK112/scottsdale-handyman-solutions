@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 import stripe
 import mimetypes
 from dotenv import load_dotenv
@@ -56,9 +57,9 @@ if ENVIRONMENT == 'production':
     STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY_LIVE')
     WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET_LIVE')
 else:
-    stripe.api_key = os.getenv('STRIPE_SECRET_KEY_TEST')
-    STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY_TEST')
-    WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET_TEST')
+    stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+    STRIPE_PUBLISHABLE_KEY = os.getenv('STRIPE_PUBLISHABLE_KEY')
+    WEBHOOK_SECRET = os.getenv('STRIPE_WEBHOOK_SECRET')
 
 # Email configuration
 app.config['MAIL_SERVER'] = 'smtp.gmail.com'
@@ -72,6 +73,44 @@ app.config['MAIL_DEFAULT_SENDER'] = 'help.scottsdalehandyman@gmail.com'
 mail = Mail(app)
 
 # Routes will be added here when src structure is created
+
+# Health check endpoint
+@app.route('/health', methods=['GET'])
+@app.route('/api/health', methods=['GET'])
+def health_check():
+    """Health check endpoint for monitoring and load balancers"""
+    health_status = {
+        'status': 'healthy',
+        'timestamp': json.dumps(str(stripe.api_key is not None)),
+        'services': {
+            'flask': 'running',
+            'mongodb': 'connected' if mongo_db is not None else 'disconnected',
+            'stripe': 'configured' if stripe.api_key else 'not configured',
+            'mail': 'configured' if app.config.get('MAIL_PASSWORD') else 'not configured'
+        },
+        'version': '2.0.0'
+    }
+    
+    # Simple health check - return 200 if basic services are running
+    status_code = 200
+    if mongo_db is None:
+        health_status['status'] = 'degraded'
+        
+    return jsonify(health_status), status_code
+
+# Metrics endpoint for monitoring
+@app.route('/api/metrics', methods=['GET'])
+def metrics():
+    """Basic metrics endpoint"""
+    try:
+        # You could integrate with prometheus_client here
+        return jsonify({
+            'requests_total': 'not_implemented',
+            'mongodb_connected': mongo_db is not None,
+            'stripe_configured': stripe.api_key is not None
+        })
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
 
 # Chatbot logging endpoint
 @app.route('/api/chatbot-log', methods=['POST'])
@@ -164,7 +203,10 @@ def upload_image():
             'category': data.get('category', 'general'),
             'filename': data.get('filename', 'uploaded_image'),
             'uploadDate': data.get('uploadDate'),
-            'tags': data.get('tags', [])
+            'tags': data.get('tags', []),
+            'fileSize': data.get('fileSize', 0),
+            'uploadedBy': 'admin',
+            'isActive': True
         }
         
         result = mongo_db.project_images.insert_one(image_doc)
@@ -182,6 +224,146 @@ def upload_image():
             'error': str(e)
         }), 500
 
+# Media Library - Get all files with filtering/pagination
+@app.route('/api/media-library', methods=['GET'])
+def get_media_library():
+    try:
+        if mongo_db is None:
+            return jsonify({
+                'success': False,
+                'error': 'MongoDB not connected',
+                'files': []
+            }), 500
+        
+        # Get query parameters
+        page = int(request.args.get('page', 1))
+        limit = int(request.args.get('limit', 20))
+        file_type = request.args.get('type', 'all')  # all, images, documents
+        search = request.args.get('search', '')
+        category = request.args.get('category', '')
+        
+        # Build query filter
+        query_filter = {'isActive': True}
+        
+        if file_type == 'images':
+            query_filter['contentType'] = {'$regex': '^image/'}
+        elif file_type == 'documents':
+            query_filter['contentType'] = {'$not': {'$regex': '^image/'}}
+        
+        if search:
+            query_filter['$or'] = [
+                {'title': {'$regex': search, '$options': 'i'}},
+                {'description': {'$regex': search, '$options': 'i'}},
+                {'filename': {'$regex': search, '$options': 'i'}},
+                {'tags': {'$regex': search, '$options': 'i'}}
+            ]
+        
+        if category:
+            query_filter['category'] = category
+        
+        # Get total count
+        total_count = mongo_db.project_images.count_documents(query_filter)
+        
+        # Get paginated results
+        skip = (page - 1) * limit
+        files = list(mongo_db.project_images.find(
+            query_filter,
+            {
+                'title': 1,
+                'description': 1,
+                'filename': 1,
+                'contentType': 1,
+                'category': 1,
+                'tags': 1,
+                'fileSize': 1,
+                'uploadDate': 1,
+                'uploadedBy': 1,
+                'imageData': {'$substr': ['$imageData', 0, 100]}  # Thumbnail preview
+            }
+        ).sort('uploadDate', -1).skip(skip).limit(limit))
+        
+        # Convert ObjectId to string
+        for file in files:
+            file['_id'] = str(file['_id'])
+            # Create thumbnail URL
+            file['thumbnailUrl'] = f'/api/images/{file["_id"]}?format=thumbnail'
+            file['fullUrl'] = f'/api/images/{file["_id"]}?format=binary'
+        
+        return jsonify({
+            'success': True,
+            'files': files,
+            'pagination': {
+                'page': page,
+                'limit': limit,
+                'total': total_count,
+                'pages': (total_count + limit - 1) // limit
+            }
+        })
+        
+    except Exception as e:
+        print(f"Error fetching media library: {e}")
+        return jsonify({
+            'success': False,
+            'error': str(e),
+            'files': []
+        }), 500
+
+# Update media file metadata
+@app.route('/api/media/<file_id>', methods=['PUT'])
+def update_media_file(file_id):
+    try:
+        if mongo_db is None:
+            return jsonify({'success': False, 'error': 'MongoDB not connected'}), 500
+        
+        data = request.get_json()
+        
+        # Update fields
+        update_data = {}
+        if 'title' in data:
+            update_data['title'] = data['title']
+        if 'description' in data:
+            update_data['description'] = data['description']
+        if 'category' in data:
+            update_data['category'] = data['category']
+        if 'tags' in data:
+            update_data['tags'] = data['tags']
+        
+        result = mongo_db.project_images.update_one(
+            {'_id': ObjectId(file_id)},
+            {'$set': update_data}
+        )
+        
+        if result.modified_count > 0:
+            return jsonify({'success': True, 'message': 'File updated successfully'})
+        else:
+            return jsonify({'success': False, 'error': 'File not found or no changes made'}), 404
+        
+    except Exception as e:
+        print(f"Error updating media file: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
+# Delete media file
+@app.route('/api/media/<file_id>', methods=['DELETE'])
+def delete_media_file(file_id):
+    try:
+        if mongo_db is None:
+            return jsonify({'success': False, 'error': 'MongoDB not connected'}), 500
+        
+        # Soft delete (mark as inactive)
+        result = mongo_db.project_images.update_one(
+            {'_id': ObjectId(file_id)},
+            {'$set': {'isActive': False}}
+        )
+        
+        if result.modified_count > 0:
+            return jsonify({'success': True, 'message': 'File deleted successfully'})
+        else:
+            return jsonify({'success': False, 'error': 'File not found'}), 404
+        
+    except Exception as e:
+        print(f"Error deleting media file: {e}")
+        return jsonify({'success': False, 'error': str(e)}), 500
+
 # Get single image by ID
 @app.route('/api/images/<image_id>', methods=['GET'])
 def get_image(image_id):
@@ -195,29 +377,54 @@ def get_image(image_id):
         if not image:
             return jsonify({'error': 'Image not found'}), 404
         
-        # Return image data as base64 or binary
-        if request.args.get('format') == 'binary':
-            # Return binary image data
+        format_type = request.args.get('format', 'json')
+        
+        if format_type == 'binary':
+            # Return full size binary image data
             image_binary = base64.b64decode(image['imageData'])
             return Response(
                 image_binary,
                 mimetype=image['contentType'],
                 headers={
-                    'Content-Disposition': f'inline; filename="{image.get("filename", "image")}"'
+                    'Content-Disposition': f'inline; filename="{image.get("filename", "image")}"',
+                    'Cache-Control': 'public, max-age=3600'
                 }
             )
+        elif format_type == 'thumbnail':
+            # Return thumbnail version (first 2000 chars of base64 for preview)
+            thumbnail_data = image['imageData'][:2000] + '=='  # Add padding if needed
+            try:
+                image_binary = base64.b64decode(thumbnail_data)
+                return Response(
+                    image_binary,
+                    mimetype=image['contentType'],
+                    headers={
+                        'Content-Disposition': f'inline; filename="thumb_{image.get("filename", "image")}"',
+                        'Cache-Control': 'public, max-age=7200'
+                    }
+                )
+            except:
+                # Fallback to JSON if thumbnail generation fails
+                return jsonify({
+                    'success': True,
+                    'thumbnailUrl': f'/api/images/{image_id}?format=binary'
+                })
         else:
-            # Return JSON with image data
+            # Return JSON with image metadata
             return jsonify({
                 'success': True,
                 'image': {
                     '_id': str(image['_id']),
                     'title': image.get('title'),
                     'description': image.get('description'),
-                    'imageData': image['imageData'],
                     'contentType': image['contentType'],
                     'category': image.get('category'),
-                    'filename': image.get('filename')
+                    'filename': image.get('filename'),
+                    'fileSize': image.get('fileSize', 0),
+                    'uploadDate': image.get('uploadDate'),
+                    'tags': image.get('tags', []),
+                    'fullUrl': f'/api/images/{image_id}?format=binary',
+                    'thumbnailUrl': f'/api/images/{image_id}?format=thumbnail'
                 }
             })
     except Exception as e:
@@ -268,6 +475,40 @@ def log_chatbot_conversation():
     except Exception as e:
         print(f"Error logging chatbot conversation: {str(e)}")
         return jsonify({'error': 'Failed to log conversation'}), 500
+
+# Admin Authentication Route
+@app.route('/api/admin-login', methods=['POST'])
+def admin_login():
+    """Authenticate admin user against environment variables"""
+    try:
+        data = request.json
+        username = data.get('username')
+        password = data.get('password')
+        
+        # Get admin credentials from environment variables
+        env_username = os.getenv('ADMIN_SECRET_KEY')
+        env_password = os.getenv('ADMIN_PASSWORD')
+        
+        if username == env_username and password == env_password:
+            # Generate a simple token (in production, use JWT)
+            token = f"admin_token_{int(time.time())}"
+            return jsonify({
+                'success': True, 
+                'token': token,
+                'message': 'Login successful'
+            }), 200
+        else:
+            return jsonify({
+                'success': False, 
+                'error': 'Invalid username or password'
+            }), 401
+            
+    except Exception as e:
+        print(f"Admin login error: {str(e)}")
+        return jsonify({
+            'success': False, 
+            'error': 'Login failed. Please try again.'
+        }), 500
 
 # Stripe Payment Routes
 @app.route('/api/stripe-config', methods=['GET'])
@@ -370,4 +611,4 @@ def serve(path):
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=3000, debug=True)
+    app.run(host='0.0.0.0', port=3001, debug=True)
