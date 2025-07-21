@@ -8,7 +8,7 @@ __pycache__/
 .Python
 build/
 develop-eggs/
-dist/
+# dist/  # Temporarily commented out for Render deployment
 downloads/
 eggs/
 .eggs/
