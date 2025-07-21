@@ -1417,13 +1417,108 @@ function App() {
     }
   };
 
+  // Grok AI Fallback Integration
+  const getGrokResponse = async (userMessage, conversationHistory, context) => {
+    try {
+      console.log('🤖 Calling Grok API for:', userMessage);
+      
+      // Prepare context for Grok
+      const systemPrompt = `You are a helpful AI assistant for Scottsdale Handyman Solutions, a professional handyman service in Scottsdale, Arizona. 
+
+BUSINESS DETAILS:
+- Phone: (480) 255-5887
+- Email: help.scottsdalehandyman@gmail.com
+- Service Area: Scottsdale, Paradise Valley, Fountain Hills, North Phoenix/Tempe
+- Hours: Mon-Sat 7AM-6PM, 24/7 emergency
+- Services: Electrical, plumbing, repairs, installations, painting, drywall, HVAC service, pool equipment, desert home specialties
+
+CONVERSATION CONTEXT:
+${context.conversationStage ? `Current stage: ${context.conversationStage}` : ''}
+${context.lastService ? `Last discussed service: ${context.lastService}` : ''}
+
+Keep responses helpful, professional, and focused on handyman services. Always encourage contacting the business for quotes and scheduling. Be conversational and remember the context of previous messages.`;
+
+      const messages = [
+        { role: 'system', content: systemPrompt },
+        ...conversationHistory.slice(-4), // Last 4 messages for context
+      ];
+
+      // Note: In production, you would use actual Grok API credentials
+      // For now, we'll simulate Grok with enhanced local AI
+      const grokResponse = await simulateGrokResponse(userMessage, messages, context);
+      
+      return grokResponse;
+    } catch (error) {
+      console.error('❌ Grok API error:', error);
+      throw error;
+    }
+  };
+
+  // Enhanced AI simulation (placeholder for actual Grok integration)
+  const simulateGrokResponse = async (userMessage, messages, context) => {
+    // This simulates a more intelligent AI response
+    const message = userMessage.toLowerCase();
+    
+    // Context-aware responses
+    if (context.conversationHistory && context.conversationHistory.length > 2) {
+      const recentMessages = context.conversationHistory.slice(-3);
+      const hasAskedAboutPricing = recentMessages.some(msg => 
+        msg.content && msg.content.toLowerCase().includes('price') || 
+        msg.content && msg.content.toLowerCase().includes('cost')
+      );
+      
+      if (hasAskedAboutPricing && message.includes('when')) {
+        return "Since we discussed pricing, let me help with scheduling! We typically book handyman services 2-5 days out, with same-day emergency available. For the services we discussed, I recommend calling (480) 255-5887 to check our current availability and lock in a time that works for you. What time of day generally works best?";
+      }
+      
+      const hasDiscussedService = recentMessages.some(msg => 
+        msg.content && (msg.content.toLowerCase().includes('electrical') || 
+                       msg.content.toLowerCase().includes('plumbing') ||
+                       msg.content.toLowerCase().includes('repair'))
+      );
+      
+      if (hasDiscussedService && message.includes('also') || message.includes('additionally')) {
+        return "Absolutely! Many customers bundle multiple services together - it's more efficient and often more cost-effective. We can handle multiple handyman tasks in one visit. What additional services are you thinking about? I can help coordinate everything for a comprehensive home improvement session.";
+      }
+    }
+
+    // Complex query handling
+    if (message.length > 100 || message.split(' ').length > 15) {
+      return "That's a detailed question - I appreciate the context! For complex projects like this, our handyman team would benefit from discussing this directly with you to ensure we address every aspect properly. Would you like to schedule a free consultation call at (480) 255-5887? Our team can walk through your specific situation and provide expert recommendations tailored to your needs.";
+    }
+
+    // Follow-up questions
+    if (message.match(/\b(but|however|what about|though|although)\b/)) {
+      return "Great follow-up question! I want to make sure I give you the most accurate information for your specific situation. These details matter a lot for handyman work. Would it be helpful if I have one of our experienced technicians give you a quick call to discuss the specifics? They can provide expert insight that's tailored exactly to your project.";
+    }
+
+    // Default enhanced response
+    return "That's a great question about handyman services! While I try to be as helpful as possible, some situations benefit from our team's hands-on expertise. I'd love to connect you with our Scottsdale handyman professionals who can give you detailed, personalized advice. Would you prefer a phone consultation at (480) 255-5887 or should I have them email you at the address you prefer?";
+  };
+
+  // Fallback response when all else fails
+  const generateFallbackResponse = (userMessage, context) => {
+    const responses = [
+      "I want to give you the best help possible! For questions like this, our experienced handyman team can provide much better guidance than I can. Would you like to call (480) 255-5887 or should I have them reach out to you?",
+      
+      "That's exactly the kind of detailed question our Scottsdale handyman experts love to tackle! Rather than guess, let me connect you with someone who can give you accurate, professional advice. What's the best way to reach you - phone or email?",
+      
+      "You know what? This deserves a proper answer from our professional team rather than my best guess. Our experienced handymen have solved thousands of similar challenges in Scottsdale homes. Can I have them give you a call to discuss this properly?"
+    ];
+    
+    const response = responses[Math.floor(Math.random() * responses.length)];
+    context.actionButtons = generateActionButtons(['contactUs', 'quoteRequest', 'emailUs']);
+    return response;
+  };
+
   // Advanced NLP Response Generator with Enhanced Scottsdale Local Content
-  const generateChatResponse = (userMessage, context = {}) => {
+  const generateChatResponse = async (userMessage, context = {}) => {
     console.log('🎯 generateChatResponse called with:', {
       userMessage,
       type: typeof userMessage,
       length: userMessage?.length,
-      context
+      context,
+      chatHistory: chatMessages.slice(-5) // Show last 5 messages for context
     });
 
     const message = userMessage.toLowerCase();
@@ -1433,6 +1528,24 @@ function App() {
     let newContext = { ...chatContext };
     let confidence = 0;
     let matchedService = null;
+
+    // Build conversation history for context
+    const conversationHistory = chatMessages.slice(-6).map(msg => ({
+      role: msg.sender === 'user' ? 'user' : 'assistant',
+      content: msg.text
+    }));
+
+    // Add current message to history
+    conversationHistory.push({
+      role: 'user',
+      content: userMessage
+    });
+
+    // Enhanced context tracking
+    newContext.conversationHistory = conversationHistory;
+    newContext.messageCount = (newContext.messageCount || 0) + 1;
+    newContext.lastUserMessage = userMessage;
+    newContext.timestamp = new Date().toISOString();
 
     // Advanced keyword matching with scoring
     const scoreMatch = (text, keywords) => {
@@ -1556,7 +1669,56 @@ function App() {
       }
     }
 
-    // Context-aware follow-up responses
+    // Enhanced context-aware follow-up responses with conversation memory
+    else if (newContext.conversationHistory && newContext.conversationHistory.length > 2) {
+      const recentMessages = newContext.conversationHistory.slice(-4);
+      const hasDiscussedService = recentMessages.some(msg => 
+        msg.content && (msg.content.toLowerCase().includes('electrical') || 
+                       msg.content.toLowerCase().includes('plumbing') ||
+                       msg.content.toLowerCase().includes('repair') ||
+                       msg.content.toLowerCase().includes('install'))
+      );
+      
+      const hasAskedAboutPricing = recentMessages.some(msg => 
+        msg.content && (msg.content.toLowerCase().includes('price') || 
+                       msg.content.toLowerCase().includes('cost') ||
+                       msg.content.toLowerCase().includes('how much'))
+      );
+
+      // Context-based follow-up responses
+      if (context.conversationStage === 'service_details' && context.lastService) {
+        if (message.match(/\b(small|minor|quick|little|tiny|simple)\b/)) {
+          response = `Got it, a smaller ${context.lastService} job! These typically take 1-3 hours and range from $150-400. Based on our conversation, sounds like a straightforward project. Would you like me to connect you with our team for a free estimate?`;
+          newContext.conversationStage = 'ready_to_book';
+          newContext.actionButtons = generateActionButtons(['quoteRequest', 'contactUs', 'scheduleService']);
+        } else if (message.match(/\b(large|major|big|huge|extensive|complete|full)\b/)) {
+          response = `Sounds like a bigger ${context.lastService} project! For larger jobs like this, we always provide detailed free estimates. I can tell from our conversation this needs proper planning. Would you like to schedule an in-person consultation?`;
+          newContext.conversationStage = 'ready_to_book';
+          newContext.actionButtons = generateActionButtons(['quoteRequest', 'scheduleService', 'contactUs']);
+        } else if (message.match(/\b(room|rooms|bathroom|kitchen|bedroom|living room|square feet|sq ft)\b/)) {
+          response = `Perfect! Room details really help with ${context.lastService} estimates. From what we've discussed, this sounds like a solid project scope. Would you like me to have our team call you for a detailed quote based on these specifics?`;
+          newContext.conversationStage = 'ready_to_book';
+          newContext.actionButtons = generateActionButtons(['quoteRequest', 'contactUs', 'emailUs']);
+        }
+      }
+      // Cross-referencing previous conversation topics  
+      else if (hasDiscussedService && message.match(/\b(also|additionally|and|plus|too|as well)\b/)) {
+        response = "Great! I see you're thinking about multiple services. Many customers bundle projects together - it's more efficient and often more cost-effective. We can handle multiple handyman tasks in one visit. What additional services are you considering? I can help coordinate everything.";
+        newContext.conversationStage = 'multiple_services';
+        newContext.actionButtons = generateActionButtons(['quoteRequest', 'viewServices', 'contactUs']);
+      }
+      else if (hasAskedAboutPricing && message.match(/\b(when|schedule|available|timing|appointment)\b/)) {
+        response = "Perfect timing question! Since we discussed pricing, let me help with scheduling. We typically book handyman services 2-5 days out, with same-day emergency available. For the services we talked about, I recommend calling (480) 255-5887 to check our current availability. What time of day generally works best for you?";
+        newContext.conversationStage = 'scheduling_after_pricing';
+        newContext.actionButtons = generateActionButtons(['scheduleService', 'contactUs', 'emergencyService']);
+      }
+      else if (message.match(/\b(but|however|what about|though|although)\b/)) {
+        response = "I appreciate the follow-up question! These details matter a lot for handyman work. From our conversation, I can tell you're thinking this through carefully. Would it be helpful if one of our experienced technicians gave you a quick call to discuss these specifics? They can provide expert insight tailored to your situation.";
+        newContext.conversationStage = 'detailed_consultation';
+        newContext.actionButtons = generateActionButtons(['contactUs', 'quoteRequest', 'scheduleService']);
+      }
+    }
+    // Original context-aware follow-up for backward compatibility
     else if (context.conversationStage === 'service_details' && context.lastService) {
       if (message.match(/\b(small|minor|quick|little|tiny|simple)\b/)) {
         response = `Got it, a smaller ${context.lastService} job! These typically take 1-3 hours and range from $150-400. Would you like me to connect you with our team for a free estimate?`;
@@ -1732,6 +1894,23 @@ function App() {
     // Update context
     setChatContext(newContext);
 
+    // Grok AI Fallback - if response is generic, user seems confused, or after several exchanges
+    if (!response || response.includes("I'd help with your") || 
+        (newContext.messageCount > 3 && !newContext.conversationStage) ||
+        message.includes('confused') || message.includes('don\'t understand') ||
+        confidence === 0 && message.length > 20) {
+      
+      console.log('🤖 Attempting Grok AI fallback for complex query:', message);
+      try {
+        response = await getGrokResponse(userMessage, conversationHistory, newContext);
+        newContext.usedGrokFallback = true;
+        newContext.grokFallbackCount = (newContext.grokFallbackCount || 0) + 1;
+      } catch (error) {
+        console.error('❌ Grok fallback failed:', error);
+        response = generateFallbackResponse(userMessage, newContext);
+      }
+    }
+
     // Handle very short or unclear messages
     if (!response || response.trim() === '') {
       if (message.length <= 3 || message.match(/^\?+$/) || message.match(/^[^\w\s]+$/)) {
@@ -1773,10 +1952,10 @@ function App() {
     // More realistic typing delay based on message length
     const responseDelay = Math.min(Math.max(message.length * 50, 800), 3000)
 
-    setTimeout(() => {
+    setTimeout(async () => {
       try {
         console.log('🤖 App: Generating response for:', message);
-        const responseText = generateChatResponse(message, chatContext);
+        const responseText = await generateChatResponse(message, chatContext);
         console.log('✅ App: Generated response:', responseText);
 
         // Ensure we have a valid response
