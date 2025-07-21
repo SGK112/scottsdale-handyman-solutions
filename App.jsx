@@ -2477,7 +2477,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
       id: 5,
       title: "Desert Outdoor Kitchen Paradise",
       description: "Ultimate entertaining space with built-in BBQ grill, bar seating, and ambient lighting perfect for Arizona climate",
-      image: "https://images.unsplash.com/photo-1578662996442-48f60103fc96?w=800&h=600&fit=crop&auto=format",
+      image: "https://images.unsplash.com/photo-1571003123894-1f0594d2b5d9?w=800&h=600&fit=crop&auto=format",
       alt: "Outdoor kitchen with built-in grill, bar seating, and desert landscaping",
       category: "Outdoor",
       completionTime: "2 weeks",
