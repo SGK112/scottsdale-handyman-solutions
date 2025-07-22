@@ -1,21 +1,41 @@
 services:
-  # Frontend (React/Vite) - Static Site
+  # Customer Website (React/Vite) - Static Site
   - type: web
-    name: scottsdale-handyman-frontend
+    name: scottsdale-handyman-website
     env: static
+    rootDir: apps/website
     buildCommand: npm install && npm run build
     staticPublishPath: ./dist
     routes:
       - type: rewrite
         source: /*
         destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://scottsdale-handyman-api.onrender.com
 
-  # Backend (Flask API) - Web Service
+  # Pro Portal (React/Vite) - Static Site
   - type: web
-    name: scottsdale-handyman-backend
+    name: scottsdale-handyman-pro-portal
+    env: static
+    rootDir: apps/pro-portal
+    buildCommand: npm install && npm run build
+    staticPublishPath: ./dist
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /index.html
+    envVars:
+      - key: VITE_API_URL
+        value: https://scottsdale-handyman-api.onrender.com
+
+  # API Backend (Flask) - Web Service
+  - type: web
+    name: scottsdale-handyman-api
     env: python
+    rootDir: apps/api
     buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn main:app --bind 0.0.0.0:$PORT
+    startCommand: gunicorn server:app --bind 0.0.0.0:$PORT
     plan: free
     envVars:
       - key: PYTHON_VERSION
@@ -25,4 +45,5 @@ services:
       # MAIL_PASSWORD=nfsx nosf sfbp ckmp
       # STRIPE_PUBLISHABLE_KEY_TEST=pk_test_...
       # STRIPE_SECRET_KEY_TEST=sk_test_...
-      # ENVIRONMENT=development
+      # ENVIRONMENT=production
+      # CORS_ORIGINS=https://scottsdale-handyman-website.onrender.com,https://scottsdale-handyman-pro-portal.onrender.com
