@@ -64,6 +64,211 @@ def create_pro_routes(app):
                 'message': 'Server error during login'
             }), 500
 
+    @app.route('/api/pro/auth/signup', methods=['POST'])
+    def pro_signup():
+        """Handle pro handyman registration"""
+        try:
+            data = request.get_json()
+            
+            # Validate required fields
+            required_fields = ['username', 'email', 'password', 'fullName', 'phone', 'specialties', 'experience', 'serviceArea']
+            missing_fields = [field for field in required_fields if not data.get(field)]
+            
+            if missing_fields:
+                return jsonify({
+                    'success': False,
+                    'message': f'Missing required fields: {", ".join(missing_fields)}'
+                }), 400
+            
+            # Load existing pros
+            PROS_FILE = os.path.join(os.path.dirname(__file__), 'pros.json')
+            pros = load_json_file(PROS_FILE, [])
+            
+            # Check for existing username or email
+            existing_pro = next((p for p in pros if p['username'] == data['username'] or p['email'] == data['email']), None)
+            if existing_pro:
+                return jsonify({
+                    'success': False,
+                    'message': 'Username or email already exists'
+                }), 400
+            
+            # Create new pro profile
+            new_pro = {
+                'id': int(datetime.now().timestamp() * 1000),
+                'username': data['username'],
+                'email': data['email'],
+                'password': data['password'],  # In production, hash this!
+                'fullName': data['fullName'],
+                'phone': data['phone'],
+                'businessName': data.get('businessName', ''),
+                'licenseNumber': data.get('licenseNumber', ''),
+                'specialties': data['specialties'],
+                'experience': data['experience'],
+                'serviceArea': data['serviceArea'],
+                'hourlyRate': float(data.get('hourlyRate', 0)) if data.get('hourlyRate') else None,
+                'status': 'pending',  # pending, approved, suspended
+                'createdAt': datetime.now().isoformat(),
+                'approvedAt': None,
+                'rating': 0.0,
+                'completedJobs': 0,
+                'totalEarnings': 0.0,
+                'isActive': True,
+                'profilePicture': None,
+                'certifications': [],
+                'insurance': {
+                    'hasLiability': False,
+                    'hasBonding': False,
+                    'expiryDate': None
+                },
+                'preferences': {
+                    'maxDistanceMiles': 25,
+                    'preferredJobTypes': [data['specialties']],
+                    'availableWeekdays': True,
+                    'availableWeekends': True,
+                    'availableEvenings': False
+                }
+            }
+            
+            # Add to pros list
+            pros.append(new_pro)
+            
+            # Save to file
+            if save_json_file(PROS_FILE, pros):
+                # Send notification email to admin (in production)
+                print(f"📧 New pro registration: {data['fullName']} ({data['email']})")
+                
+                return jsonify({
+                    'success': True,
+                    'message': 'Registration successful! Your application will be reviewed within 24-48 hours.',
+                    'pro': {
+                        'id': new_pro['id'],
+                        'username': new_pro['username'],
+                        'fullName': new_pro['fullName'],
+                        'status': new_pro['status']
+                    }
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'message': 'Failed to save registration'
+                }), 500
+                
+        except Exception as e:
+            print(f"❌ Error in pro signup: {e}")
+            return jsonify({
+                'success': False,
+                'message': 'Server error during registration'
+            }), 500
+
+    # Pro Management endpoints (Admin only)
+    @app.route('/api/pro/pros', methods=['GET'])
+    def get_all_pros():
+        """Get all registered pros for admin management"""
+        try:
+            PROS_FILE = os.path.join(os.path.dirname(__file__), 'pros.json')
+            pros = load_json_file(PROS_FILE, [])
+            
+            # Remove sensitive data (passwords) before sending
+            safe_pros = []
+            for pro in pros:
+                safe_pro = {k: v for k, v in pro.items() if k != 'password'}
+                safe_pros.append(safe_pro)
+            
+            return jsonify({
+                'success': True,
+                'pros': safe_pros,
+                'total': len(safe_pros),
+                'pending': len([p for p in pros if p['status'] == 'pending']),
+                'approved': len([p for p in pros if p['status'] == 'approved']),
+                'suspended': len([p for p in pros if p['status'] == 'suspended'])
+            })
+        except Exception as e:
+            print(f"❌ Error fetching pros: {e}")
+            return jsonify({
+                'success': False,
+                'message': 'Error fetching pros'
+            }), 500
+
+    @app.route('/api/pro/pros/<int:pro_id>/approve', methods=['POST'])
+    def approve_pro(pro_id):
+        """Approve a pending pro registration"""
+        try:
+            PROS_FILE = os.path.join(os.path.dirname(__file__), 'pros.json')
+            pros = load_json_file(PROS_FILE, [])
+            
+            # Find the pro
+            pro_index = next((i for i, p in enumerate(pros) if p['id'] == pro_id), None)
+            if pro_index is None:
+                return jsonify({
+                    'success': False,
+                    'message': 'Pro not found'
+                }), 404
+            
+            # Update status
+            pros[pro_index]['status'] = 'approved'
+            pros[pro_index]['approvedAt'] = datetime.now().isoformat()
+            
+            # Save changes
+            if save_json_file(PROS_FILE, pros):
+                print(f"✅ Pro approved: {pros[pro_index]['fullName']} ({pros[pro_index]['email']})")
+                return jsonify({
+                    'success': True,
+                    'message': 'Pro approved successfully',
+                    'pro': {k: v for k, v in pros[pro_index].items() if k != 'password'}
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'message': 'Failed to save approval'
+                }), 500
+                
+        except Exception as e:
+            print(f"❌ Error approving pro: {e}")
+            return jsonify({
+                'success': False,
+                'message': 'Error approving pro'
+            }), 500
+
+    @app.route('/api/pro/pros/<int:pro_id>/suspend', methods=['POST'])
+    def suspend_pro(pro_id):
+        """Suspend a pro"""
+        try:
+            PROS_FILE = os.path.join(os.path.dirname(__file__), 'pros.json')
+            pros = load_json_file(PROS_FILE, [])
+            
+            # Find the pro
+            pro_index = next((i for i, p in enumerate(pros) if p['id'] == pro_id), None)
+            if pro_index is None:
+                return jsonify({
+                    'success': False,
+                    'message': 'Pro not found'
+                }), 404
+            
+            # Update status
+            pros[pro_index]['status'] = 'suspended'
+            pros[pro_index]['suspendedAt'] = datetime.now().isoformat()
+            
+            # Save changes
+            if save_json_file(PROS_FILE, pros):
+                print(f"⚠️ Pro suspended: {pros[pro_index]['fullName']} ({pros[pro_index]['email']})")
+                return jsonify({
+                    'success': True,
+                    'message': 'Pro suspended successfully',
+                    'pro': {k: v for k, v in pros[pro_index].items() if k != 'password'}
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'message': 'Failed to save suspension'
+                }), 500
+                
+        except Exception as e:
+            print(f"❌ Error suspending pro: {e}")
+            return jsonify({
+                'success': False,
+                'message': 'Error suspending pro'
+            }), 500
+
     # Lead Management endpoints
     @app.route('/api/pro/leads', methods=['GET'])
     def get_all_leads():

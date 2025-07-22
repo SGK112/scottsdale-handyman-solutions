@@ -1,0 +1,39 @@
+[
+  {
+    "id": 1753204711107,
+    "username": "johnsmith",
+    "email": "john@example.com",
+    "password": "securepass123",
+    "fullName": "John Smith",
+    "phone": "480-555-9876",
+    "businessName": "Smith Handyman Services",
+    "licenseNumber": "AZ123456",
+    "specialties": "general",
+    "experience": "8-15",
+    "serviceArea": "Scottsdale, Phoenix",
+    "hourlyRate": 75.0,
+    "status": "approved",
+    "createdAt": "2025-07-22T10:18:31.108028",
+    "approvedAt": "2025-07-22T10:18:49.028149",
+    "rating": 0.0,
+    "completedJobs": 0,
+    "totalEarnings": 0.0,
+    "isActive": true,
+    "profilePicture": null,
+    "certifications": [],
+    "insurance": {
+      "hasLiability": false,
+      "hasBonding": false,
+      "expiryDate": null
+    },
+    "preferences": {
+      "maxDistanceMiles": 25,
+      "preferredJobTypes": [
+        "general"
+      ],
+      "availableWeekdays": true,
+      "availableWeekends": true,
+      "availableEvenings": false
+    }
+  }
+]

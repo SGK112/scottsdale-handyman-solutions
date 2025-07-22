@@ -1,0 +1,19 @@
+[
+  {
+    "id": 1753204300807,
+    "name": "Test Lead",
+    "phone": "480-555-1234",
+    "email": "test@example.com",
+    "address": "123 Test St, Scottsdale, AZ",
+    "service": "Plumbing",
+    "description": "Test leak repair",
+    "urgency": "high",
+    "source": "website",
+    "value": 250.0,
+    "notes": "API test lead",
+    "status": "new",
+    "date": "2025-07-22",
+    "created_at": "2025-07-22T10:11:40.807511",
+    "updated_at": "2025-07-22T10:11:40.807513"
+  }
+]

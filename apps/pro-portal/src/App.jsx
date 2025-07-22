@@ -9,6 +9,7 @@ const ProPortalApp = () => {
   // Authentication state
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showSignup, setShowSignup] = useState(false);
 
   // API configuration
   const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
@@ -1163,7 +1164,7 @@ const ProPortalApp = () => {
     );
   };
 
-  // Login form when not authenticated
+  // Authentication form when not logged in
   if (!isAdminLoggedIn) {
     return (
       <div style={{
@@ -1179,7 +1180,7 @@ const ProPortalApp = () => {
           padding: '40px',
           borderRadius: '15px',
           boxShadow: '0 10px 30px rgba(0,0,0,0.2)',
-          maxWidth: '400px',
+          maxWidth: '500px',
           width: '100%',
           margin: '20px'
         }}>
@@ -1196,123 +1197,518 @@ const ProPortalApp = () => {
             }}>
               🛠️
             </div>
-            <h2 style={{ color: '#2c3e50', marginBottom: '10px', fontSize: '24px' }}>Pro Portal Login</h2>
+            <h2 style={{ color: '#2c3e50', marginBottom: '10px', fontSize: '24px' }}>
+              {showSignup ? 'Join Our Pro Network' : 'Pro Portal Login'}
+            </h2>
             <p style={{ color: '#7f8c8d', fontSize: '14px' }}>
-              Access your business management dashboard
+              {showSignup 
+                ? 'Register as a professional handyman and start getting leads'
+                : 'Access your business management dashboard'
+              }
             </p>
           </div>
 
-          <form onSubmit={async (e) => {
-            e.preventDefault();
-            const username = e.target.username.value;
-            const password = e.target.password.value;
-
-            try {
-              const response = await fetch(`${API_BASE_URL}/api/pro/auth/login`, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ username, password })
-              });
-              
-              const data = await response.json();
-              
-              if (data.success) {
-                setIsAdminLoggedIn(true);
-                localStorage.setItem('scottsdaleProAuth', 'true');
-                localStorage.setItem('scottsdaleProToken', data.token);
-              } else {
-                alert('Invalid credentials');
-              }
-            } catch (error) {
-              console.error('Login error:', error);
-              // Fallback to client-side authentication for development
-              if (username === 'admin' && password === 'scottsdaleHandyman2025!') {
-                setIsAdminLoggedIn(true);
-                localStorage.setItem('scottsdaleProAuth', 'true');
-              } else {
-                alert('Invalid credentials');
-              }
-            }
+          {/* Toggle Buttons */}
+          <div style={{
+            display: 'flex',
+            marginBottom: '30px',
+            borderRadius: '8px',
+            overflow: 'hidden',
+            border: '1px solid #e1e5e9'
           }}>
-            <div style={{ marginBottom: '20px' }}>
-              <input
-                name="username"
-                type="text"
-                placeholder="Username"
+            <button
+              type="button"
+              onClick={() => setShowSignup(false)}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: !showSignup ? '#1e3a5f' : '#f8f9fa',
+                color: !showSignup ? 'white' : '#64748b',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: '600',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              Login
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowSignup(true)}
+              style={{
+                flex: 1,
+                padding: '12px',
+                background: showSignup ? '#1e3a5f' : '#f8f9fa',
+                color: showSignup ? 'white' : '#64748b',
+                border: 'none',
+                cursor: 'pointer',
+                fontWeight: '600',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              Sign Up
+            </button>
+          </div>
+
+          {/* Login Form */}
+          {!showSignup && (
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              const username = e.target.username.value;
+              const password = e.target.password.value;
+
+              try {
+                const response = await fetch(`${API_BASE_URL}/api/pro/auth/login`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({ username, password })
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                  setIsAdminLoggedIn(true);
+                  localStorage.setItem('scottsdaleProAuth', 'true');
+                  localStorage.setItem('scottsdaleProToken', data.token);
+                  localStorage.setItem('scottsdaleProUser', JSON.stringify(data.user));
+                } else {
+                  alert('Invalid credentials');
+                }
+              } catch (error) {
+                console.error('Login error:', error);
+                // Fallback to client-side authentication for development
+                if (username === 'admin' && password === 'scottsdaleHandyman2025!') {
+                  setIsAdminLoggedIn(true);
+                  localStorage.setItem('scottsdaleProAuth', 'true');
+                } else {
+                  alert('Invalid credentials');
+                }
+              }
+            }}>
+              <div style={{ marginBottom: '20px' }}>
+                <input
+                  name="username"
+                  type="text"
+                  placeholder="Username"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    background: '#f8f9fa',
+                    color: '#2c3e50',
+                    fontSize: '16px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                  required
+                />
+              </div>
+
+              <div style={{ marginBottom: '30px', position: 'relative' }}>
+                <input
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Password"
+                  style={{
+                    width: '100%',
+                    padding: '12px 45px 12px 12px',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    background: '#f8f9fa',
+                    color: '#2c3e50',
+                    fontSize: '16px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                  required
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  style={{
+                    position: 'absolute',
+                    right: '12px',
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'none',
+                    border: 'none',
+                    cursor: 'pointer',
+                    padding: '4px',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: '#666'
+                  }}
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
+
+              <button
+                type="submit"
                 style={{
                   width: '100%',
                   padding: '12px',
+                  background: '#1e3a5f',
+                  color: 'white',
+                  border: 'none',
                   borderRadius: '8px',
-                  border: '1px solid #ddd',
-                  background: '#f8f9fa',
-                  color: '#2c3e50',
                   fontSize: '16px',
-                  outline: 'none',
-                  boxSizing: 'border-box'
+                  fontWeight: '600',
+                  cursor: 'pointer',
+                  transition: 'background 0.3s ease'
                 }}
-                required
-              />
-            </div>
+                onMouseOver={(e) => e.target.style.background = '#2c5aa0'}
+                onMouseOut={(e) => e.target.style.background = '#1e3a5f'}
+              >
+                Login to Pro Portal
+              </button>
+            </form>
+          )}
 
-            <div style={{ marginBottom: '30px', position: 'relative' }}>
-              <input
-                name="password"
-                type={showPassword ? "text" : "password"}
-                placeholder="Password"
+          {/* Signup Form */}
+          {showSignup && (
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              const formData = new FormData(e.target);
+              const signupData = {
+                username: formData.get('username'),
+                email: formData.get('email'),
+                password: formData.get('password'),
+                confirmPassword: formData.get('confirmPassword'),
+                fullName: formData.get('fullName'),
+                phone: formData.get('phone'),
+                businessName: formData.get('businessName'),
+                licenseNumber: formData.get('licenseNumber'),
+                specialties: formData.get('specialties'),
+                experience: formData.get('experience'),
+                serviceArea: formData.get('serviceArea'),
+                hourlyRate: formData.get('hourlyRate')
+              };
+
+              // Validate passwords match
+              if (signupData.password !== signupData.confirmPassword) {
+                alert('Passwords do not match');
+                return;
+              }
+
+              try {
+                const response = await fetch(`${API_BASE_URL}/api/pro/auth/signup`, {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify(signupData)
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                  alert('Registration successful! Please wait for admin approval. You will receive an email confirmation.');
+                  setShowSignup(false); // Switch back to login form
+                } else {
+                  alert(data.message || 'Registration failed');
+                }
+              } catch (error) {
+                console.error('Signup error:', error);
+                alert('Registration failed. Please try again.');
+              }
+            }}>
+              {/* Row 1: Basic Info */}
+              <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
+                <input
+                  name="fullName"
+                  type="text"
+                  placeholder="Full Name *"
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    background: '#f8f9fa',
+                    color: '#2c3e50',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                  required
+                />
+                <input
+                  name="phone"
+                  type="tel"
+                  placeholder="Phone Number *"
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    background: '#f8f9fa',
+                    color: '#2c3e50',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                  required
+                />
+              </div>
+
+              {/* Row 2: Credentials */}
+              <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
+                <input
+                  name="username"
+                  type="text"
+                  placeholder="Username *"
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    background: '#f8f9fa',
+                    color: '#2c3e50',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                  required
+                />
+                <input
+                  name="email"
+                  type="email"
+                  placeholder="Email Address *"
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    background: '#f8f9fa',
+                    color: '#2c3e50',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                  required
+                />
+              </div>
+
+              {/* Row 3: Business Info */}
+              <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
+                <input
+                  name="businessName"
+                  type="text"
+                  placeholder="Business Name"
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    background: '#f8f9fa',
+                    color: '#2c3e50',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                />
+                <input
+                  name="licenseNumber"
+                  type="text"
+                  placeholder="License Number"
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    background: '#f8f9fa',
+                    color: '#2c3e50',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              {/* Row 4: Service Details */}
+              <div style={{ marginBottom: '20px' }}>
+                <select
+                  name="specialties"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    background: '#f8f9fa',
+                    color: '#2c3e50',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                  required
+                >
+                  <option value="">Select Your Primary Specialty *</option>
+                  <option value="general">General Handyman</option>
+                  <option value="plumbing">Plumbing</option>
+                  <option value="electrical">Electrical</option>
+                  <option value="carpentry">Carpentry</option>
+                  <option value="painting">Painting</option>
+                  <option value="hvac">HVAC</option>
+                  <option value="flooring">Flooring</option>
+                  <option value="roofing">Roofing</option>
+                  <option value="landscaping">Landscaping</option>
+                  <option value="smart-home">Smart Home Installation</option>
+                </select>
+              </div>
+
+              {/* Row 5: Experience and Area */}
+              <div style={{ display: 'flex', gap: '15px', marginBottom: '20px' }}>
+                <select
+                  name="experience"
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    background: '#f8f9fa',
+                    color: '#2c3e50',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                  required
+                >
+                  <option value="">Years of Experience *</option>
+                  <option value="1-3">1-3 years</option>
+                  <option value="4-7">4-7 years</option>
+                  <option value="8-15">8-15 years</option>
+                  <option value="15+">15+ years</option>
+                </select>
+                <input
+                  name="hourlyRate"
+                  type="number"
+                  placeholder="Hourly Rate ($)"
+                  min="25"
+                  max="200"
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    background: '#f8f9fa',
+                    color: '#2c3e50',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                />
+              </div>
+
+              {/* Service Area */}
+              <div style={{ marginBottom: '20px' }}>
+                <input
+                  name="serviceArea"
+                  type="text"
+                  placeholder="Service Area (e.g., Scottsdale, Phoenix, Tempe) *"
+                  style={{
+                    width: '100%',
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    background: '#f8f9fa',
+                    color: '#2c3e50',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                  required
+                />
+              </div>
+
+              {/* Password Fields */}
+              <div style={{ display: 'flex', gap: '15px', marginBottom: '30px' }}>
+                <div style={{ flex: 1, position: 'relative' }}>
+                  <input
+                    name="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Password *"
+                    style={{
+                      width: '100%',
+                      padding: '12px 45px 12px 12px',
+                      borderRadius: '8px',
+                      border: '1px solid #ddd',
+                      background: '#f8f9fa',
+                      color: '#2c3e50',
+                      fontSize: '14px',
+                      outline: 'none',
+                      boxSizing: 'border-box'
+                    }}
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    style={{
+                      position: 'absolute',
+                      right: '12px',
+                      top: '50%',
+                      transform: 'translateY(-50%)',
+                      background: 'none',
+                      border: 'none',
+                      cursor: 'pointer',
+                      padding: '4px',
+                      display: 'flex',
+                      alignItems: 'center',
+                      color: '#666'
+                    }}
+                  >
+                    {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                  </button>
+                </div>
+                <input
+                  name="confirmPassword"
+                  type={showPassword ? "text" : "password"}
+                  placeholder="Confirm Password *"
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    borderRadius: '8px',
+                    border: '1px solid #ddd',
+                    background: '#f8f9fa',
+                    color: '#2c3e50',
+                    fontSize: '14px',
+                    outline: 'none',
+                    boxSizing: 'border-box'
+                  }}
+                  required
+                />
+              </div>
+
+              <button
+                type="submit"
                 style={{
                   width: '100%',
-                  padding: '12px 45px 12px 12px',
-                  borderRadius: '8px',
-                  border: '1px solid #ddd',
-                  background: '#f8f9fa',
-                  color: '#2c3e50',
-                  fontSize: '16px',
-                  outline: 'none',
-                  boxSizing: 'border-box'
-                }}
-                required
-              />
-              <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                style={{
-                  position: 'absolute',
-                  right: '12px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: 'none',
+                  padding: '12px',
+                  background: '#10b981',
+                  color: 'white',
                   border: 'none',
+                  borderRadius: '8px',
+                  fontSize: '16px',
+                  fontWeight: '600',
                   cursor: 'pointer',
-                  padding: '4px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  color: '#666'
+                  transition: 'background 0.3s ease'
                 }}
+                onMouseOver={(e) => e.target.style.background = '#059669'}
+                onMouseOut={(e) => e.target.style.background = '#10b981'}
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                Register as Pro Handyman
               </button>
-            </div>
 
-            <button
-              type="submit"
-              style={{
-                width: '100%',
-                padding: '12px',
-                background: '#1e3a5f',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                fontSize: '16px',
-                fontWeight: '600',
-                cursor: 'pointer',
-                transition: 'background 0.3s ease'
-              }}
-              onMouseOver={(e) => e.target.style.background = '#2c5aa0'}
-              onMouseOut={(e) => e.target.style.background = '#1e3a5f'}
-            >
-              Login to Pro Portal
-            </button>
-          </form>
+              <p style={{ 
+                color: '#7f8c8d', 
+                fontSize: '12px', 
+                marginTop: '15px', 
+                textAlign: 'center',
+                lineHeight: '1.4'
+              }}>
+                By registering, you agree to our terms of service. Your application will be reviewed and you'll receive approval notification within 24-48 hours.
+              </p>
+            </form>
+          )}
 
           <div style={{ textAlign: 'center', marginTop: '20px' }}>
             <a
