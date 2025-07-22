@@ -731,8 +731,21 @@ def handle_leads():
     elif request.method == 'POST':
         # Add new lead
         lead_data = request.json
-        # In production, save to database
-        return jsonify({'success': True, 'message': 'Lead added successfully'})
+        # Create a new lead with an ID and current date
+        new_lead = {
+            'id': len([]) + 1000,  # Simple ID generation
+            'name': lead_data.get('name', ''),
+            'phone': lead_data.get('phone', ''),
+            'email': lead_data.get('email', ''),
+            'address': lead_data.get('address', ''),
+            'service': lead_data.get('service', ''),
+            'status': 'new',
+            'date': lead_data.get('date', ''),
+            'value': lead_data.get('value', 0),
+            'notes': lead_data.get('notes', '')
+        }
+        # In production, save to database and return the saved lead
+        return jsonify({'success': True, 'message': 'Lead added successfully', 'lead': new_lead})
 
 @app.route('/api/pro/invoices', methods=['GET', 'POST'])
 def handle_invoices():

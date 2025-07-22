@@ -8564,6 +8564,209 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
     const [projects, setProjects] = useState([])
     const [clients, setClients] = useState([])
 
+    // Lead Management State
+    const [showAddLead, setShowAddLead] = useState(false)
+    const [editingLead, setEditingLead] = useState(null)
+    const [leadFilter, setLeadFilter] = useState('all')
+    const [leadSearch, setLeadSearch] = useState('')
+
+    // Lead Form State
+    const [leadForm, setLeadForm] = useState({
+      name: '',
+      phone: '',
+      email: '',
+      address: '',
+      service: '',
+      description: '',
+      urgency: 'medium',
+      source: 'phone',
+      estimatedValue: '',
+      notes: ''
+    })
+
+    // Fetch leads from backend
+    const fetchLeads = async () => {
+      try {
+        const response = await fetch('/api/pro/leads')
+        const data = await response.json()
+        if (data.success) {
+          setLeads(data.leads)
+        }
+      } catch (error) {
+        console.error('Error fetching leads:', error)
+        // Use sample data as fallback
+        setLeads([
+          { 
+            id: 1, 
+            name: 'John Smith', 
+            phone: '480-555-0123', 
+            email: 'john@example.com',
+            address: '123 Desert View Dr, Scottsdale, AZ',
+            service: 'Kitchen Repair', 
+            status: 'new', 
+            date: '2025-01-15', 
+            value: 850,
+            urgency: 'high',
+            source: 'website',
+            description: 'Kitchen sink is leaking and cabinet door is broken',
+            notes: 'Available weekends only'
+          },
+          { 
+            id: 2, 
+            name: 'Sarah Johnson', 
+            phone: '480-555-0156', 
+            email: 'sarah@example.com',
+            address: '456 Cactus Rd, Scottsdale, AZ',
+            service: 'Bathroom Remodel', 
+            status: 'contacted', 
+            date: '2025-01-14', 
+            value: 2400,
+            urgency: 'medium',
+            source: 'referral',
+            description: 'Full bathroom renovation including tiles and fixtures',
+            notes: 'Budget approved, ready to start'
+          },
+          { 
+            id: 3, 
+            name: 'Mike Wilson', 
+            phone: '480-555-0189', 
+            email: 'mike@example.com',
+            address: '789 Mountain View Blvd, Scottsdale, AZ',
+            service: 'Deck Installation', 
+            status: 'quoted', 
+            date: '2025-01-13', 
+            value: 3200,
+            urgency: 'low',
+            source: 'phone',
+            description: '20x12 composite deck with railing',
+            notes: 'Waiting for HOA approval'
+          },
+          { 
+            id: 4, 
+            name: 'Jennifer Brown', 
+            phone: '480-555-0198', 
+            email: 'jennifer@example.com',
+            address: '321 Palm Tree Lane, Scottsdale, AZ',
+            service: 'Fence Repair', 
+            status: 'scheduled', 
+            date: '2025-01-12', 
+            value: 650,
+            urgency: 'high',
+            source: 'google',
+            description: 'Privacy fence damaged by wind, need 3 panels replaced',
+            notes: 'Insurance claim approved'
+          }
+        ])
+      }
+    }
+
+    // Add new lead
+    const addLead = async (leadData) => {
+      try {
+        console.log('Adding lead:', leadData)
+        const response = await fetch('/api/pro/leads', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(leadData)
+        })
+        const data = await response.json()
+        console.log('Server response:', data)
+        if (data.success && data.lead) {
+          setLeads(prev => [data.lead, ...prev])
+          resetLeadForm()
+          setShowAddLead(false)
+          alert('Lead added successfully!')
+        } else {
+          alert('Error: ' + (data.message || 'Failed to add lead'))
+        }
+      } catch (error) {
+        console.error('Error adding lead:', error)
+        // Fallback: add to local state
+        const newLead = {
+          id: Date.now(),
+          ...leadData,
+          status: 'new',
+          date: new Date().toISOString().split('T')[0]
+        }
+        setLeads(prev => [newLead, ...prev])
+        resetLeadForm()
+        setShowAddLead(false)
+        alert('Lead added (offline mode)')
+      }
+    }
+
+    // Update lead status
+    const updateLeadStatus = async (leadId, newStatus) => {
+      try {
+        const response = await fetch(`/api/pro/leads/${leadId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ status: newStatus })
+        })
+        const data = await response.json()
+        if (data.success) {
+          setLeads(prev => prev.map(lead => 
+            lead.id === leadId ? { ...lead, status: newStatus } : lead
+          ))
+        }
+      } catch (error) {
+        console.error('Error updating lead:', error)
+        // Fallback: update local state
+        setLeads(prev => prev.map(lead => 
+          lead.id === leadId ? { ...lead, status: newStatus } : lead
+        ))
+      }
+    }
+
+    // Delete lead
+    const deleteLead = async (leadId) => {
+      if (!confirm('Are you sure you want to delete this lead?')) return
+      
+      try {
+        const response = await fetch(`/api/pro/leads/${leadId}`, { method: 'DELETE' })
+        const data = await response.json()
+        if (data.success) {
+          setLeads(prev => prev.filter(lead => lead.id !== leadId))
+        }
+      } catch (error) {
+        console.error('Error deleting lead:', error)
+        // Fallback: delete from local state
+        setLeads(prev => prev.filter(lead => lead.id !== leadId))
+      }
+    }
+
+    // Reset lead form
+    const resetLeadForm = () => {
+      setLeadForm({
+        name: '',
+        phone: '',
+        email: '',
+        address: '',
+        service: '',
+        description: '',
+        urgency: 'medium',
+        source: 'phone',
+        estimatedValue: '',
+        notes: ''
+      })
+      setEditingLead(null)
+    }
+
+    // Filter and search leads
+    const filteredLeads = leads.filter(lead => {
+      const matchesFilter = leadFilter === 'all' || lead.status === leadFilter
+      const matchesSearch = leadSearch === '' || 
+        lead.name.toLowerCase().includes(leadSearch.toLowerCase()) ||
+        lead.service.toLowerCase().includes(leadSearch.toLowerCase()) ||
+        lead.phone.includes(leadSearch)
+      return matchesFilter && matchesSearch
+    })
+
+    // Load data on component mount
+    useEffect(() => {
+      fetchLeads()
+    }, [])
+
     // Sample data - in production this would come from the backend
     useState(() => {
       setLeads([
@@ -8989,90 +9192,633 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
         {/* Leads Management */}
         {activeSection === 'leads' && (
-          <div style={{
-            background: 'white',
-            borderRadius: '12px',
-            padding: '25px',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-          }}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-              <h2 style={{ margin: 0, color: '#1f2937', fontSize: '24px' }}>👥 Lead Management</h2>
-              <button style={{
-                padding: '10px 20px',
-                background: '#1e3a5f',
-                color: 'white',
-                border: 'none',
-                borderRadius: '8px',
-                cursor: 'pointer'
-              }}>
-                + Add Lead
-              </button>
+          <div>
+            {/* Lead Management Header */}
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '25px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+              marginBottom: '20px'
+            }}>
+              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                <h2 style={{ margin: 0, color: '#1f2937', fontSize: '24px' }}>👥 Lead Management</h2>
+                <button 
+                  onClick={() => setShowAddLead(true)}
+                  style={{
+                    padding: '12px 24px',
+                    background: 'linear-gradient(135deg, #1e3a5f, #2c5aa0)',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontWeight: '500',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                  }}
+                >
+                  + Add New Lead
+                </button>
+              </div>
+
+              {/* Filters and Search */}
+              <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', marginBottom: '20px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '14px', color: '#6b7280' }}>Filter:</span>
+                  <select 
+                    value={leadFilter}
+                    onChange={(e) => setLeadFilter(e.target.value)}
+                    style={{
+                      padding: '8px 12px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px'
+                    }}
+                  >
+                    <option value="all">All Leads</option>
+                    <option value="new">New</option>
+                    <option value="contacted">Contacted</option>
+                    <option value="quoted">Quoted</option>
+                    <option value="scheduled">Scheduled</option>
+                    <option value="won">Won</option>
+                    <option value="lost">Lost</option>
+                  </select>
+                </div>
+
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                  <span style={{ fontSize: '14px', color: '#6b7280' }}>Search:</span>
+                  <input
+                    type="text"
+                    placeholder="Search by name, service, or phone..."
+                    value={leadSearch}
+                    onChange={(e) => setLeadSearch(e.target.value)}
+                    style={{
+                      padding: '8px 12px',
+                      border: '1px solid #d1d5db',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      width: '300px'
+                    }}
+                  />
+                </div>
+
+                <div style={{ marginLeft: 'auto', color: '#6b7280', fontSize: '14px' }}>
+                  Showing {filteredLeads.length} of {leads.length} leads
+                </div>
+              </div>
+
+              {/* Lead Stats */}
+              <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
+                <div style={{ 
+                  padding: '15px', 
+                  background: 'linear-gradient(135deg, #10b981, #059669)', 
+                  borderRadius: '8px', 
+                  color: 'white',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '24px', fontWeight: '700' }}>{leads.filter(l => l.status === 'new').length}</div>
+                  <div style={{ fontSize: '12px', opacity: 0.9 }}>New Leads</div>
+                </div>
+                <div style={{ 
+                  padding: '15px', 
+                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', 
+                  borderRadius: '8px', 
+                  color: 'white',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '24px', fontWeight: '700' }}>{leads.filter(l => l.status === 'contacted').length}</div>
+                  <div style={{ fontSize: '12px', opacity: 0.9 }}>Contacted</div>
+                </div>
+                <div style={{ 
+                  padding: '15px', 
+                  background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', 
+                  borderRadius: '8px', 
+                  color: 'white',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '24px', fontWeight: '700' }}>{leads.filter(l => l.status === 'quoted').length}</div>
+                  <div style={{ fontSize: '12px', opacity: 0.9 }}>Quoted</div>
+                </div>
+                <div style={{ 
+                  padding: '15px', 
+                  background: 'linear-gradient(135deg, #f59e0b, #d97706)', 
+                  borderRadius: '8px', 
+                  color: 'white',
+                  textAlign: 'center'
+                }}>
+                  <div style={{ fontSize: '24px', fontWeight: '700' }}>
+                    ${leads.reduce((sum, lead) => sum + (lead.value || 0), 0).toLocaleString()}
+                  </div>
+                  <div style={{ fontSize: '12px', opacity: 0.9 }}>Total Pipeline Value</div>
+                </div>
+              </div>
             </div>
-            
-            <div style={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                <thead>
-                  <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
-                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Name</th>
-                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Phone</th>
-                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Service</th>
-                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Status</th>
-                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Value</th>
-                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Date</th>
-                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {leads.map(lead => (
-                    <tr key={lead.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
-                      <td style={{ padding: '15px', fontWeight: '500' }}>{lead.name}</td>
-                      <td style={{ padding: '15px', color: '#6b7280' }}>{lead.phone}</td>
-                      <td style={{ padding: '15px' }}>{lead.service}</td>
-                      <td style={{ padding: '15px' }}>
-                        <span style={{
-                          padding: '6px 12px',
-                          borderRadius: '12px',
-                          fontSize: '12px',
-                          fontWeight: '500',
-                          background: lead.status === 'new' ? '#fef3c7' : lead.status === 'contacted' ? '#ddd6fe' : '#d1fae5',
-                          color: lead.status === 'new' ? '#92400e' : lead.status === 'contacted' ? '#5b21b6' : '#065f46'
-                        }}>
-                          {lead.status}
-                        </span>
-                      </td>
-                      <td style={{ padding: '15px', fontWeight: '600' }}>${lead.value}</td>
-                      <td style={{ padding: '15px', color: '#6b7280' }}>{lead.date}</td>
-                      <td style={{ padding: '15px' }}>
-                        <div style={{ display: 'flex', gap: '8px' }}>
-                          <button style={{
-                            padding: '6px 12px',
-                            background: '#3b82f6',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            fontSize: '12px',
-                            cursor: 'pointer'
-                          }}>
-                            Edit
-                          </button>
-                          <button style={{
-                            padding: '6px 12px',
-                            background: '#10b981',
-                            color: 'white',
-                            border: 'none',
-                            borderRadius: '6px',
-                            fontSize: '12px',
-                            cursor: 'pointer'
-                          }}>
-                            Convert
-                          </button>
-                        </div>
-                      </td>
+
+            {/* Leads Table */}
+            <div style={{
+              background: 'white',
+              borderRadius: '12px',
+              padding: '25px',
+              boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+            }}>
+              <div style={{ overflowX: 'auto' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
+                      <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Lead Details</th>
+                      <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Contact</th>
+                      <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Service</th>
+                      <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Status</th>
+                      <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Value</th>
+                      <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Urgency</th>
+                      <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Actions</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {filteredLeads.map(lead => (
+                      <tr key={lead.id} style={{ 
+                        borderBottom: '1px solid #f3f4f6',
+                        transition: 'background-color 0.2s',
+                        cursor: 'pointer'
+                      }}>
+                        <td style={{ padding: '15px' }}>
+                          <div>
+                            <div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '4px' }}>{lead.name}</div>
+                            <div style={{ fontSize: '12px', color: '#6b7280' }}>{lead.address}</div>
+                            <div style={{ fontSize: '12px', color: '#6b7280' }}>Added: {lead.date}</div>
+                          </div>
+                        </td>
+                        <td style={{ padding: '15px' }}>
+                          <div>
+                            <div style={{ color: '#1f2937', marginBottom: '2px' }}>{lead.phone}</div>
+                            <div style={{ fontSize: '12px', color: '#6b7280' }}>{lead.email}</div>
+                            <div style={{ 
+                              fontSize: '11px', 
+                              color: '#6b7280',
+                              background: '#f3f4f6',
+                              padding: '2px 6px',
+                              borderRadius: '4px',
+                              display: 'inline-block',
+                              marginTop: '4px'
+                            }}>
+                              {lead.source}
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ padding: '15px' }}>
+                          <div>
+                            <div style={{ fontWeight: '500', color: '#1f2937' }}>{lead.service}</div>
+                            <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                              {lead.description?.substring(0, 50)}{lead.description?.length > 50 ? '...' : ''}
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ padding: '15px' }}>
+                          <select
+                            value={lead.status}
+                            onChange={(e) => updateLeadStatus(lead.id, e.target.value)}
+                            style={{
+                              padding: '6px 12px',
+                              borderRadius: '12px',
+                              fontSize: '12px',
+                              fontWeight: '500',
+                              border: 'none',
+                              cursor: 'pointer',
+                              background: 
+                                lead.status === 'new' ? '#fef3c7' : 
+                                lead.status === 'contacted' ? '#ddd6fe' : 
+                                lead.status === 'quoted' ? '#fed7aa' :
+                                lead.status === 'scheduled' ? '#bbf7d0' :
+                                lead.status === 'won' ? '#d1fae5' : '#fecaca',
+                              color: 
+                                lead.status === 'new' ? '#92400e' : 
+                                lead.status === 'contacted' ? '#5b21b6' : 
+                                lead.status === 'quoted' ? '#c2410c' :
+                                lead.status === 'scheduled' ? '#065f46' :
+                                lead.status === 'won' ? '#064e3b' : '#991b1b'
+                            }}
+                          >
+                            <option value="new">New</option>
+                            <option value="contacted">Contacted</option>
+                            <option value="quoted">Quoted</option>
+                            <option value="scheduled">Scheduled</option>
+                            <option value="won">Won</option>
+                            <option value="lost">Lost</option>
+                          </select>
+                        </td>
+                        <td style={{ padding: '15px', fontWeight: '600', color: '#1f2937' }}>
+                          ${lead.value?.toLocaleString() || '0'}
+                        </td>
+                        <td style={{ padding: '15px' }}>
+                          <span style={{
+                            padding: '4px 8px',
+                            borderRadius: '8px',
+                            fontSize: '11px',
+                            fontWeight: '500',
+                            background: 
+                              lead.urgency === 'high' ? '#fecaca' : 
+                              lead.urgency === 'medium' ? '#fed7aa' : '#d1fae5',
+                            color: 
+                              lead.urgency === 'high' ? '#991b1b' : 
+                              lead.urgency === 'medium' ? '#c2410c' : '#065f46'
+                          }}>
+                            {lead.urgency}
+                          </span>
+                        </td>
+                        <td style={{ padding: '15px' }}>
+                          <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                            <button 
+                              onClick={() => {
+                                setEditingLead(lead)
+                                setLeadForm({
+                                  name: lead.name,
+                                  phone: lead.phone,
+                                  email: lead.email,
+                                  address: lead.address,
+                                  service: lead.service,
+                                  description: lead.description,
+                                  urgency: lead.urgency,
+                                  source: lead.source,
+                                  estimatedValue: lead.value?.toString() || '',
+                                  notes: lead.notes || ''
+                                })
+                                setShowAddLead(true)
+                              }}
+                              style={{
+                                padding: '6px 10px',
+                                background: '#3b82f6',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontSize: '11px',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              Edit
+                            </button>
+                            <button 
+                              onClick={() => updateLeadStatus(lead.id, 'won')}
+                              style={{
+                                padding: '6px 10px',
+                                background: '#10b981',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontSize: '11px',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              Convert
+                            </button>
+                            <button 
+                              onClick={() => deleteLead(lead.id)}
+                              style={{
+                                padding: '6px 10px',
+                                background: '#ef4444',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '6px',
+                                fontSize: '11px',
+                                cursor: 'pointer'
+                              }}
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {filteredLeads.length === 0 && (
+                <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
+                  <div style={{ fontSize: '48px', marginBottom: '16px' }}>👥</div>
+                  <div style={{ fontSize: '18px', fontWeight: '500', marginBottom: '8px' }}>No leads found</div>
+                  <div style={{ fontSize: '14px' }}>
+                    {leadSearch || leadFilter !== 'all' 
+                      ? 'Try adjusting your search or filter criteria'
+                      : 'Add your first lead to get started'
+                    }
+                  </div>
+                </div>
+              )}
             </div>
+
+            {/* Add/Edit Lead Modal */}
+            {showAddLead && (
+              <div style={{
+                position: 'fixed',
+                top: 0,
+                left: 0,
+                right: 0,
+                bottom: 0,
+                background: 'rgba(0,0,0,0.5)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                zIndex: 1000
+              }}>
+                <div style={{
+                  background: 'white',
+                  borderRadius: '12px',
+                  padding: '30px',
+                  width: '90%',
+                  maxWidth: '600px',
+                  maxHeight: '90vh',
+                  overflowY: 'auto'
+                }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+                    <h3 style={{ margin: 0, fontSize: '20px', color: '#1f2937' }}>
+                      {editingLead ? 'Edit Lead' : 'Add New Lead'}
+                    </h3>
+                    <button 
+                      onClick={() => {
+                        setShowAddLead(false)
+                        resetLeadForm()
+                      }}
+                      style={{
+                        background: 'none',
+                        border: 'none',
+                        fontSize: '24px',
+                        cursor: 'pointer',
+                        color: '#6b7280'
+                      }}
+                    >
+                      ×
+                    </button>
+                  </div>
+
+                  <form onSubmit={(e) => {
+                    e.preventDefault()
+                    if (editingLead) {
+                      // Update lead logic here
+                      console.log('Update lead:', editingLead.id, leadForm)
+                    } else {
+                      const leadDataWithDate = { 
+                        ...leadForm, 
+                        value: parseFloat(leadForm.estimatedValue) || 0,
+                        date: new Date().toISOString().split('T')[0] // Add current date
+                      }
+                      addLead(leadDataWithDate)
+                    }
+                  }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '20px' }}>
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                          Name *
+                        </label>
+                        <input
+                          type="text"
+                          required
+                          value={leadForm.name}
+                          onChange={(e) => setLeadForm(prev => ({ ...prev, name: e.target.value }))}
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '6px',
+                            fontSize: '14px'
+                          }}
+                          placeholder="Enter full name"
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                          Phone *
+                        </label>
+                        <input
+                          type="tel"
+                          required
+                          value={leadForm.phone}
+                          onChange={(e) => setLeadForm(prev => ({ ...prev, phone: e.target.value }))}
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '6px',
+                            fontSize: '14px'
+                          }}
+                          placeholder="480-555-0123"
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                          Email
+                        </label>
+                        <input
+                          type="email"
+                          value={leadForm.email}
+                          onChange={(e) => setLeadForm(prev => ({ ...prev, email: e.target.value }))}
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '6px',
+                            fontSize: '14px'
+                          }}
+                          placeholder="email@example.com"
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                          Service Needed *
+                        </label>
+                        <select
+                          required
+                          value={leadForm.service}
+                          onChange={(e) => setLeadForm(prev => ({ ...prev, service: e.target.value }))}
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '6px',
+                            fontSize: '14px'
+                          }}
+                        >
+                          <option value="">Select a service</option>
+                          <option value="Plumbing Repair">Plumbing Repair</option>
+                          <option value="Electrical Work">Electrical Work</option>
+                          <option value="Kitchen Repair">Kitchen Repair</option>
+                          <option value="Bathroom Remodel">Bathroom Remodel</option>
+                          <option value="Deck Installation">Deck Installation</option>
+                          <option value="Fence Repair">Fence Repair</option>
+                          <option value="Painting">Painting</option>
+                          <option value="Drywall Repair">Drywall Repair</option>
+                          <option value="Tile Work">Tile Work</option>
+                          <option value="Other">Other</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                          Estimated Value ($)
+                        </label>
+                        <input
+                          type="number"
+                          min="0"
+                          step="50"
+                          value={leadForm.estimatedValue}
+                          onChange={(e) => setLeadForm(prev => ({ ...prev, estimatedValue: e.target.value }))}
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '6px',
+                            fontSize: '14px'
+                          }}
+                          placeholder="1000"
+                        />
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                          Urgency
+                        </label>
+                        <select
+                          value={leadForm.urgency}
+                          onChange={(e) => setLeadForm(prev => ({ ...prev, urgency: e.target.value }))}
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '6px',
+                            fontSize: '14px'
+                          }}
+                        >
+                          <option value="low">Low</option>
+                          <option value="medium">Medium</option>
+                          <option value="high">High</option>
+                        </select>
+                      </div>
+
+                      <div>
+                        <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                          Lead Source
+                        </label>
+                        <select
+                          value={leadForm.source}
+                          onChange={(e) => setLeadForm(prev => ({ ...prev, source: e.target.value }))}
+                          style={{
+                            width: '100%',
+                            padding: '10px',
+                            border: '1px solid #d1d5db',
+                            borderRadius: '6px',
+                            fontSize: '14px'
+                          }}
+                        >
+                          <option value="phone">Phone Call</option>
+                          <option value="website">Website</option>
+                          <option value="referral">Referral</option>
+                          <option value="google">Google</option>
+                          <option value="facebook">Facebook</option>
+                          <option value="nextdoor">Nextdoor</option>
+                          <option value="other">Other</option>
+                        </select>
+                      </div>
+                    </div>
+
+                    <div style={{ marginTop: '20px' }}>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                        Address
+                      </label>
+                      <input
+                        type="text"
+                        value={leadForm.address}
+                        onChange={(e) => setLeadForm(prev => ({ ...prev, address: e.target.value }))}
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          fontSize: '14px'
+                        }}
+                        placeholder="123 Desert View Dr, Scottsdale, AZ 85251"
+                      />
+                    </div>
+
+                    <div style={{ marginTop: '20px' }}>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                        Description
+                      </label>
+                      <textarea
+                        value={leadForm.description}
+                        onChange={(e) => setLeadForm(prev => ({ ...prev, description: e.target.value }))}
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          fontSize: '14px',
+                          minHeight: '80px',
+                          resize: 'vertical'
+                        }}
+                        placeholder="Describe the work needed..."
+                      />
+                    </div>
+
+                    <div style={{ marginTop: '20px' }}>
+                      <label style={{ display: 'block', marginBottom: '6px', fontSize: '14px', fontWeight: '500' }}>
+                        Notes
+                      </label>
+                      <textarea
+                        value={leadForm.notes}
+                        onChange={(e) => setLeadForm(prev => ({ ...prev, notes: e.target.value }))}
+                        style={{
+                          width: '100%',
+                          padding: '10px',
+                          border: '1px solid #d1d5db',
+                          borderRadius: '6px',
+                          fontSize: '14px',
+                          minHeight: '60px',
+                          resize: 'vertical'
+                        }}
+                        placeholder="Internal notes..."
+                      />
+                    </div>
+
+                    <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '12px', marginTop: '30px' }}>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setShowAddLead(false)
+                          resetLeadForm()
+                        }}
+                        style={{
+                          padding: '10px 20px',
+                          background: '#f3f4f6',
+                          color: '#374151',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer'
+                        }}
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        style={{
+                          padding: '10px 20px',
+                          background: 'linear-gradient(135deg, #1e3a5f, #2c5aa0)',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          fontWeight: '500'
+                        }}
+                      >
+                        {editingLead ? 'Update Lead' : 'Add Lead'}
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              </div>
+            )}
           </div>
         )}
 
