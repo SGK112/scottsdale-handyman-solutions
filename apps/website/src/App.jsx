@@ -1029,7 +1029,7 @@ Exterior Painting Touch-ups: The intense UV radiation in Arizona fades and damag
             
             {/* Pro Portal Link */}
             <a 
-              href="http://localhost:5175"
+              href="http://localhost:5178"
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -1340,7 +1340,7 @@ Exterior Painting Touch-ups: The intense UV radiation in Arizona fades and damag
               </div>
               
               <a 
-                href="http://localhost:5175"
+                href="http://localhost:5178"
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{ 
@@ -1726,18 +1726,39 @@ Exterior Painting Touch-ups: The intense UV radiation in Arizona fades and damag
         )}
 
         {currentPage === 'work-with-us' && (
-          <section style={{ padding: '4rem 2rem', minHeight: '80vh' }}>
+          <section style={{ padding: '4rem 1rem', minHeight: '80vh' }}>
             <div className="container" style={{ maxWidth: '1200px', margin: '0 auto' }}>
-              <h1 style={{ fontSize: '3rem', textAlign: 'center', marginBottom: '2rem', color: '#1a365e' }}>
+              <h1 style={{ 
+                fontSize: 'clamp(2rem, 5vw, 3rem)', 
+                textAlign: 'center', 
+                marginBottom: '2rem', 
+                color: '#1a365e' 
+              }}>
                 Work With Us
               </h1>
-              <p style={{ fontSize: '1.2rem', textAlign: 'center', color: '#64748b', marginBottom: '3rem' }}>
+              <p style={{ 
+                fontSize: 'clamp(1rem, 3vw, 1.2rem)', 
+                textAlign: 'center', 
+                color: '#64748b', 
+                marginBottom: '3rem',
+                maxWidth: '800px',
+                margin: '0 auto 3rem auto'
+              }}>
                 Join our team of skilled professionals and grow your career with Scottsdale's premier handyman service
               </p>
               
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '4rem', marginBottom: '4rem' }}>
+              <div style={{ 
+                display: 'grid', 
+                gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', 
+                gap: 'clamp(2rem, 5vw, 4rem)', 
+                marginBottom: '4rem' 
+              }}>
                 <div>
-                  <h2 style={{ fontSize: '2rem', marginBottom: '1.5rem', color: '#1a365e' }}>
+                  <h2 style={{ 
+                    fontSize: 'clamp(1.5rem, 4vw, 2rem)', 
+                    marginBottom: '1.5rem', 
+                    color: '#1a365e' 
+                  }}>
                     Why Choose Our Team?
                   </h2>
                   <ul style={{ listStyle: 'none', padding: 0 }}>
@@ -1753,33 +1774,67 @@ Exterior Painting Touch-ups: The intense UV radiation in Arizona fades and damag
                         display: 'flex',
                         alignItems: 'center',
                         marginBottom: '1rem',
-                        fontSize: '1.1rem'
+                        fontSize: 'clamp(1rem, 2.5vw, 1.1rem)'
                       }}>
-                        <CheckCircle size={20} style={{ color: '#FFD700', marginRight: '1rem' }} />
+                        <CheckCircle size={20} style={{ color: '#FFD700', marginRight: '1rem', flexShrink: 0 }} />
                         <span style={{ color: '#64748b' }}>{benefit}</span>
                       </li>
                     ))}
                   </ul>
                 </div>
-                <div style={{ background: '#f8fafc', padding: '2rem', borderRadius: '12px' }}>
-                  <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: '#1a365e' }}>
+                <div style={{ 
+                  background: '#f8fafc', 
+                  padding: 'clamp(1.5rem, 4vw, 2rem)', 
+                  borderRadius: '12px' 
+                }}>
+                  <h3 style={{ 
+                    fontSize: 'clamp(1.25rem, 3vw, 1.5rem)', 
+                    marginBottom: '1rem', 
+                    color: '#1a365e' 
+                  }}>
                     Current Openings
                   </h3>
                   <div style={{ marginBottom: '1.5rem' }}>
-                    <h4 style={{ color: '#1a365e', marginBottom: '0.5rem' }}>Experienced Handyman</h4>
-                    <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+                    <h4 style={{ 
+                      color: '#1a365e', 
+                      marginBottom: '0.5rem',
+                      fontSize: 'clamp(1rem, 2.5vw, 1.1rem)'
+                    }}>Experienced Handyman</h4>
+                    <p style={{ 
+                      color: '#64748b', 
+                      fontSize: 'clamp(0.85rem, 2vw, 0.9rem)', 
+                      marginBottom: '0.5rem',
+                      lineHeight: '1.4'
+                    }}>
                       Full-time position for skilled professional with 3+ years experience
                     </p>
-                    <span style={{ fontSize: '0.8rem', color: '#FFD700', fontWeight: 'bold' }}>
+                    <span style={{ 
+                      fontSize: 'clamp(0.75rem, 2vw, 0.8rem)', 
+                      color: '#FFD700', 
+                      fontWeight: 'bold' 
+                    }}>
                       $25-35/hour + benefits
                     </span>
                   </div>
                   <div style={{ marginBottom: '1.5rem' }}>
-                    <h4 style={{ color: '#1a365e', marginBottom: '0.5rem' }}>Apprentice Technician</h4>
-                    <p style={{ color: '#64748b', fontSize: '0.9rem', marginBottom: '0.5rem' }}>
+                    <h4 style={{ 
+                      color: '#1a365e', 
+                      marginBottom: '0.5rem',
+                      fontSize: 'clamp(1rem, 2.5vw, 1.1rem)'
+                    }}>Apprentice Technician</h4>
+                    <p style={{ 
+                      color: '#64748b', 
+                      fontSize: 'clamp(0.85rem, 2vw, 0.9rem)', 
+                      marginBottom: '0.5rem',
+                      lineHeight: '1.4'
+                    }}>
                       Entry-level position with training provided for motivated individuals
                     </p>
-                    <span style={{ fontSize: '0.8rem', color: '#FFD700', fontWeight: 'bold' }}>
+                    <span style={{ 
+                      fontSize: 'clamp(0.75rem, 2vw, 0.8rem)', 
+                      color: '#FFD700', 
+                      fontWeight: 'bold' 
+                    }}>
                       $18-22/hour + training
                     </span>
                   </div>
@@ -1790,10 +1845,10 @@ Exterior Painting Touch-ups: The intense UV radiation in Arizona fades and damag
                       color: 'white',
                       border: 'none',
                       borderRadius: '8px',
-                      padding: '0.75rem 1.5rem',
+                      padding: 'clamp(0.75rem, 2vw, 1rem) clamp(1.5rem, 3vw, 2rem)',
                       cursor: 'pointer',
                       width: '100%',
-                      fontSize: '1rem',
+                      fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
                       fontWeight: 'bold'
                     }}
                   >
@@ -1806,19 +1861,42 @@ Exterior Painting Touch-ups: The intense UV radiation in Arizona fades and damag
         )}
 
         {currentPage === 'pay' && (
-          <section style={{ padding: '4rem 2rem', minHeight: '80vh' }}>
+          <section style={{ padding: '4rem 1rem', minHeight: '80vh' }}>
             <div className="container" style={{ maxWidth: '800px', margin: '0 auto' }}>
-              <h1 style={{ fontSize: '3rem', textAlign: 'center', marginBottom: '2rem', color: '#1a365e' }}>
+              <h1 style={{ 
+                fontSize: 'clamp(2rem, 5vw, 3rem)', 
+                textAlign: 'center', 
+                marginBottom: '2rem', 
+                color: '#1a365e' 
+              }}>
                 Pay Your Invoice
               </h1>
-              <p style={{ fontSize: '1.2rem', textAlign: 'center', color: '#64748b', marginBottom: '3rem' }}>
+              <p style={{ 
+                fontSize: 'clamp(1rem, 3vw, 1.2rem)', 
+                textAlign: 'center', 
+                color: '#64748b', 
+                marginBottom: '3rem',
+                maxWidth: '600px',
+                margin: '0 auto 3rem auto'
+              }}>
                 Secure online payment for your handyman services
               </p>
               
-              <div style={{ background: 'white', padding: '3rem', borderRadius: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.1)' }}>
+              <div style={{ 
+                background: 'white', 
+                padding: 'clamp(1.5rem, 4vw, 3rem)', 
+                borderRadius: '12px', 
+                boxShadow: '0 4px 20px rgba(0,0,0,0.1)' 
+              }}>
                 <form style={{ display: 'grid', gap: '1.5rem' }}>
                   <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#1a365e', fontWeight: 'bold' }}>
+                    <label style={{ 
+                      display: 'block', 
+                      marginBottom: '0.5rem', 
+                      color: '#1a365e', 
+                      fontWeight: 'bold',
+                      fontSize: 'clamp(0.9rem, 2.5vw, 1rem)'
+                    }}>
                       Invoice Number
                     </label>
                     <input
@@ -1826,16 +1904,23 @@ Exterior Painting Touch-ups: The intense UV radiation in Arizona fades and damag
                       placeholder="Enter your invoice number"
                       style={{
                         width: '100%',
-                        padding: '0.75rem',
+                        padding: 'clamp(0.75rem, 2vw, 1rem)',
                         border: '2px solid #e2e8f0',
                         borderRadius: '6px',
-                        fontSize: '1rem'
+                        fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                        boxSizing: 'border-box'
                       }}
                     />
                   </div>
                   
                   <div>
-                    <label style={{ display: 'block', marginBottom: '0.5rem', color: '#1a365e', fontWeight: 'bold' }}>
+                    <label style={{ 
+                      display: 'block', 
+                      marginBottom: '0.5rem', 
+                      color: '#1a365e', 
+                      fontWeight: 'bold',
+                      fontSize: 'clamp(0.9rem, 2.5vw, 1rem)'
+                    }}>
                       Amount
                     </label>
                     <input
@@ -1844,44 +1929,66 @@ Exterior Painting Touch-ups: The intense UV radiation in Arizona fades and damag
                       step="0.01"
                       style={{
                         width: '100%',
-                        padding: '0.75rem',
+                        padding: 'clamp(0.75rem, 2vw, 1rem)',
                         border: '2px solid #e2e8f0',
                         borderRadius: '6px',
-                        fontSize: '1rem'
+                        fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                        boxSizing: 'border-box'
                       }}
                     />
                   </div>
                   
-                  <div style={{ background: '#f8fafc', padding: '2rem', borderRadius: '8px', marginTop: '1rem' }}>
-                    <h3 style={{ marginBottom: '1rem', color: '#1a365e' }}>Payment Information</h3>
+                  <div style={{ 
+                    background: '#f8fafc', 
+                    padding: 'clamp(1.5rem, 3vw, 2rem)', 
+                    borderRadius: '8px', 
+                    marginTop: '1rem' 
+                  }}>
+                    <h3 style={{ 
+                      marginBottom: '1rem', 
+                      color: '#1a365e',
+                      fontSize: 'clamp(1.1rem, 3vw, 1.25rem)'
+                    }}>Payment Information</h3>
                     <div style={{ display: 'grid', gap: '1rem' }}>
                       <input
                         type="text"
                         placeholder="Card Number"
                         style={{
                           width: '100%',
-                          padding: '0.75rem',
+                          padding: 'clamp(0.75rem, 2vw, 1rem)',
                           border: '2px solid #e2e8f0',
-                          borderRadius: '6px'
+                          borderRadius: '6px',
+                          fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                          boxSizing: 'border-box'
                         }}
                       />
-                      <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                      <div style={{ 
+                        display: 'grid', 
+                        gridTemplateColumns: '1fr 1fr', 
+                        gap: '1rem' 
+                      }}>
                         <input
                           type="text"
                           placeholder="MM/YY"
                           style={{
-                            padding: '0.75rem',
+                            width: '100%',
+                            padding: 'clamp(0.75rem, 2vw, 1rem)',
                             border: '2px solid #e2e8f0',
-                            borderRadius: '6px'
+                            borderRadius: '6px',
+                            fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                            boxSizing: 'border-box'
                           }}
                         />
                         <input
                           type="text"
                           placeholder="CVC"
                           style={{
-                            padding: '0.75rem',
+                            width: '100%',
+                            padding: 'clamp(0.75rem, 2vw, 1rem)',
                             border: '2px solid #e2e8f0',
-                            borderRadius: '6px'
+                            borderRadius: '6px',
+                            fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                            boxSizing: 'border-box'
                           }}
                         />
                       </div>
@@ -1890,9 +1997,11 @@ Exterior Painting Touch-ups: The intense UV radiation in Arizona fades and damag
                         placeholder="Name on Card"
                         style={{
                           width: '100%',
-                          padding: '0.75rem',
+                          padding: 'clamp(0.75rem, 2vw, 1rem)',
                           border: '2px solid #e2e8f0',
-                          borderRadius: '6px'
+                          borderRadius: '6px',
+                          fontSize: 'clamp(0.9rem, 2.5vw, 1rem)',
+                          boxSizing: 'border-box'
                         }}
                       />
                     </div>
@@ -1905,15 +2014,17 @@ Exterior Painting Touch-ups: The intense UV radiation in Arizona fades and damag
                       color: '#000',
                       border: 'none',
                       borderRadius: '8px',
-                      padding: '1rem 2rem',
-                      fontSize: '1.1rem',
+                      padding: 'clamp(1rem, 2.5vw, 1.25rem) clamp(1.5rem, 4vw, 2rem)',
+                      fontSize: 'clamp(1rem, 2.5vw, 1.1rem)',
                       fontWeight: 'bold',
                       cursor: 'pointer',
                       marginTop: '1rem',
                       display: 'flex',
                       alignItems: 'center',
                       justifyContent: 'center',
-                      gap: '0.5rem'
+                      gap: '0.5rem',
+                      width: '100%',
+                      boxSizing: 'border-box'
                     }}
                   >
                     <CreditCard size={20} />
@@ -1921,10 +2032,25 @@ Exterior Painting Touch-ups: The intense UV radiation in Arizona fades and damag
                   </button>
                 </form>
                 
-                <div style={{ textAlign: 'center', marginTop: '2rem', padding: '1rem', background: '#f0f9ff', borderRadius: '8px' }}>
-                  <p style={{ color: '#0369a1', fontSize: '0.9rem', margin: 0 }}>
-                    <Shield size={16} style={{ display: 'inline', marginRight: '0.5rem' }} />
-                    Your payment is secured with 256-bit SSL encryption
+                <div style={{ 
+                  textAlign: 'center', 
+                  marginTop: '2rem', 
+                  padding: 'clamp(1rem, 2.5vw, 1.5rem)', 
+                  background: '#f0f9ff', 
+                  borderRadius: '8px' 
+                }}>
+                  <p style={{ 
+                    color: '#0369a1', 
+                    fontSize: 'clamp(0.85rem, 2vw, 0.9rem)', 
+                    margin: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: '0.5rem',
+                    flexWrap: 'wrap'
+                  }}>
+                    <Shield size={16} style={{ flexShrink: 0 }} />
+                    <span>Your payment is secured with 256-bit SSL encryption</span>
                   </p>
                 </div>
               </div>

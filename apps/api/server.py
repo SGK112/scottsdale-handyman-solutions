@@ -15,7 +15,7 @@ from pro_api import create_pro_routes
 app = Flask(__name__)
 
 # CORS configuration for development and production
-cors_origins = os.environ.get('CORS_ORIGINS', 'http://localhost:5173,http://localhost:5174').split(',')
+cors_origins = os.environ.get('CORS_ORIGINS', 'http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5178').split(',')
 CORS(app, origins=cors_origins)
 
 # Register route blueprints
