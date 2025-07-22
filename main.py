@@ -30,6 +30,24 @@ mimetypes.add_type('application/javascript', '.js')
 mimetypes.add_type('application/javascript', '.mjs')
 mimetypes.add_type('text/css', '.css')
 
+# Error handlers for production
+@app.errorhandler(500)
+def internal_server_error(error):
+    app.logger.error(f'Server Error: {error}')
+    return jsonify({'error': 'Internal server error', 'message': 'Something went wrong'}), 500
+
+@app.errorhandler(404)
+def not_found_error(error):
+    # For SPA, return index.html for unmatched routes (client-side routing)
+    if request.path.startswith('/api'):
+        return jsonify({'error': 'API endpoint not found'}), 404
+    else:
+        # Return index.html for client-side routing
+        static_folder_path = app.static_folder
+        if static_folder_path and os.path.exists(os.path.join(static_folder_path, 'index.html')):
+            return send_from_directory(static_folder_path, 'index.html')
+        return jsonify({'error': 'Application not found'}), 404
+
 # Enable CORS for all routes
 CORS(app)
 
@@ -646,7 +664,37 @@ def stripe_webhook():
         
     return 'Success', 200
 
+# Serve React App - catch all routes
 @app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def serve(path):
+    static_folder_path = app.static_folder
+    if static_folder_path is None:
+        return "Static folder not configured", 404
+
+    if path != "" and os.path.exists(os.path.join(static_folder_path, path)):
+        # Get the file extension and determine MIME type
+        file_ext = os.path.splitext(path)[1].lower()
+        
+        # Set appropriate MIME type for JavaScript modules
+        if file_ext == '.js' or file_ext == '.mjs':
+            response = send_from_directory(static_folder_path, path)
+            response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
+            response.headers['X-Content-Type-Options'] = 'nosniff'
+            return response
+        elif file_ext == '.css':
+            response = send_from_directory(static_folder_path, path)
+            response.headers['Content-Type'] = 'text/css; charset=utf-8'
+            return response
+        else:
+            return send_from_directory(static_folder_path, path)
+    else:
+        index_path = os.path.join(static_folder_path, 'index.html')
+        if os.path.exists(index_path):
+            return send_from_directory(static_folder_path, 'index.html')
+        else:
+            return "index.html not found", 404
+
 # Pro Portal API Routes
 @app.route('/api/pro/leads', methods=['GET', 'POST'])
 def handle_leads():
@@ -883,35 +931,6 @@ def get_dashboard_stats():
         ]
     }
     return jsonify({'success': True, 'stats': stats})
-
-@app.route('/<path:path>')
-def serve(path):
-    static_folder_path = app.static_folder
-    if static_folder_path is None:
-        return "Static folder not configured", 404
-
-    if path != "" and os.path.exists(os.path.join(static_folder_path, path)):
-        # Get the file extension and determine MIME type
-        file_ext = os.path.splitext(path)[1].lower()
-        
-        # Set appropriate MIME type for JavaScript modules
-        if file_ext == '.js' or file_ext == '.mjs':
-            response = send_from_directory(static_folder_path, path)
-            response.headers['Content-Type'] = 'application/javascript; charset=utf-8'
-            response.headers['X-Content-Type-Options'] = 'nosniff'
-            return response
-        elif file_ext == '.css':
-            response = send_from_directory(static_folder_path, path)
-            response.headers['Content-Type'] = 'text/css; charset=utf-8'
-            return response
-        else:
-            return send_from_directory(static_folder_path, path)
-    else:
-        index_path = os.path.join(static_folder_path, 'index.html')
-        if os.path.exists(index_path):
-            return send_from_directory(static_folder_path, 'index.html')
-        else:
-            return "index.html not found", 404
 
 
 if __name__ == '__main__':
