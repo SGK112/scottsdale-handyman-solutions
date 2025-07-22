@@ -647,6 +647,243 @@ def stripe_webhook():
     return 'Success', 200
 
 @app.route('/', defaults={'path': ''})
+# Pro Portal API Routes
+@app.route('/api/pro/leads', methods=['GET', 'POST'])
+def handle_leads():
+    if request.method == 'GET':
+        # Return sample leads data (in production, this would come from database)
+        leads = [
+            {
+                'id': 1,
+                'name': 'John Smith',
+                'phone': '480-555-0123',
+                'email': 'john.smith@email.com',
+                'address': '123 Main St, Scottsdale, AZ',
+                'service': 'Kitchen Repair',
+                'status': 'new',
+                'date': '2025-01-15',
+                'value': 850,
+                'notes': 'Kitchen sink leaking, needs cabinet repair'
+            },
+            {
+                'id': 2,
+                'name': 'Sarah Johnson',
+                'phone': '480-555-0156',
+                'email': 'sarah.johnson@email.com',
+                'address': '456 Oak Ave, Scottsdale, AZ',
+                'service': 'Bathroom Remodel',
+                'status': 'contacted',
+                'date': '2025-01-14',
+                'value': 2400,
+                'notes': 'Full bathroom renovation, modern fixtures'
+            }
+        ]
+        return jsonify({'success': True, 'leads': leads})
+    
+    elif request.method == 'POST':
+        # Add new lead
+        lead_data = request.json
+        # In production, save to database
+        return jsonify({'success': True, 'message': 'Lead added successfully'})
+
+@app.route('/api/pro/invoices', methods=['GET', 'POST'])
+def handle_invoices():
+    if request.method == 'GET':
+        invoices = [
+            {
+                'id': 'INV-001',
+                'client': 'John Smith',
+                'amount': 850,
+                'status': 'paid',
+                'date': '2025-01-10',
+                'due_date': '2025-01-24',
+                'items': [
+                    {'description': 'Kitchen sink repair', 'quantity': 1, 'rate': 350, 'total': 350},
+                    {'description': 'Cabinet door replacement', 'quantity': 2, 'rate': 250, 'total': 500}
+                ]
+            },
+            {
+                'id': 'INV-002',
+                'client': 'Sarah Johnson',
+                'amount': 1200,
+                'status': 'pending',
+                'date': '2025-01-12',
+                'due_date': '2025-01-26',
+                'items': [
+                    {'description': 'Bathroom consultation', 'quantity': 1, 'rate': 200, 'total': 200},
+                    {'description': 'Design planning', 'quantity': 1, 'rate': 1000, 'total': 1000}
+                ]
+            }
+        ]
+        return jsonify({'success': True, 'invoices': invoices})
+    
+    elif request.method == 'POST':
+        # Create new invoice
+        invoice_data = request.json
+        return jsonify({'success': True, 'message': 'Invoice created successfully'})
+
+@app.route('/api/pro/expenses', methods=['GET', 'POST'])
+def handle_expenses():
+    if request.method == 'GET':
+        expenses = [
+            {
+                'id': 1,
+                'description': 'Gas - Job Site Travel',
+                'amount': 45.20,
+                'category': 'Vehicle',
+                'date': '2025-01-15',
+                'receipt': True,
+                'project': 'Kitchen Repair - John Smith'
+            },
+            {
+                'id': 2,
+                'description': 'Hardware Store - Supplies',
+                'amount': 123.45,
+                'category': 'Materials',
+                'date': '2025-01-14',
+                'receipt': True,
+                'project': 'Bathroom Remodel - Sarah Johnson'
+            },
+            {
+                'id': 3,
+                'description': 'Lunch - Client Meeting',
+                'amount': 18.50,
+                'category': 'Meals',
+                'date': '2025-01-13',
+                'receipt': False,
+                'project': 'General Business'
+            }
+        ]
+        return jsonify({'success': True, 'expenses': expenses})
+    
+    elif request.method == 'POST':
+        # Add new expense
+        expense_data = request.json
+        return jsonify({'success': True, 'message': 'Expense added successfully'})
+
+@app.route('/api/pro/time-entries', methods=['GET', 'POST'])
+def handle_time_entries():
+    if request.method == 'GET':
+        time_entries = [
+            {
+                'id': 1,
+                'project': 'Kitchen Repair - John Smith',
+                'hours': 6.5,
+                'rate': 85,
+                'date': '2025-01-15',
+                'total': 552.50,
+                'description': 'Kitchen sink installation and cabinet repair'
+            },
+            {
+                'id': 2,
+                'project': 'Bathroom Remodel - Sarah Johnson',
+                'hours': 8,
+                'rate': 85,
+                'date': '2025-01-14',
+                'total': 680,
+                'description': 'Bathroom design consultation and measurements'
+            }
+        ]
+        return jsonify({'success': True, 'time_entries': time_entries})
+    
+    elif request.method == 'POST':
+        # Add new time entry
+        time_data = request.json
+        return jsonify({'success': True, 'message': 'Time entry added successfully'})
+
+@app.route('/api/pro/projects', methods=['GET', 'POST'])
+def handle_projects():
+    if request.method == 'GET':
+        projects = [
+            {
+                'id': 1,
+                'name': 'Kitchen Renovation - Smith Residence',
+                'client': 'John Smith',
+                'status': 'in-progress',
+                'progress': 65,
+                'budget': 8500,
+                'deadline': '2025-02-15',
+                'start_date': '2025-01-01',
+                'tasks': [
+                    {'name': 'Demo complete', 'completed': True},
+                    {'name': 'Cabinets ordered', 'completed': True},
+                    {'name': 'Plumbing rough-in', 'completed': False}
+                ]
+            },
+            {
+                'id': 2,
+                'name': 'Bathroom Remodel - Johnson Home',
+                'client': 'Sarah Johnson',
+                'status': 'planning',
+                'progress': 15,
+                'budget': 12000,
+                'deadline': '2025-03-01',
+                'start_date': '2025-01-10',
+                'tasks': [
+                    {'name': 'Initial consultation', 'completed': True},
+                    {'name': 'Design approval pending', 'completed': False},
+                    {'name': 'Permits required', 'completed': False}
+                ]
+            }
+        ]
+        return jsonify({'success': True, 'projects': projects})
+    
+    elif request.method == 'POST':
+        # Create new project
+        project_data = request.json
+        return jsonify({'success': True, 'message': 'Project created successfully'})
+
+@app.route('/api/pro/estimates', methods=['GET', 'POST'])
+def handle_estimates():
+    if request.method == 'GET':
+        estimates = [
+            {
+                'id': 'EST-001',
+                'client': 'Jennifer Brown',
+                'service': 'Fence Repair',
+                'amount': 650,
+                'status': 'sent',
+                'date': '2025-01-14',
+                'items': [
+                    {'description': 'Fence panel replacement', 'quantity': 3, 'rate': 150, 'total': 450},
+                    {'description': 'Labor', 'quantity': 4, 'rate': 50, 'total': 200}
+                ]
+            },
+            {
+                'id': 'EST-002',
+                'client': 'David Lee',
+                'service': 'Tile Installation',
+                'amount': 1800,
+                'status': 'approved',
+                'date': '2025-01-13',
+                'items': [
+                    {'description': 'Ceramic tiles', 'quantity': 200, 'rate': 5, 'total': 1000},
+                    {'description': 'Installation labor', 'quantity': 16, 'rate': 50, 'total': 800}
+                ]
+            }
+        ]
+        return jsonify({'success': True, 'estimates': estimates})
+    
+    elif request.method == 'POST':
+        # Create new estimate
+        estimate_data = request.json
+        return jsonify({'success': True, 'message': 'Estimate created successfully'})
+
+@app.route('/api/pro/dashboard-stats', methods=['GET'])
+def get_dashboard_stats():
+    stats = {
+        'active_leads': 3,
+        'pending_invoices': 2,
+        'monthly_revenue': 8450,
+        'weekly_hours': 32.5,
+        'recent_activity': [
+            {'type': 'lead', 'message': 'New lead: Jennifer Brown - Fence Repair', 'time': '2 hours ago'},
+            {'type': 'payment', 'message': 'Payment received: $850 from John Smith', 'time': '5 hours ago'},
+            {'type': 'project', 'message': 'Project updated: Kitchen Renovation 65% complete', 'time': '1 day ago'}
+        ]
+    }
+    return jsonify({'success': True, 'stats': stats})
+
 @app.route('/<path:path>')
 def serve(path):
     static_folder_path = app.static_folder

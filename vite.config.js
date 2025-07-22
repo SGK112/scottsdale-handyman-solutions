@@ -82,7 +82,7 @@ export default defineConfig(({ command, mode }) => {
         'clsx'
       ],
       exclude: [
-        '@radix-ui/react-slot', 
+        '@radix-ui/react-slot',
         'react/jsx-dev-runtime',
         'react/jsx-runtime'
       ], // Exclude problematic packages

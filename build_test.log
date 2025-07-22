@@ -1,0 +1,15 @@
+
+> handyman-website@0.0.0 build
+> vite build
+
+vite v6.3.5 building for production...
+transforming...
+✓ 1653 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                         6.27 kB │ gzip:  1.71 kB
+dist/assets/index-TDJ6WsXD.css         25.34 kB │ gzip:  5.29 kB
+dist/assets/vendor-DG7MGOAw.js          6.64 kB │ gzip:  2.80 kB
+dist/assets/vendor-react-BD26yLcE.js  155.01 kB │ gzip: 50.65 kB
+dist/assets/index-XoZq1XXc.js         392.09 kB │ gzip: 78.09 kB
+✓ built in 1.98s

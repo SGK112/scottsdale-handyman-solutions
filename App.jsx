@@ -8698,8 +8698,44 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
     </div>
   )
 
-  // Admin Panel Component
-  const AdminPanel = ({ onLogout }) => {
+  // Professional Dashboard Component
+  const ProDashboard = ({ onLogout }) => {
+    const [activeSection, setActiveSection] = useState('dashboard')
+    const [leads, setLeads] = useState([])
+    const [invoices, setInvoices] = useState([])
+    const [estimates, setEstimates] = useState([])
+    const [timeEntries, setTimeEntries] = useState([])
+    const [expenses, setExpenses] = useState([])
+    const [projects, setProjects] = useState([])
+    const [clients, setClients] = useState([])
+
+    // Sample data - in production this would come from the backend
+    useState(() => {
+      setLeads([
+        { id: 1, name: 'John Smith', phone: '480-555-0123', service: 'Kitchen Repair', status: 'new', date: '2025-01-15', value: 850 },
+        { id: 2, name: 'Sarah Johnson', phone: '480-555-0156', service: 'Bathroom Remodel', status: 'contacted', date: '2025-01-14', value: 2400 },
+        { id: 3, name: 'Mike Wilson', phone: '480-555-0189', service: 'Deck Installation', status: 'scheduled', date: '2025-01-13', value: 3200 }
+      ])
+      setInvoices([
+        { id: 'INV-001', client: 'John Smith', amount: 850, status: 'paid', date: '2025-01-10', dueDate: '2025-01-24' },
+        { id: 'INV-002', client: 'Sarah Johnson', amount: 1200, status: 'pending', date: '2025-01-12', dueDate: '2025-01-26' },
+        { id: 'INV-003', client: 'Mike Wilson', amount: 3200, status: 'overdue', date: '2025-01-05', dueDate: '2025-01-19' }
+      ])
+      setEstimates([
+        { id: 'EST-001', client: 'Jennifer Brown', service: 'Fence Repair', amount: 650, status: 'sent', date: '2025-01-14' },
+        { id: 'EST-002', client: 'David Lee', service: 'Tile Installation', amount: 1800, status: 'approved', date: '2025-01-13' }
+      ])
+      setTimeEntries([
+        { id: 1, project: 'Kitchen Repair - John Smith', hours: 6.5, rate: 85, date: '2025-01-15', total: 552.50 },
+        { id: 2, project: 'Bathroom Remodel - Sarah Johnson', hours: 8, rate: 85, date: '2025-01-14', total: 680 }
+      ])
+      setExpenses([
+        { id: 1, description: 'Gas - Job Site Travel', amount: 45.20, category: 'Vehicle', date: '2025-01-15', receipt: true },
+        { id: 2, description: 'Hardware Store - Supplies', amount: 123.45, category: 'Materials', date: '2025-01-14', receipt: true },
+        { id: 3, description: 'Lunch - Client Meeting', amount: 18.50, category: 'Meals', date: '2025-01-13', receipt: false }
+      ])
+    }, [])
+
     if (!isAdminLoggedIn) {
       return (
         <div style={{
@@ -8707,7 +8743,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #2c3e50, #3498db)',
+          background: 'linear-gradient(135deg, #1e3a5f, #2c5aa0)',
           color: 'white'
         }}>
           <div style={{
@@ -8720,10 +8756,21 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             margin: '20px'
           }}>
             <div style={{ textAlign: 'center', marginBottom: '30px' }}>
-              <Lock size={48} style={{ color: '#3498db', marginBottom: '15px' }} />
-              <h2 style={{ color: '#2c3e50', marginBottom: '10px', fontSize: '24px' }}>Admin Login</h2>
+              <div style={{
+                display: 'inline-flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                width: '60px',
+                height: '60px',
+                backgroundColor: '#1e3a5f',
+                borderRadius: '50%',
+                marginBottom: '15px'
+              }}>
+                🛠️
+              </div>
+              <h2 style={{ color: '#2c3e50', marginBottom: '10px', fontSize: '24px' }}>Pro Portal Login</h2>
               <p style={{ color: '#7f8c8d', fontSize: '14px' }}>
-                Access the content management system
+                Access your business management dashboard
               </p>
             </div>
 
@@ -8734,7 +8781,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
               if (username === 'admin' && password === 'scottsdaleHandyman2025!') {
                 setIsAdminLoggedIn(true);
-                localStorage.setItem('scottsdaleAdminAuth', 'true');
+                localStorage.setItem('scottsdaleProAuth', 'true');
                 setCurrentPage('admin');
                 setShowAdminLogin(false);
               } else {
@@ -8805,7 +8852,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 style={{
                   width: '100%',
                   padding: '12px',
-                  background: '#3498db',
+                  background: '#1e3a5f',
                   color: 'white',
                   border: 'none',
                   borderRadius: '8px',
@@ -8814,10 +8861,10 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   cursor: 'pointer',
                   transition: 'background 0.3s ease'
                 }}
-                onMouseOver={(e) => e.target.style.background = '#2980b9'}
-                onMouseOut={(e) => e.target.style.background = '#3498db'}
+                onMouseOver={(e) => e.target.style.background = '#2c5aa0'}
+                onMouseOut={(e) => e.target.style.background = '#1e3a5f'}
               >
-                Login to Admin Panel
+                Login to Pro Portal
               </button>
             </form>
 
@@ -8843,161 +8890,973 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
     return (
       <div style={{ minHeight: '100vh', background: '#f8f9fa', padding: '20px' }}>
-        {/* Simple Admin Header */}
+        {/* Pro Dashboard Header */}
+        <div style={{
+          background: 'linear-gradient(135deg, #1e3a5f, #2c5aa0)',
+          borderRadius: '12px',
+          padding: '25px',
+          marginBottom: '25px',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+          color: 'white'
+        }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <h1 style={{ margin: 0, fontSize: '28px', fontWeight: '700' }}>
+                🛠️ Pro Dashboard
+              </h1>
+              <p style={{ margin: '8px 0 0 0', fontSize: '16px', opacity: 0.9 }}>
+                Welcome back! Manage your business operations.
+              </p>
+            </div>
+            <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+              <div style={{ textAlign: 'right', marginRight: '15px' }}>
+                <div style={{ fontSize: '14px', opacity: 0.8 }}>Today's Revenue</div>
+                <div style={{ fontSize: '24px', fontWeight: '700' }}>$1,232</div>
+              </div>
+              <button
+                onClick={() => setCurrentPage('home')}
+                style={{
+                  padding: '10px 20px',
+                  background: 'rgba(255,255,255,0.2)',
+                  border: '1px solid rgba(255,255,255,0.3)',
+                  borderRadius: '8px',
+                  cursor: 'pointer',
+                  color: 'white',
+                  backdropFilter: 'blur(10px)'
+                }}
+              >
+                🏠 View Site
+              </button>
+              <button
+                onClick={onLogout}
+                style={{
+                  padding: '10px 20px',
+                  background: '#ef4444',
+                  color: 'white',
+                  border: 'none',
+                  borderRadius: '8px',
+                  cursor: 'pointer'
+                }}
+              >
+                🚪 Logout
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Navigation Tabs */}
         <div style={{
           background: 'white',
-          borderRadius: '8px',
-          padding: '20px',
-          marginBottom: '20px',
-          boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center'
+          borderRadius: '12px',
+          padding: '0',
+          marginBottom: '25px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+          overflow: 'hidden'
         }}>
-          <div>
-            <h1 style={{ margin: 0, color: '#1f2937', fontSize: '24px' }}>
-              🛠️ Admin Dashboard
-            </h1>
-            <p style={{ margin: '5px 0 0 0', color: '#6b7280' }}>
-              Welcome back! Manage your website content.
-            </p>
+          <div style={{ display: 'flex', overflowX: 'auto' }}>
+            {[
+              { id: 'dashboard', label: '📊 Dashboard', icon: '📊' },
+              { id: 'leads', label: '👥 Leads', icon: '👥' },
+              { id: 'projects', label: '🏗️ Projects', icon: '🏗️' },
+              { id: 'invoices', label: '💰 Invoices', icon: '💰' },
+              { id: 'estimates', label: '📋 Estimates', icon: '📋' },
+              { id: 'time', label: '⏰ Time Tracking', icon: '⏰' },
+              { id: 'expenses', label: '💸 Expenses', icon: '💸' },
+              { id: 'clients', label: '👤 Clients', icon: '👤' }
+            ].map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveSection(tab.id)}
+                style={{
+                  padding: '15px 25px',
+                  border: 'none',
+                  background: activeSection === tab.id ? '#1e3a5f' : 'transparent',
+                  color: activeSection === tab.id ? 'white' : '#374151',
+                  cursor: 'pointer',
+                  fontSize: '14px',
+                  fontWeight: '500',
+                  whiteSpace: 'nowrap',
+                  transition: 'all 0.3s ease'
+                }}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
-          <div style={{ display: 'flex', gap: '10px' }}>
-            <button
-              onClick={() => setCurrentPage('home')}
-              style={{
-                padding: '8px 16px',
-                background: '#f3f4f6',
-                border: '1px solid #d1d5db',
-                borderRadius: '6px',
-                cursor: 'pointer'
-              }}
-            >
-              🏠 View Site
-            </button>
-            <button
-              onClick={onLogout}
-              style={{
-                padding: '8px 16px',
-                background: '#ef4444',
+        </div>
+
+        {/* Dashboard Content */}
+        {activeSection === 'dashboard' && (
+          <div>
+            {/* Stats Cards */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
+              gap: '20px',
+              marginBottom: '25px'
+            }}>
+              <div style={{
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                color: 'white',
+                padding: '25px',
+                borderRadius: '12px',
+                boxShadow: '0 4px 12px rgba(16,185,129,0.3)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontSize: '14px', opacity: 0.9 }}>Active Leads</div>
+                    <div style={{ fontSize: '32px', fontWeight: '700' }}>{leads.length}</div>
+                  </div>
+                  <div style={{ fontSize: '32px' }}>👥</div>
+                </div>
+              </div>
+              
+              <div style={{
+                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                color: 'white',
+                padding: '25px',
+                borderRadius: '12px',
+                boxShadow: '0 4px 12px rgba(59,130,246,0.3)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontSize: '14px', opacity: 0.9 }}>Pending Invoices</div>
+                    <div style={{ fontSize: '32px', fontWeight: '700' }}>{invoices.filter(inv => inv.status === 'pending').length}</div>
+                  </div>
+                  <div style={{ fontSize: '32px' }}>💰</div>
+                </div>
+              </div>
+              
+              <div style={{
+                background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                color: 'white',
+                padding: '25px',
+                borderRadius: '12px',
+                boxShadow: '0 4px 12px rgba(139,92,246,0.3)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontSize: '14px', opacity: 0.9 }}>This Month Revenue</div>
+                    <div style={{ fontSize: '32px', fontWeight: '700' }}>$8,450</div>
+                  </div>
+                  <div style={{ fontSize: '32px' }}>📈</div>
+                </div>
+              </div>
+              
+              <div style={{
+                background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                color: 'white',
+                padding: '25px',
+                borderRadius: '12px',
+                boxShadow: '0 4px 12px rgba(245,158,11,0.3)'
+              }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div>
+                    <div style={{ fontSize: '14px', opacity: 0.9 }}>Hours This Week</div>
+                    <div style={{ fontSize: '32px', fontWeight: '700' }}>32.5</div>
+                  </div>
+                  <div style={{ fontSize: '32px' }}>⏰</div>
+                </div>
+              </div>
+            </div>
+
+            {/* Recent Activity */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: '1fr 1fr',
+              gap: '25px'
+            }}>
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '25px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+              }}>
+                <h3 style={{ margin: '0 0 20px 0', color: '#1f2937', fontSize: '20px' }}>Recent Leads</h3>
+                {leads.slice(0, 3).map(lead => (
+                  <div key={lead.id} style={{
+                    padding: '15px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    marginBottom: '10px'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <div>
+                        <strong>{lead.name}</strong>
+                        <div style={{ color: '#6b7280', fontSize: '14px' }}>{lead.service}</div>
+                      </div>
+                      <span style={{
+                        padding: '4px 8px',
+                        borderRadius: '12px',
+                        fontSize: '12px',
+                        background: lead.status === 'new' ? '#fef3c7' : lead.status === 'contacted' ? '#ddd6fe' : '#d1fae5',
+                        color: lead.status === 'new' ? '#92400e' : lead.status === 'contacted' ? '#5b21b6' : '#065f46'
+                      }}>
+                        {lead.status}
+                      </span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{
+                background: 'white',
+                borderRadius: '12px',
+                padding: '25px',
+                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+              }}>
+                <h3 style={{ margin: '0 0 20px 0', color: '#1f2937', fontSize: '20px' }}>Recent Expenses</h3>
+                {expenses.slice(0, 3).map(expense => (
+                  <div key={expense.id} style={{
+                    padding: '15px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: '8px',
+                    marginBottom: '10px'
+                  }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                      <div>
+                        <strong>{expense.description}</strong>
+                        <div style={{ color: '#6b7280', fontSize: '14px' }}>{expense.category}</div>
+                      </div>
+                      <div style={{ textAlign: 'right' }}>
+                        <strong>${expense.amount}</strong>
+                        <div style={{ fontSize: '12px', color: expense.receipt ? '#059669' : '#dc2626' }}>
+                          {expense.receipt ? '✅ Receipt' : '❌ No Receipt'}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Leads Management */}
+        {activeSection === 'leads' && (
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '25px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+              <h2 style={{ margin: 0, color: '#1f2937', fontSize: '24px' }}>👥 Lead Management</h2>
+              <button style={{
+                padding: '10px 20px',
+                background: '#1e3a5f',
                 color: 'white',
                 border: 'none',
-                borderRadius: '6px',
+                borderRadius: '8px',
                 cursor: 'pointer'
-              }}
-            >
-              🚪 Logout
-            </button>
-          </div>
-        </div>
-
-        {/* Admin Content Grid */}
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))',
-          gap: '20px'
-        }}>
-          {/* Dashboard Stats */}
-          <div style={{
-            background: 'white',
-            borderRadius: '8px',
-            padding: '20px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-          }}>
-            <h3 style={{ margin: '0 0 15px 0', color: '#1f2937' }}>📊 Website Stats</h3>
-            <div style={{ color: '#6b7280' }}>
-              <p>• Total Pages: 8</p>
-              <p>• Admin Status: Active</p>
-              <p>• Last Login: {new Date().toLocaleDateString()}</p>
-              <p>• System Status: ✅ Online</p>
-            </div>
-          </div>
-
-          {/* Quick Actions */}
-          <div style={{
-            background: 'white',
-            borderRadius: '8px',
-            padding: '20px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
-          }}>
-            <h3 style={{ margin: '0 0 15px 0', color: '#1f2937' }}>⚡ Quick Actions</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-              <button
-                onClick={() => setAdminSection('blogs')}
-                style={{
-                  padding: '10px',
-                  background: adminSection === 'blogs' ? '#dbeafe' : '#f8f9fa',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  textAlign: 'left'
-                }}
-              >
-                📝 Manage Blog Posts
-              </button>
-              <button
-                onClick={() => setAdminSection('gallery')}
-                style={{
-                  padding: '10px',
-                  background: adminSection === 'gallery' ? '#dbeafe' : '#f8f9fa',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  textAlign: 'left'
-                }}
-              >
-                🖼️ Photo Gallery
-              </button>
-              <button
-                onClick={() => setAdminSection('media')}
-                style={{
-                  padding: '10px',
-                  background: adminSection === 'media' ? '#dbeafe' : '#f8f9fa',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  textAlign: 'left'
-                }}
-              >
-                📁 Media Library
-              </button>
-              <button
-                onClick={() => setAdminSection('chatbot')}
-                style={{
-                  padding: '10px',
-                  background: adminSection === 'chatbot' ? '#dbeafe' : '#f8f9fa',
-                  border: '1px solid #e5e7eb',
-                  borderRadius: '6px',
-                  cursor: 'pointer',
-                  textAlign: 'left'
-                }}
-              >
-                💬 Chatbot Logs
+              }}>
+                + Add Lead
               </button>
             </div>
+            
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Name</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Phone</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Service</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Status</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Value</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Date</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {leads.map(lead => (
+                    <tr key={lead.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                      <td style={{ padding: '15px', fontWeight: '500' }}>{lead.name}</td>
+                      <td style={{ padding: '15px', color: '#6b7280' }}>{lead.phone}</td>
+                      <td style={{ padding: '15px' }}>{lead.service}</td>
+                      <td style={{ padding: '15px' }}>
+                        <span style={{
+                          padding: '6px 12px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          background: lead.status === 'new' ? '#fef3c7' : lead.status === 'contacted' ? '#ddd6fe' : '#d1fae5',
+                          color: lead.status === 'new' ? '#92400e' : lead.status === 'contacted' ? '#5b21b6' : '#065f46'
+                        }}>
+                          {lead.status}
+                        </span>
+                      </td>
+                      <td style={{ padding: '15px', fontWeight: '600' }}>${lead.value}</td>
+                      <td style={{ padding: '15px', color: '#6b7280' }}>{lead.date}</td>
+                      <td style={{ padding: '15px' }}>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button style={{
+                            padding: '6px 12px',
+                            background: '#3b82f6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            cursor: 'pointer'
+                          }}>
+                            Edit
+                          </button>
+                          <button style={{
+                            padding: '6px 12px',
+                            background: '#10b981',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            cursor: 'pointer'
+                          }}>
+                            Convert
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           </div>
-        </div>
+        )}
 
-        {/* Selected Section Content */}
-        {adminSection !== 'dashboard' && (
+        {/* Invoices Management */}
+        {activeSection === 'invoices' && (
           <div style={{
             background: 'white',
-            borderRadius: '8px',
-            padding: '20px',
-            marginTop: '20px',
-            boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-            minHeight: '400px'
+            borderRadius: '12px',
+            padding: '25px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
           }}>
-            <h2 style={{ margin: '0 0 20px 0', color: '#1f2937' }}>
-              {adminSection === 'blogs' && '📝 Blog Management'}
-              {adminSection === 'gallery' && '🖼️ Gallery Management'}
-              {adminSection === 'media' && '📁 Media Library'}
-              {adminSection === 'chatbot' && '💬 Chatbot Conversations'}
-            </h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+              <h2 style={{ margin: 0, color: '#1f2937', fontSize: '24px' }}>💰 Invoice Management</h2>
+              <button style={{
+                padding: '10px 20px',
+                background: '#1e3a5f',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer'
+              }}>
+                + Create Invoice
+              </button>
+            </div>
+            
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Invoice #</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Client</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Amount</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Status</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Date</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Due Date</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invoices.map(invoice => (
+                    <tr key={invoice.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                      <td style={{ padding: '15px', fontWeight: '500', color: '#1e3a5f' }}>{invoice.id}</td>
+                      <td style={{ padding: '15px' }}>{invoice.client}</td>
+                      <td style={{ padding: '15px', fontWeight: '600' }}>${invoice.amount}</td>
+                      <td style={{ padding: '15px' }}>
+                        <span style={{
+                          padding: '6px 12px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          background: invoice.status === 'paid' ? '#d1fae5' : invoice.status === 'pending' ? '#fef3c7' : '#fee2e2',
+                          color: invoice.status === 'paid' ? '#065f46' : invoice.status === 'pending' ? '#92400e' : '#b91c1c'
+                        }}>
+                          {invoice.status}
+                        </span>
+                      </td>
+                      <td style={{ padding: '15px', color: '#6b7280' }}>{invoice.date}</td>
+                      <td style={{ padding: '15px', color: '#6b7280' }}>{invoice.dueDate}</td>
+                      <td style={{ padding: '15px' }}>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button style={{
+                            padding: '6px 12px',
+                            background: '#3b82f6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            cursor: 'pointer'
+                          }}>
+                            View
+                          </button>
+                          <button style={{
+                            padding: '6px 12px',
+                            background: '#10b981',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            cursor: 'pointer'
+                          }}>
+                            Send
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
 
-            {adminSection === 'blogs' && <BlogEditor />}
-            {adminSection === 'gallery' && <GalleryManager />}
-            {adminSection === 'media' && <MediaLibrary />}
+        {/* Time Tracking */}
+        {activeSection === 'time' && (
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '25px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+              <h2 style={{ margin: 0, color: '#1f2937', fontSize: '24px' }}>⏰ Time Tracking</h2>
+              <button style={{
+                padding: '10px 20px',
+                background: '#10b981',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                fontSize: '16px',
+                fontWeight: '600'
+              }}>
+                ⏱️ Start Timer
+              </button>
+            </div>
+            
+            <div style={{ marginBottom: '25px' }}>
+              <div style={{
+                background: 'linear-gradient(135deg, #10b981, #059669)',
+                color: 'white',
+                padding: '20px',
+                borderRadius: '12px',
+                textAlign: 'center'
+              }}>
+                <h3 style={{ margin: '0 0 10px 0' }}>Current Session</h3>
+                <div style={{ fontSize: '36px', fontWeight: '700' }}>02:45:30</div>
+                <div>Working on: Kitchen Repair - John Smith</div>
+              </div>
+            </div>
+            
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Project</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Hours</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Rate</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Total</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Date</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {timeEntries.map(entry => (
+                    <tr key={entry.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                      <td style={{ padding: '15px', fontWeight: '500' }}>{entry.project}</td>
+                      <td style={{ padding: '15px' }}>{entry.hours}h</td>
+                      <td style={{ padding: '15px' }}>${entry.rate}/hr</td>
+                      <td style={{ padding: '15px', fontWeight: '600', color: '#10b981' }}>${entry.total}</td>
+                      <td style={{ padding: '15px', color: '#6b7280' }}>{entry.date}</td>
+                      <td style={{ padding: '15px' }}>
+                        <button style={{
+                          padding: '6px 12px',
+                          background: '#3b82f6',
+                          color: 'white',
+                          border: 'none',
+                          borderRadius: '6px',
+                          fontSize: '12px',
+                          cursor: 'pointer'
+                        }}>
+                          Edit
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Expenses Management */}
+        {activeSection === 'expenses' && (
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '25px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+              <h2 style={{ margin: 0, color: '#1f2937', fontSize: '24px' }}>💸 Expense Tracking</h2>
+              <button style={{
+                padding: '10px 20px',
+                background: '#1e3a5f',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer'
+              }}>
+                + Add Expense
+              </button>
+            </div>
+            
+            {/* Expense Summary */}
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+              gap: '20px',
+              marginBottom: '25px'
+            }}>
+              <div style={{
+                background: '#fee2e2',
+                padding: '20px',
+                borderRadius: '12px',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '24px', fontWeight: '700', color: '#dc2626' }}>$187.15</div>
+                <div style={{ color: '#7f1d1d' }}>This Week</div>
+              </div>
+              <div style={{
+                background: '#fef3c7',
+                padding: '20px',
+                borderRadius: '12px',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '24px', fontWeight: '700', color: '#d97706' }}>$745.80</div>
+                <div style={{ color: '#92400e' }}>This Month</div>
+              </div>
+              <div style={{
+                background: '#ddd6fe',
+                padding: '20px',
+                borderRadius: '12px',
+                textAlign: 'center'
+              }}>
+                <div style={{ fontSize: '24px', fontWeight: '700', color: '#7c3aed' }}>$2,340.25</div>
+                <div style={{ color: '#5b21b6' }}>This Year</div>
+              </div>
+            </div>
+            
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Description</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Category</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Amount</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Date</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Receipt</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {expenses.map(expense => (
+                    <tr key={expense.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                      <td style={{ padding: '15px', fontWeight: '500' }}>{expense.description}</td>
+                      <td style={{ padding: '15px' }}>
+                        <span style={{
+                          padding: '4px 8px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          background: '#f3f4f6',
+                          color: '#374151'
+                        }}>
+                          {expense.category}
+                        </span>
+                      </td>
+                      <td style={{ padding: '15px', fontWeight: '600' }}>${expense.amount}</td>
+                      <td style={{ padding: '15px', color: '#6b7280' }}>{expense.date}</td>
+                      <td style={{ padding: '15px' }}>
+                        <span style={{
+                          padding: '4px 8px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          background: expense.receipt ? '#d1fae5' : '#fee2e2',
+                          color: expense.receipt ? '#065f46' : '#b91c1c'
+                        }}>
+                          {expense.receipt ? '✅ Yes' : '❌ No'}
+                        </span>
+                      </td>
+                      <td style={{ padding: '15px' }}>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button style={{
+                            padding: '6px 12px',
+                            background: '#3b82f6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            cursor: 'pointer'
+                          }}>
+                            Edit
+                          </button>
+                          {!expense.receipt && (
+                            <button style={{
+                              padding: '6px 12px',
+                              background: '#f59e0b',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '6px',
+                              fontSize: '12px',
+                              cursor: 'pointer'
+                            }}>
+                              Add Receipt
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Estimates Section */}
+        {activeSection === 'estimates' && (
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '25px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+              <h2 style={{ margin: 0, color: '#1f2937', fontSize: '24px' }}>📋 Estimates</h2>
+              <button style={{
+                padding: '10px 20px',
+                background: '#1e3a5f',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer'
+              }}>
+                + Create Estimate
+              </button>
+            </div>
+            
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Estimate #</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Client</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Service</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Amount</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Status</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Date</th>
+                    <th style={{ padding: '15px', textAlign: 'left', color: '#374151' }}>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {estimates.map(estimate => (
+                    <tr key={estimate.id} style={{ borderBottom: '1px solid #f3f4f6' }}>
+                      <td style={{ padding: '15px', fontWeight: '500', color: '#1e3a5f' }}>{estimate.id}</td>
+                      <td style={{ padding: '15px' }}>{estimate.client}</td>
+                      <td style={{ padding: '15px' }}>{estimate.service}</td>
+                      <td style={{ padding: '15px', fontWeight: '600' }}>${estimate.amount}</td>
+                      <td style={{ padding: '15px' }}>
+                        <span style={{
+                          padding: '6px 12px',
+                          borderRadius: '12px',
+                          fontSize: '12px',
+                          fontWeight: '500',
+                          background: estimate.status === 'approved' ? '#d1fae5' : estimate.status === 'sent' ? '#fef3c7' : '#fee2e2',
+                          color: estimate.status === 'approved' ? '#065f46' : estimate.status === 'sent' ? '#92400e' : '#b91c1c'
+                        }}>
+                          {estimate.status}
+                        </span>
+                      </td>
+                      <td style={{ padding: '15px', color: '#6b7280' }}>{estimate.date}</td>
+                      <td style={{ padding: '15px' }}>
+                        <div style={{ display: 'flex', gap: '8px' }}>
+                          <button style={{
+                            padding: '6px 12px',
+                            background: '#3b82f6',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '6px',
+                            fontSize: '12px',
+                            cursor: 'pointer'
+                          }}>
+                            Edit
+                          </button>
+                          {estimate.status === 'approved' && (
+                            <button style={{
+                              padding: '6px 12px',
+                              background: '#10b981',
+                              color: 'white',
+                              border: 'none',
+                              borderRadius: '6px',
+                              fontSize: '12px',
+                              cursor: 'pointer'
+                            }}>
+                              Convert to Invoice
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
+        {/* Clients Section */}
+        {activeSection === 'clients' && (
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '25px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+              <h2 style={{ margin: 0, color: '#1f2937', fontSize: '24px' }}>👤 Client Management</h2>
+              <button style={{
+                padding: '10px 20px',
+                background: '#1e3a5f',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer'
+              }}>
+                + Add Client
+              </button>
+            </div>
+            
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
+              gap: '20px'
+            }}>
+              {[
+                { name: 'John Smith', email: 'john@email.com', phone: '480-555-0123', projects: 3, totalValue: '$4,250' },
+                { name: 'Sarah Johnson', email: 'sarah@email.com', phone: '480-555-0156', projects: 1, totalValue: '$2,400' },
+                { name: 'Mike Wilson', email: 'mike@email.com', phone: '480-555-0189', projects: 2, totalValue: '$5,600' }
+              ].map((client, index) => (
+                <div key={index} style={{
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '12px',
+                  padding: '20px'
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', marginBottom: '15px' }}>
+                    <div style={{
+                      width: '50px',
+                      height: '50px',
+                      borderRadius: '50%',
+                      background: '#1e3a5f',
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      color: 'white',
+                      fontSize: '20px',
+                      fontWeight: '600',
+                      marginRight: '15px'
+                    }}>
+                      {client.name.split(' ').map(n => n[0]).join('')}
+                    </div>
+                    <div>
+                      <h3 style={{ margin: 0, fontSize: '18px', fontWeight: '600' }}>{client.name}</h3>
+                      <p style={{ margin: '2px 0 0 0', color: '#6b7280', fontSize: '14px' }}>{client.email}</p>
+                    </div>
+                  </div>
+                  
+                  <div style={{ marginBottom: '15px' }}>
+                    <div style={{ color: '#6b7280', fontSize: '14px' }}>Phone: {client.phone}</div>
+                    <div style={{ color: '#6b7280', fontSize: '14px' }}>Projects: {client.projects}</div>
+                    <div style={{ color: '#10b981', fontSize: '16px', fontWeight: '600' }}>Total Value: {client.totalValue}</div>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      background: '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      cursor: 'pointer'
+                    }}>
+                      View Details
+                    </button>
+                    <button style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      background: '#10b981',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      cursor: 'pointer'
+                    }}>
+                      Contact
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* Projects Section */}
+        {activeSection === 'projects' && (
+          <div style={{
+            background: 'white',
+            borderRadius: '12px',
+            padding: '25px',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
+              <h2 style={{ margin: 0, color: '#1f2937', fontSize: '24px' }}>🏗️ Project Management</h2>
+              <button style={{
+                padding: '10px 20px',
+                background: '#1e3a5f',
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer'
+              }}>
+                + New Project
+              </button>
+            </div>
+            
+            <div style={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
+              gap: '20px'
+            }}>
+              {[
+                { 
+                  name: 'Kitchen Renovation - Smith Residence', 
+                  client: 'John Smith', 
+                  status: 'in-progress', 
+                  progress: 65, 
+                  budget: '$8,500',
+                  deadline: '2025-02-15',
+                  tasks: ['Demo complete', 'Cabinets ordered', 'Plumbing rough-in']
+                },
+                { 
+                  name: 'Bathroom Remodel - Johnson Home', 
+                  client: 'Sarah Johnson', 
+                  status: 'planning', 
+                  progress: 15, 
+                  budget: '$12,000',
+                  deadline: '2025-03-01',
+                  tasks: ['Initial consultation', 'Design approval pending', 'Permits required']
+                },
+                { 
+                  name: 'Deck Installation - Wilson Property', 
+                  client: 'Mike Wilson', 
+                  status: 'completed', 
+                  progress: 100, 
+                  budget: '$6,200',
+                  deadline: '2025-01-20',
+                  tasks: ['Foundation complete', 'Framing done', 'Final inspection passed']
+                }
+              ].map((project, index) => (
+                <div key={index} style={{
+                  border: '1px solid #e5e7eb',
+                  borderRadius: '12px',
+                  padding: '20px',
+                  background: project.status === 'completed' ? '#f0fdf4' : project.status === 'in-progress' ? '#fef3c7' : '#f8fafc'
+                }}>
+                  <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', fontWeight: '600' }}>{project.name}</h3>
+                  <p style={{ margin: '0 0 15px 0', color: '#6b7280' }}>Client: {project.client}</p>
+                  
+                  <div style={{ marginBottom: '15px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                      <span>Progress</span>
+                      <span>{project.progress}%</span>
+                    </div>
+                    <div style={{
+                      width: '100%',
+                      height: '8px',
+                      background: '#e5e7eb',
+                      borderRadius: '4px',
+                      overflow: 'hidden'
+                    }}>
+                      <div style={{
+                        width: `${project.progress}%`,
+                        height: '100%',
+                        background: project.status === 'completed' ? '#10b981' : project.status === 'in-progress' ? '#f59e0b' : '#6b7280',
+                        transition: 'width 0.3s ease'
+                      }}></div>
+                    </div>
+                  </div>
+                  
+                  <div style={{ marginBottom: '15px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
+                      <span style={{ color: '#6b7280', fontSize: '14px' }}>Budget: {project.budget}</span>
+                      <span style={{ color: '#6b7280', fontSize: '14px' }}>Due: {project.deadline}</span>
+                    </div>
+                    <span style={{
+                      padding: '4px 8px',
+                      borderRadius: '12px',
+                      fontSize: '12px',
+                      fontWeight: '500',
+                      background: project.status === 'completed' ? '#d1fae5' : project.status === 'in-progress' ? '#fef3c7' : '#f1f5f9',
+                      color: project.status === 'completed' ? '#065f46' : project.status === 'in-progress' ? '#92400e' : '#475569'
+                    }}>
+                      {project.status === 'completed' ? 'Completed' : project.status === 'in-progress' ? 'In Progress' : 'Planning'}
+                    </span>
+                  </div>
+                  
+                  <div style={{ marginBottom: '15px' }}>
+                    <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#374151' }}>Recent Tasks:</h4>
+                    {project.tasks.map((task, taskIndex) => (
+                      <div key={taskIndex} style={{ fontSize: '13px', color: '#6b7280', marginBottom: '3px' }}>
+                        • {task}
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      background: '#3b82f6',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      cursor: 'pointer'
+                    }}>
+                      View Details
+                    </button>
+                    <button style={{
+                      flex: 1,
+                      padding: '8px 12px',
+                      background: '#6b7280',
+                      color: 'white',
+                      border: 'none',
+                      borderRadius: '6px',
+                      fontSize: '14px',
+                      cursor: 'pointer'
+                    }}>
+                      Update
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+      </div>
+    );
+  };
             {adminSection === 'chatbot' && <ChatbotLogs />}
           </div>
         )}
@@ -15572,7 +16431,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
       {/* Admin Panel */}
       {isAdminLoggedIn ? (
-        <AdminPanel onLogout={handleAdminLogout} />
+        <ProDashboard onLogout={handleAdminLogout} />
       ) : (
         <>
           <Navigation />
@@ -15592,7 +16451,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               {currentPage === 'home-improvements' && <HomeImprovementsPage />}
               {currentPage === 'emergency-services' && <EmergencyServicesPage />}
               {currentPage === 'smart-home-solutions' && <SmartHomeSolutionsPage />}
-              {currentPage === 'admin' && <AdminPanel />}
+              {currentPage === 'admin' && <ProDashboard />}
               {currentPage === 'checkout' && (
                 <UniversalCheckoutPage
                   selectedService={selectedService}
