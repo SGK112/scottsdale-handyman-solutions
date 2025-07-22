@@ -270,10 +270,10 @@ const ProPortalApp = () => {
         }, [])
 
         return (
-            <div style={{ 
-                minHeight: '100vh', 
-                background: '#f8f9fa', 
-                padding: window.innerWidth <= 768 ? '10px' : '20px' 
+            <div style={{
+                minHeight: '100vh',
+                background: '#f8f9fa',
+                padding: window.innerWidth <= 768 ? '10px' : '20px'
             }}>
                 {/* Pro Dashboard Header */}
                 <div style={{
@@ -284,52 +284,52 @@ const ProPortalApp = () => {
                     boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                     color: 'white'
                 }}>
-                    <div style={{ 
-                        display: 'flex', 
+                    <div style={{
+                        display: 'flex',
                         flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
-                        justifyContent: 'space-between', 
+                        justifyContent: 'space-between',
                         alignItems: window.innerWidth <= 768 ? 'flex-start' : 'center',
                         gap: window.innerWidth <= 768 ? '15px' : '0'
                     }}>
                         <div>
-                            <h1 style={{ 
-                                margin: 0, 
-                                fontSize: window.innerWidth <= 768 ? '24px' : '28px', 
-                                fontWeight: '700', 
-                                color: 'white' 
+                            <h1 style={{
+                                margin: 0,
+                                fontSize: window.innerWidth <= 768 ? '24px' : '28px',
+                                fontWeight: '700',
+                                color: 'white'
                             }}>
                                 🛠️ Pro Dashboard
                             </h1>
-                            <p style={{ 
-                                margin: '8px 0 0 0', 
-                                fontSize: window.innerWidth <= 768 ? '14px' : '16px', 
-                                opacity: 0.9, 
-                                color: 'rgba(255,255,255,0.95)' 
+                            <p style={{
+                                margin: '8px 0 0 0',
+                                fontSize: window.innerWidth <= 768 ? '14px' : '16px',
+                                opacity: 0.9,
+                                color: 'rgba(255,255,255,0.95)'
                             }}>
                                 Welcome back! Manage your business operations.
                             </p>
                         </div>
-                        <div style={{ 
-                            display: 'flex', 
+                        <div style={{
+                            display: 'flex',
                             flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
-                            gap: window.innerWidth <= 768 ? '8px' : '12px', 
+                            gap: window.innerWidth <= 768 ? '8px' : '12px',
                             alignItems: window.innerWidth <= 768 ? 'stretch' : 'center',
                             width: window.innerWidth <= 768 ? '100%' : 'auto'
                         }}>
-                            <div style={{ 
-                                textAlign: window.innerWidth <= 768 ? 'center' : 'right', 
+                            <div style={{
+                                textAlign: window.innerWidth <= 768 ? 'center' : 'right',
                                 marginRight: window.innerWidth <= 768 ? '0' : '15px',
                                 marginBottom: window.innerWidth <= 768 ? '8px' : '0'
                             }}>
-                                <div style={{ 
-                                    fontSize: window.innerWidth <= 768 ? '12px' : '14px', 
-                                    opacity: 0.8, 
-                                    color: 'rgba(255,255,255,0.8)' 
+                                <div style={{
+                                    fontSize: window.innerWidth <= 768 ? '12px' : '14px',
+                                    opacity: 0.8,
+                                    color: 'rgba(255,255,255,0.8)'
                                 }}>Today's Revenue</div>
-                                <div style={{ 
-                                    fontSize: window.innerWidth <= 768 ? '20px' : '24px', 
-                                    fontWeight: '700', 
-                                    color: 'white' 
+                                <div style={{
+                                    fontSize: window.innerWidth <= 768 ? '20px' : '24px',
+                                    fontWeight: '700',
+                                    color: 'white'
                                 }}>$1,232</div>
                             </div>
                             <div style={{
@@ -383,8 +383,8 @@ const ProPortalApp = () => {
                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                     overflow: 'hidden'
                 }}>
-                    <div style={{ 
-                        display: 'flex', 
+                    <div style={{
+                        display: 'flex',
                         overflowX: 'auto',
                         scrollbarWidth: 'none', /* Firefox */
                         msOverflowStyle: 'none', /* IE/Edge */
@@ -441,25 +441,25 @@ const ProPortalApp = () => {
                                 borderRadius: '12px',
                                 boxShadow: '0 4px 12px rgba(16,185,129,0.3)'
                             }}>
-                                <div style={{ 
-                                    display: 'flex', 
-                                    justifyContent: 'space-between', 
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
                                     alignItems: 'center',
                                     flexDirection: window.innerWidth <= 480 ? 'column' : 'row',
                                     gap: window.innerWidth <= 480 ? '8px' : '0'
                                 }}>
                                     <div style={{ textAlign: window.innerWidth <= 480 ? 'center' : 'left' }}>
-                                        <div style={{ 
-                                            fontSize: window.innerWidth <= 768 ? '12px' : '14px', 
-                                            opacity: 0.9 
+                                        <div style={{
+                                            fontSize: window.innerWidth <= 768 ? '12px' : '14px',
+                                            opacity: 0.9
                                         }}>Active Leads</div>
-                                        <div style={{ 
-                                            fontSize: window.innerWidth <= 768 ? '28px' : '32px', 
-                                            fontWeight: '700' 
+                                        <div style={{
+                                            fontSize: window.innerWidth <= 768 ? '28px' : '32px',
+                                            fontWeight: '700'
                                         }}>{leads.length}</div>
                                     </div>
-                                    <div style={{ 
-                                        fontSize: window.innerWidth <= 768 ? '28px' : '32px' 
+                                    <div style={{
+                                        fontSize: window.innerWidth <= 768 ? '28px' : '32px'
                                     }}>👥</div>
                                 </div>
                             </div>
@@ -471,25 +471,25 @@ const ProPortalApp = () => {
                                 borderRadius: '12px',
                                 boxShadow: '0 4px 12px rgba(59,130,246,0.3)'
                             }}>
-                                <div style={{ 
-                                    display: 'flex', 
-                                    justifyContent: 'space-between', 
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
                                     alignItems: 'center',
                                     flexDirection: window.innerWidth <= 480 ? 'column' : 'row',
                                     gap: window.innerWidth <= 480 ? '8px' : '0'
                                 }}>
                                     <div style={{ textAlign: window.innerWidth <= 480 ? 'center' : 'left' }}>
-                                        <div style={{ 
-                                            fontSize: window.innerWidth <= 768 ? '12px' : '14px', 
-                                            opacity: 0.9 
+                                        <div style={{
+                                            fontSize: window.innerWidth <= 768 ? '12px' : '14px',
+                                            opacity: 0.9
                                         }}>Pending Invoices</div>
-                                        <div style={{ 
-                                            fontSize: window.innerWidth <= 768 ? '28px' : '32px', 
-                                            fontWeight: '700' 
+                                        <div style={{
+                                            fontSize: window.innerWidth <= 768 ? '28px' : '32px',
+                                            fontWeight: '700'
                                         }}>{invoices.filter(inv => inv.status === 'pending').length}</div>
                                     </div>
-                                    <div style={{ 
-                                        fontSize: window.innerWidth <= 768 ? '28px' : '32px' 
+                                    <div style={{
+                                        fontSize: window.innerWidth <= 768 ? '28px' : '32px'
                                     }}>💰</div>
                                 </div>
                             </div>
@@ -501,25 +501,25 @@ const ProPortalApp = () => {
                                 borderRadius: '12px',
                                 boxShadow: '0 4px 12px rgba(139,92,246,0.3)'
                             }}>
-                                <div style={{ 
-                                    display: 'flex', 
-                                    justifyContent: 'space-between', 
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
                                     alignItems: 'center',
                                     flexDirection: window.innerWidth <= 480 ? 'column' : 'row',
                                     gap: window.innerWidth <= 480 ? '8px' : '0'
                                 }}>
                                     <div style={{ textAlign: window.innerWidth <= 480 ? 'center' : 'left' }}>
-                                        <div style={{ 
-                                            fontSize: window.innerWidth <= 768 ? '12px' : '14px', 
-                                            opacity: 0.9 
+                                        <div style={{
+                                            fontSize: window.innerWidth <= 768 ? '12px' : '14px',
+                                            opacity: 0.9
                                         }}>This Month Revenue</div>
-                                        <div style={{ 
-                                            fontSize: window.innerWidth <= 768 ? '28px' : '32px', 
-                                            fontWeight: '700' 
+                                        <div style={{
+                                            fontSize: window.innerWidth <= 768 ? '28px' : '32px',
+                                            fontWeight: '700'
                                         }}>$8,450</div>
                                     </div>
-                                    <div style={{ 
-                                        fontSize: window.innerWidth <= 768 ? '28px' : '32px' 
+                                    <div style={{
+                                        fontSize: window.innerWidth <= 768 ? '28px' : '32px'
                                     }}>📈</div>
                                 </div>
                             </div>
@@ -531,25 +531,25 @@ const ProPortalApp = () => {
                                 borderRadius: '12px',
                                 boxShadow: '0 4px 12px rgba(245,158,11,0.3)'
                             }}>
-                                <div style={{ 
-                                    display: 'flex', 
-                                    justifyContent: 'space-between', 
+                                <div style={{
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
                                     alignItems: 'center',
                                     flexDirection: window.innerWidth <= 480 ? 'column' : 'row',
                                     gap: window.innerWidth <= 480 ? '8px' : '0'
                                 }}>
                                     <div style={{ textAlign: window.innerWidth <= 480 ? 'center' : 'left' }}>
-                                        <div style={{ 
-                                            fontSize: window.innerWidth <= 768 ? '12px' : '14px', 
-                                            opacity: 0.9 
+                                        <div style={{
+                                            fontSize: window.innerWidth <= 768 ? '12px' : '14px',
+                                            opacity: 0.9
                                         }}>Hours This Week</div>
-                                        <div style={{ 
-                                            fontSize: window.innerWidth <= 768 ? '28px' : '32px', 
-                                            fontWeight: '700' 
+                                        <div style={{
+                                            fontSize: window.innerWidth <= 768 ? '28px' : '32px',
+                                            fontWeight: '700'
                                         }}>32.5</div>
                                     </div>
-                                    <div style={{ 
-                                        fontSize: window.innerWidth <= 768 ? '28px' : '32px' 
+                                    <div style={{
+                                        fontSize: window.innerWidth <= 768 ? '28px' : '32px'
                                     }}>⏰</div>
                                 </div>
                             </div>
@@ -774,7 +774,7 @@ const ProPortalApp = () => {
                                                 <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '2px' }}>{lead.address}</div>
                                                 <div style={{ fontSize: '12px', color: '#6b7280' }}>Added: {lead.date}</div>
                                             </div>
-                                            
+
                                             <div style={{ marginBottom: '12px' }}>
                                                 <div style={{ fontSize: '14px', color: '#1f2937', marginBottom: '2px' }}>📞 {lead.phone}</div>
                                                 <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>✉️ {lead.email}</div>
@@ -795,9 +795,9 @@ const ProPortalApp = () => {
                                                 <div style={{ fontSize: '12px', color: '#6b7280' }}>{lead.description}</div>
                                             </div>
 
-                                            <div style={{ 
-                                                display: 'flex', 
-                                                justifyContent: 'space-between', 
+                                            <div style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
                                                 alignItems: 'center',
                                                 flexWrap: 'wrap',
                                                 gap: '8px',
@@ -808,10 +808,10 @@ const ProPortalApp = () => {
                                                     borderRadius: '12px',
                                                     fontSize: '12px',
                                                     fontWeight: '500',
-                                                    background: lead.status === 'new' ? '#dbeafe' : 
-                                                              lead.status === 'contacted' ? '#fef3c7' : '#dcfce7',
-                                                    color: lead.status === 'new' ? '#1e40af' : 
-                                                           lead.status === 'contacted' ? '#92400e' : '#166534'
+                                                    background: lead.status === 'new' ? '#dbeafe' :
+                                                        lead.status === 'contacted' ? '#fef3c7' : '#dcfce7',
+                                                    color: lead.status === 'new' ? '#1e40af' :
+                                                        lead.status === 'contacted' ? '#92400e' : '#166534'
                                                 }}>
                                                     {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
                                                 </div>
@@ -823,10 +823,10 @@ const ProPortalApp = () => {
                                                     borderRadius: '12px',
                                                     fontSize: '12px',
                                                     fontWeight: '500',
-                                                    background: lead.urgency === 'high' ? '#fee2e2' : 
-                                                              lead.urgency === 'medium' ? '#fef3c7' : '#f0fdf4',
-                                                    color: lead.urgency === 'high' ? '#dc2626' : 
-                                                           lead.urgency === 'medium' ? '#d97706' : '#059669'
+                                                    background: lead.urgency === 'high' ? '#fee2e2' :
+                                                        lead.urgency === 'medium' ? '#fef3c7' : '#f0fdf4',
+                                                    color: lead.urgency === 'high' ? '#dc2626' :
+                                                        lead.urgency === 'medium' ? '#d97706' : '#059669'
                                                 }}>
                                                     {lead.urgency.charAt(0).toUpperCase() + lead.urgency.slice(1)}
                                                 </div>
