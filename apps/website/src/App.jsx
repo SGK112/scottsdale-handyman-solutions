@@ -1028,8 +1028,8 @@ Exterior Painting Touch-ups: The intense UV radiation in Arizona fades and damag
             <a href="#" style={{ color: '#64748b', textDecoration: 'none', fontWeight: '500' }} onClick={(e) => { e.preventDefault(); setCurrentPage('pay'); }}>Pay Invoice</a>
             
             {/* Pro Portal Link */}
-            <a 
-              href="http://localhost:5178"
+            <a
+              href={import.meta.env.VITE_PRO_PORTAL_URL || "https://scottsdale-handyman-pro-portal.onrender.com"}
               target="_blank"
               rel="noopener noreferrer"
               style={{
@@ -1339,11 +1339,11 @@ Exterior Painting Touch-ups: The intense UV radiation in Arizona fades and damag
                 For Professionals
               </div>
               
-              <a 
-                href="http://localhost:5178"
+              <a
+                href={import.meta.env.VITE_PRO_PORTAL_URL || "https://scottsdale-handyman-pro-portal.onrender.com"}
                 target="_blank"
                 rel="noopener noreferrer"
-                style={{ 
+                style={{
                   color: '#4f46e5', 
                   textDecoration: 'none', 
                   fontWeight: '600', 

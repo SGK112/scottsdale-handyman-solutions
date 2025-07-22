@@ -13,6 +13,8 @@ services:
     envVars:
       - key: VITE_API_URL
         value: https://scottsdale-handyman-api.onrender.com
+      - key: VITE_PRO_PORTAL_URL
+        value: https://scottsdale-handyman-pro-portal.onrender.com
 
   # Pro Portal (React/Vite) - Static Site
   - type: web

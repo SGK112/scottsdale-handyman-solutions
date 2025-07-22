@@ -270,57 +270,106 @@ const ProPortalApp = () => {
         }, [])
 
         return (
-            <div style={{ minHeight: '100vh', background: '#f8f9fa', padding: '20px' }}>
+            <div style={{ 
+                minHeight: '100vh', 
+                background: '#f8f9fa', 
+                padding: window.innerWidth <= 768 ? '10px' : '20px' 
+            }}>
                 {/* Pro Dashboard Header */}
                 <div style={{
                     background: 'linear-gradient(135deg, #1e3a5f, #2c5aa0)',
                     borderRadius: '12px',
-                    padding: '25px',
-                    marginBottom: '25px',
+                    padding: window.innerWidth <= 768 ? '15px' : '25px',
+                    marginBottom: window.innerWidth <= 768 ? '15px' : '25px',
                     boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
                     color: 'white'
                 }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ 
+                        display: 'flex', 
+                        flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+                        justifyContent: 'space-between', 
+                        alignItems: window.innerWidth <= 768 ? 'flex-start' : 'center',
+                        gap: window.innerWidth <= 768 ? '15px' : '0'
+                    }}>
                         <div>
-                            <h1 style={{ margin: 0, fontSize: '28px', fontWeight: '700', color: 'white' }}>
+                            <h1 style={{ 
+                                margin: 0, 
+                                fontSize: window.innerWidth <= 768 ? '24px' : '28px', 
+                                fontWeight: '700', 
+                                color: 'white' 
+                            }}>
                                 🛠️ Pro Dashboard
                             </h1>
-                            <p style={{ margin: '8px 0 0 0', fontSize: '16px', opacity: 0.9, color: 'rgba(255,255,255,0.95)' }}>
+                            <p style={{ 
+                                margin: '8px 0 0 0', 
+                                fontSize: window.innerWidth <= 768 ? '14px' : '16px', 
+                                opacity: 0.9, 
+                                color: 'rgba(255,255,255,0.95)' 
+                            }}>
                                 Welcome back! Manage your business operations.
                             </p>
                         </div>
-                        <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                            <div style={{ textAlign: 'right', marginRight: '15px' }}>
-                                <div style={{ fontSize: '14px', opacity: 0.8, color: 'rgba(255,255,255,0.8)' }}>Today's Revenue</div>
-                                <div style={{ fontSize: '24px', fontWeight: '700', color: 'white' }}>$1,232</div>
+                        <div style={{ 
+                            display: 'flex', 
+                            flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+                            gap: window.innerWidth <= 768 ? '8px' : '12px', 
+                            alignItems: window.innerWidth <= 768 ? 'stretch' : 'center',
+                            width: window.innerWidth <= 768 ? '100%' : 'auto'
+                        }}>
+                            <div style={{ 
+                                textAlign: window.innerWidth <= 768 ? 'center' : 'right', 
+                                marginRight: window.innerWidth <= 768 ? '0' : '15px',
+                                marginBottom: window.innerWidth <= 768 ? '8px' : '0'
+                            }}>
+                                <div style={{ 
+                                    fontSize: window.innerWidth <= 768 ? '12px' : '14px', 
+                                    opacity: 0.8, 
+                                    color: 'rgba(255,255,255,0.8)' 
+                                }}>Today's Revenue</div>
+                                <div style={{ 
+                                    fontSize: window.innerWidth <= 768 ? '20px' : '24px', 
+                                    fontWeight: '700', 
+                                    color: 'white' 
+                                }}>$1,232</div>
                             </div>
-                            <button
-                                onClick={() => window.location.href = '/'}
-                                style={{
-                                    padding: '10px 20px',
-                                    background: 'rgba(255,255,255,0.2)',
-                                    border: '1px solid rgba(255,255,255,0.3)',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer',
-                                    color: 'white',
-                                    backdropFilter: 'blur(10px)'
-                                }}
-                            >
-                                🏠 View Site
-                            </button>
-                            <button
-                                onClick={onLogout}
-                                style={{
-                                    padding: '10px 20px',
-                                    background: '#ef4444',
-                                    color: 'white',
-                                    border: 'none',
-                                    borderRadius: '8px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                🚪 Logout
-                            </button>
+                            <div style={{
+                                display: 'flex',
+                                flexDirection: window.innerWidth <= 768 ? 'column' : 'row',
+                                gap: window.innerWidth <= 768 ? '8px' : '12px',
+                                width: window.innerWidth <= 768 ? '100%' : 'auto'
+                            }}>
+                                <button
+                                    onClick={() => window.location.href = '/'}
+                                    style={{
+                                        padding: window.innerWidth <= 768 ? '12px 16px' : '10px 20px',
+                                        background: 'rgba(255,255,255,0.2)',
+                                        border: '1px solid rgba(255,255,255,0.3)',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        color: 'white',
+                                        backdropFilter: 'blur(10px)',
+                                        fontSize: window.innerWidth <= 768 ? '14px' : '16px',
+                                        fontWeight: '500'
+                                    }}
+                                >
+                                    🏠 View Site
+                                </button>
+                                <button
+                                    onClick={onLogout}
+                                    style={{
+                                        padding: window.innerWidth <= 768 ? '12px 16px' : '10px 20px',
+                                        background: '#ef4444',
+                                        color: 'white',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        cursor: 'pointer',
+                                        fontSize: window.innerWidth <= 768 ? '14px' : '16px',
+                                        fontWeight: '500'
+                                    }}
+                                >
+                                    🚪 Logout
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -330,34 +379,43 @@ const ProPortalApp = () => {
                     background: 'white',
                     borderRadius: '12px',
                     padding: '0',
-                    marginBottom: '25px',
+                    marginBottom: window.innerWidth <= 768 ? '15px' : '25px',
                     boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
                     overflow: 'hidden'
                 }}>
-                    <div style={{ display: 'flex', overflowX: 'auto' }}>
+                    <div style={{ 
+                        display: 'flex', 
+                        overflowX: 'auto',
+                        scrollbarWidth: 'none', /* Firefox */
+                        msOverflowStyle: 'none', /* IE/Edge */
+                        WebkitScrollbar: { display: 'none' } /* Chrome/Safari */
+                    }}>
                         {[
-                            { id: 'dashboard', label: '📊 Dashboard', icon: '📊' },
-                            { id: 'leads', label: '👥 Leads', icon: '👥' },
-                            { id: 'projects', label: '🏗️ Projects', icon: '🏗️' },
-                            { id: 'invoices', label: '💰 Invoices', icon: '💰' },
-                            { id: 'estimates', label: '📋 Estimates', icon: '📋' },
-                            { id: 'time', label: '⏰ Time Tracking', icon: '⏰' },
-                            { id: 'expenses', label: '💸 Expenses', icon: '💸' },
-                            { id: 'clients', label: '👤 Clients', icon: '👤' }
+                            { id: 'dashboard', label: window.innerWidth <= 768 ? '📊' : '📊 Dashboard', icon: '📊' },
+                            { id: 'leads', label: window.innerWidth <= 768 ? '👥' : '👥 Leads', icon: '👥' },
+                            { id: 'projects', label: window.innerWidth <= 768 ? '🏗️' : '🏗️ Projects', icon: '🏗️' },
+                            { id: 'invoices', label: window.innerWidth <= 768 ? '💰' : '💰 Invoices', icon: '💰' },
+                            { id: 'estimates', label: window.innerWidth <= 768 ? '📋' : '📋 Estimates', icon: '📋' },
+                            { id: 'time', label: window.innerWidth <= 768 ? '⏰' : '⏰ Time Tracking', icon: '⏰' },
+                            { id: 'expenses', label: window.innerWidth <= 768 ? '💸' : '💸 Expenses', icon: '💸' },
+                            { id: 'clients', label: window.innerWidth <= 768 ? '👤' : '👤 Clients', icon: '👤' }
                         ].map(tab => (
                             <button
                                 key={tab.id}
                                 onClick={() => setActiveSection(tab.id)}
                                 style={{
-                                    padding: '15px 25px',
+                                    padding: window.innerWidth <= 768 ? '12px 8px' : '15px 25px',
                                     border: 'none',
                                     background: activeSection === tab.id ? '#1e3a5f' : 'transparent',
                                     color: activeSection === tab.id ? 'white' : '#374151',
                                     cursor: 'pointer',
-                                    fontSize: '14px',
+                                    fontSize: window.innerWidth <= 768 ? '16px' : '14px',
                                     fontWeight: '500',
                                     whiteSpace: 'nowrap',
-                                    transition: 'all 0.3s ease'
+                                    transition: 'all 0.3s ease',
+                                    minWidth: window.innerWidth <= 768 ? '44px' : 'auto',
+                                    textAlign: 'center',
+                                    flex: window.innerWidth <= 768 ? '0 0 auto' : 'none'
                                 }}
                             >
                                 {tab.label}
@@ -372,71 +430,127 @@ const ProPortalApp = () => {
                         {/* Stats Cards */}
                         <div style={{
                             display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-                            gap: '20px',
-                            marginBottom: '25px'
+                            gridTemplateColumns: window.innerWidth <= 768 ? '1fr' : 'repeat(auto-fit, minmax(250px, 1fr))',
+                            gap: window.innerWidth <= 768 ? '12px' : '20px',
+                            marginBottom: window.innerWidth <= 768 ? '15px' : '25px'
                         }}>
                             <div style={{
                                 background: 'linear-gradient(135deg, #10b981, #059669)',
                                 color: 'white',
-                                padding: '25px',
+                                padding: window.innerWidth <= 768 ? '20px' : '25px',
                                 borderRadius: '12px',
                                 boxShadow: '0 4px 12px rgba(16,185,129,0.3)'
                             }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div>
-                                        <div style={{ fontSize: '14px', opacity: 0.9 }}>Active Leads</div>
-                                        <div style={{ fontSize: '32px', fontWeight: '700' }}>{leads.length}</div>
+                                <div style={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'space-between', 
+                                    alignItems: 'center',
+                                    flexDirection: window.innerWidth <= 480 ? 'column' : 'row',
+                                    gap: window.innerWidth <= 480 ? '8px' : '0'
+                                }}>
+                                    <div style={{ textAlign: window.innerWidth <= 480 ? 'center' : 'left' }}>
+                                        <div style={{ 
+                                            fontSize: window.innerWidth <= 768 ? '12px' : '14px', 
+                                            opacity: 0.9 
+                                        }}>Active Leads</div>
+                                        <div style={{ 
+                                            fontSize: window.innerWidth <= 768 ? '28px' : '32px', 
+                                            fontWeight: '700' 
+                                        }}>{leads.length}</div>
                                     </div>
-                                    <div style={{ fontSize: '32px' }}>👥</div>
+                                    <div style={{ 
+                                        fontSize: window.innerWidth <= 768 ? '28px' : '32px' 
+                                    }}>👥</div>
                                 </div>
                             </div>
 
                             <div style={{
                                 background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                                 color: 'white',
-                                padding: '25px',
+                                padding: window.innerWidth <= 768 ? '20px' : '25px',
                                 borderRadius: '12px',
                                 boxShadow: '0 4px 12px rgba(59,130,246,0.3)'
                             }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div>
-                                        <div style={{ fontSize: '14px', opacity: 0.9 }}>Pending Invoices</div>
-                                        <div style={{ fontSize: '32px', fontWeight: '700' }}>{invoices.filter(inv => inv.status === 'pending').length}</div>
+                                <div style={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'space-between', 
+                                    alignItems: 'center',
+                                    flexDirection: window.innerWidth <= 480 ? 'column' : 'row',
+                                    gap: window.innerWidth <= 480 ? '8px' : '0'
+                                }}>
+                                    <div style={{ textAlign: window.innerWidth <= 480 ? 'center' : 'left' }}>
+                                        <div style={{ 
+                                            fontSize: window.innerWidth <= 768 ? '12px' : '14px', 
+                                            opacity: 0.9 
+                                        }}>Pending Invoices</div>
+                                        <div style={{ 
+                                            fontSize: window.innerWidth <= 768 ? '28px' : '32px', 
+                                            fontWeight: '700' 
+                                        }}>{invoices.filter(inv => inv.status === 'pending').length}</div>
                                     </div>
-                                    <div style={{ fontSize: '32px' }}>💰</div>
+                                    <div style={{ 
+                                        fontSize: window.innerWidth <= 768 ? '28px' : '32px' 
+                                    }}>💰</div>
                                 </div>
                             </div>
 
                             <div style={{
                                 background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
                                 color: 'white',
-                                padding: '25px',
+                                padding: window.innerWidth <= 768 ? '20px' : '25px',
                                 borderRadius: '12px',
                                 boxShadow: '0 4px 12px rgba(139,92,246,0.3)'
                             }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div>
-                                        <div style={{ fontSize: '14px', opacity: 0.9 }}>This Month Revenue</div>
-                                        <div style={{ fontSize: '32px', fontWeight: '700' }}>$8,450</div>
+                                <div style={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'space-between', 
+                                    alignItems: 'center',
+                                    flexDirection: window.innerWidth <= 480 ? 'column' : 'row',
+                                    gap: window.innerWidth <= 480 ? '8px' : '0'
+                                }}>
+                                    <div style={{ textAlign: window.innerWidth <= 480 ? 'center' : 'left' }}>
+                                        <div style={{ 
+                                            fontSize: window.innerWidth <= 768 ? '12px' : '14px', 
+                                            opacity: 0.9 
+                                        }}>This Month Revenue</div>
+                                        <div style={{ 
+                                            fontSize: window.innerWidth <= 768 ? '28px' : '32px', 
+                                            fontWeight: '700' 
+                                        }}>$8,450</div>
                                     </div>
-                                    <div style={{ fontSize: '32px' }}>📈</div>
+                                    <div style={{ 
+                                        fontSize: window.innerWidth <= 768 ? '28px' : '32px' 
+                                    }}>📈</div>
                                 </div>
                             </div>
 
                             <div style={{
                                 background: 'linear-gradient(135deg, #f59e0b, #d97706)',
                                 color: 'white',
-                                padding: '25px',
+                                padding: window.innerWidth <= 768 ? '20px' : '25px',
                                 borderRadius: '12px',
                                 boxShadow: '0 4px 12px rgba(245,158,11,0.3)'
                             }}>
-                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div>
-                                        <div style={{ fontSize: '14px', opacity: 0.9 }}>Hours This Week</div>
-                                        <div style={{ fontSize: '32px', fontWeight: '700' }}>32.5</div>
+                                <div style={{ 
+                                    display: 'flex', 
+                                    justifyContent: 'space-between', 
+                                    alignItems: 'center',
+                                    flexDirection: window.innerWidth <= 480 ? 'column' : 'row',
+                                    gap: window.innerWidth <= 480 ? '8px' : '0'
+                                }}>
+                                    <div style={{ textAlign: window.innerWidth <= 480 ? 'center' : 'left' }}>
+                                        <div style={{ 
+                                            fontSize: window.innerWidth <= 768 ? '12px' : '14px', 
+                                            opacity: 0.9 
+                                        }}>Hours This Week</div>
+                                        <div style={{ 
+                                            fontSize: window.innerWidth <= 768 ? '28px' : '32px', 
+                                            fontWeight: '700' 
+                                        }}>32.5</div>
                                     </div>
-                                    <div style={{ fontSize: '32px' }}>⏰</div>
+                                    <div style={{ 
+                                        fontSize: window.innerWidth <= 768 ? '28px' : '32px' 
+                                    }}>⏰</div>
                                 </div>
                             </div>
                         </div>
@@ -642,179 +756,307 @@ const ProPortalApp = () => {
                         <div style={{
                             background: 'white',
                             borderRadius: '12px',
-                            padding: '25px',
+                            padding: window.innerWidth <= 768 ? '15px' : '25px',
                             boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
                         }}>
-                            <div style={{ overflowX: 'auto' }}>
-                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-                                    <thead>
-                                        <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
-                                            <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Lead Details</th>
-                                            <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Contact</th>
-                                            <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Service</th>
-                                            <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Status</th>
-                                            <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Value</th>
-                                            <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Urgency</th>
-                                            <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Actions</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        {filteredLeads.map(lead => (
-                                            <tr key={lead.id} style={{
-                                                borderBottom: '1px solid #f3f4f6',
-                                                transition: 'background-color 0.2s',
-                                                cursor: 'pointer'
+                            {window.innerWidth <= 768 ? (
+                                // Mobile Card Layout
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                    {filteredLeads.map(lead => (
+                                        <div key={lead.id} style={{
+                                            border: '1px solid #e5e7eb',
+                                            borderRadius: '8px',
+                                            padding: '15px',
+                                            background: '#fafafa'
+                                        }}>
+                                            <div style={{ marginBottom: '12px' }}>
+                                                <div style={{ fontWeight: '600', color: '#1f2937', fontSize: '16px', marginBottom: '4px' }}>{lead.name}</div>
+                                                <div style={{ fontSize: '14px', color: '#6b7280', marginBottom: '2px' }}>{lead.address}</div>
+                                                <div style={{ fontSize: '12px', color: '#6b7280' }}>Added: {lead.date}</div>
+                                            </div>
+                                            
+                                            <div style={{ marginBottom: '12px' }}>
+                                                <div style={{ fontSize: '14px', color: '#1f2937', marginBottom: '2px' }}>📞 {lead.phone}</div>
+                                                <div style={{ fontSize: '12px', color: '#6b7280', marginBottom: '4px' }}>✉️ {lead.email}</div>
+                                                <div style={{
+                                                    fontSize: '11px',
+                                                    color: '#6b7280',
+                                                    background: '#f3f4f6',
+                                                    padding: '2px 6px',
+                                                    borderRadius: '4px',
+                                                    display: 'inline-block'
+                                                }}>
+                                                    Source: {lead.source}
+                                                </div>
+                                            </div>
+
+                                            <div style={{ marginBottom: '12px' }}>
+                                                <div style={{ fontSize: '14px', color: '#1f2937', marginBottom: '4px' }}>🔧 {lead.serviceType}</div>
+                                                <div style={{ fontSize: '12px', color: '#6b7280' }}>{lead.description}</div>
+                                            </div>
+
+                                            <div style={{ 
+                                                display: 'flex', 
+                                                justifyContent: 'space-between', 
+                                                alignItems: 'center',
+                                                flexWrap: 'wrap',
+                                                gap: '8px',
+                                                marginBottom: '12px'
                                             }}>
-                                                <td style={{ padding: '15px' }}>
-                                                    <div>
-                                                        <div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '4px' }}>{lead.name}</div>
-                                                        <div style={{ fontSize: '12px', color: '#6b7280' }}>{lead.address}</div>
-                                                        <div style={{ fontSize: '12px', color: '#6b7280' }}>Added: {lead.date}</div>
-                                                    </div>
-                                                </td>
-                                                <td style={{ padding: '15px' }}>
-                                                    <div>
-                                                        <div style={{ color: '#1f2937', marginBottom: '2px' }}>{lead.phone}</div>
-                                                        <div style={{ fontSize: '12px', color: '#6b7280' }}>{lead.email}</div>
-                                                        <div style={{
-                                                            fontSize: '11px',
-                                                            color: '#6b7280',
-                                                            background: '#f3f4f6',
-                                                            padding: '2px 6px',
-                                                            borderRadius: '4px',
-                                                            display: 'inline-block',
-                                                            marginTop: '4px'
-                                                        }}>
-                                                            {lead.source}
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td style={{ padding: '15px' }}>
-                                                    <div>
-                                                        <div style={{ fontWeight: '500', color: '#1f2937' }}>{lead.service}</div>
-                                                        <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
-                                                            {lead.description?.substring(0, 50)}{lead.description?.length > 50 ? '...' : ''}
-                                                        </div>
-                                                    </div>
-                                                </td>
-                                                <td style={{ padding: '15px' }}>
-                                                    <select
-                                                        value={lead.status}
-                                                        onChange={(e) => updateLeadStatus(lead.id, e.target.value)}
-                                                        style={{
-                                                            padding: '6px 12px',
-                                                            borderRadius: '12px',
-                                                            fontSize: '12px',
-                                                            fontWeight: '500',
-                                                            border: 'none',
-                                                            cursor: 'pointer',
-                                                            background:
-                                                                lead.status === 'new' ? '#fef3c7' :
-                                                                    lead.status === 'contacted' ? '#ddd6fe' :
-                                                                        lead.status === 'quoted' ? '#fed7aa' :
-                                                                            lead.status === 'scheduled' ? '#bbf7d0' :
-                                                                                lead.status === 'won' ? '#d1fae5' : '#fecaca',
-                                                            color:
-                                                                lead.status === 'new' ? '#92400e' :
-                                                                    lead.status === 'contacted' ? '#5b21b6' :
-                                                                        lead.status === 'quoted' ? '#c2410c' :
-                                                                            lead.status === 'scheduled' ? '#065f46' :
-                                                                                lead.status === 'won' ? '#064e3b' : '#991b1b'
-                                                        }}
-                                                    >
-                                                        <option value="new">New</option>
-                                                        <option value="contacted">Contacted</option>
-                                                        <option value="quoted">Quoted</option>
-                                                        <option value="scheduled">Scheduled</option>
-                                                        <option value="won">Won</option>
-                                                        <option value="lost">Lost</option>
-                                                    </select>
-                                                </td>
-                                                <td style={{ padding: '15px', fontWeight: '600', color: '#1f2937' }}>
-                                                    ${lead.value?.toLocaleString() || '0'}
-                                                </td>
-                                                <td style={{ padding: '15px' }}>
-                                                    <span style={{
-                                                        padding: '4px 8px',
-                                                        borderRadius: '8px',
-                                                        fontSize: '11px',
+                                                <div style={{
+                                                    padding: '4px 8px',
+                                                    borderRadius: '12px',
+                                                    fontSize: '12px',
+                                                    fontWeight: '500',
+                                                    background: lead.status === 'new' ? '#dbeafe' : 
+                                                              lead.status === 'contacted' ? '#fef3c7' : '#dcfce7',
+                                                    color: lead.status === 'new' ? '#1e40af' : 
+                                                           lead.status === 'contacted' ? '#92400e' : '#166534'
+                                                }}>
+                                                    {lead.status.charAt(0).toUpperCase() + lead.status.slice(1)}
+                                                </div>
+                                                <div style={{ fontSize: '14px', fontWeight: '600', color: '#059669' }}>
+                                                    ${lead.estimatedValue}
+                                                </div>
+                                                <div style={{
+                                                    padding: '4px 8px',
+                                                    borderRadius: '12px',
+                                                    fontSize: '12px',
+                                                    fontWeight: '500',
+                                                    background: lead.urgency === 'high' ? '#fee2e2' : 
+                                                              lead.urgency === 'medium' ? '#fef3c7' : '#f0fdf4',
+                                                    color: lead.urgency === 'high' ? '#dc2626' : 
+                                                           lead.urgency === 'medium' ? '#d97706' : '#059669'
+                                                }}>
+                                                    {lead.urgency.charAt(0).toUpperCase() + lead.urgency.slice(1)}
+                                                </div>
+                                            </div>
+
+                                            <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
+                                                <button
+                                                    onClick={() => {
+                                                        setEditingLead(lead)
+                                                        setLeadForm({
+                                                            name: lead.name,
+                                                            email: lead.email,
+                                                            phone: lead.phone,
+                                                            address: lead.address,
+                                                            serviceType: lead.serviceType,
+                                                            description: lead.description,
+                                                            estimatedValue: lead.estimatedValue,
+                                                            urgency: lead.urgency,
+                                                            status: lead.status,
+                                                            source: lead.source,
+                                                            notes: lead.notes || ''
+                                                        })
+                                                    }}
+                                                    style={{
+                                                        padding: '8px 12px',
+                                                        background: '#3b82f6',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '12px',
                                                         fontWeight: '500',
-                                                        background:
-                                                            lead.urgency === 'high' ? '#fecaca' :
-                                                                lead.urgency === 'medium' ? '#fed7aa' : '#d1fae5',
-                                                        color:
-                                                            lead.urgency === 'high' ? '#991b1b' :
-                                                                lead.urgency === 'medium' ? '#c2410c' : '#065f46'
-                                                    }}>
-                                                        {lead.urgency}
-                                                    </span>
-                                                </td>
-                                                <td style={{ padding: '15px' }}>
-                                                    <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                                                        <button
-                                                            onClick={() => {
-                                                                setEditingLead(lead)
-                                                                setLeadForm({
-                                                                    name: lead.name,
-                                                                    phone: lead.phone,
-                                                                    email: lead.email,
-                                                                    address: lead.address,
-                                                                    service: lead.service,
-                                                                    description: lead.description,
-                                                                    urgency: lead.urgency,
-                                                                    source: lead.source,
-                                                                    estimatedValue: lead.value?.toString() || '',
-                                                                    notes: lead.notes || ''
-                                                                })
-                                                                setShowAddLead(true)
-                                                            }}
-                                                            style={{
-                                                                padding: '6px 10px',
-                                                                background: '#3b82f6',
-                                                                color: 'white',
-                                                                border: 'none',
-                                                                borderRadius: '6px',
-                                                                fontSize: '11px',
-                                                                cursor: 'pointer'
-                                                            }}
-                                                        >
-                                                            Edit
-                                                        </button>
-                                                        <button
-                                                            onClick={() => updateLeadStatus(lead.id, 'won')}
-                                                            style={{
-                                                                padding: '6px 10px',
-                                                                background: '#10b981',
-                                                                color: 'white',
-                                                                border: 'none',
-                                                                borderRadius: '6px',
-                                                                fontSize: '11px',
-                                                                cursor: 'pointer'
-                                                            }}
-                                                        >
-                                                            Convert
-                                                        </button>
-                                                        <button
-                                                            onClick={() => deleteLead(lead.id)}
-                                                            style={{
-                                                                padding: '6px 10px',
-                                                                background: '#ef4444',
-                                                                color: 'white',
-                                                                border: 'none',
-                                                                borderRadius: '6px',
-                                                                fontSize: '11px',
-                                                                cursor: 'pointer'
-                                                            }}
-                                                        >
-                                                            Delete
-                                                        </button>
-                                                    </div>
-                                                </td>
+                                                        flex: '1'
+                                                    }}
+                                                >
+                                                    ✏️ Edit
+                                                </button>
+                                                <button
+                                                    onClick={() => deleteLead(lead.id)}
+                                                    style={{
+                                                        padding: '8px 12px',
+                                                        background: '#ef4444',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '6px',
+                                                        cursor: 'pointer',
+                                                        fontSize: '12px',
+                                                        fontWeight: '500',
+                                                        flex: '1'
+                                                    }}
+                                                >
+                                                    🗑️ Delete
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : (
+                                // Desktop Table Layout
+                                <div style={{ overflowX: 'auto' }}>
+                                    <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                        <thead>
+                                            <tr style={{ borderBottom: '2px solid #e5e7eb' }}>
+                                                <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Lead Details</th>
+                                                <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Contact</th>
+                                                <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Service</th>
+                                                <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Status</th>
+                                                <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Value</th>
+                                                <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Urgency</th>
+                                                <th style={{ padding: '15px', textAlign: 'left', color: '#374151', fontSize: '14px', fontWeight: '600' }}>Actions</th>
                                             </tr>
-                                        ))}
-                                    </tbody>
-                                </table>
-                            </div>
+                                        </thead>
+                                        <tbody>
+                                            {filteredLeads.map(lead => (
+                                                <tr key={lead.id} style={{
+                                                    borderBottom: '1px solid #f3f4f6',
+                                                    transition: 'background-color 0.2s',
+                                                    cursor: 'pointer'
+                                                }}>
+                                                    <td style={{ padding: '15px' }}>
+                                                        <div>
+                                                            <div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '4px' }}>{lead.name}</div>
+                                                            <div style={{ fontSize: '12px', color: '#6b7280' }}>{lead.address}</div>
+                                                            <div style={{ fontSize: '12px', color: '#6b7280' }}>Added: {lead.date}</div>
+                                                        </div>
+                                                    </td>
+                                                    <td style={{ padding: '15px' }}>
+                                                        <div>
+                                                            <div style={{ color: '#1f2937', marginBottom: '2px' }}>{lead.phone}</div>
+                                                            <div style={{ fontSize: '12px', color: '#6b7280' }}>{lead.email}</div>
+                                                            <div style={{
+                                                                fontSize: '11px',
+                                                                color: '#6b7280',
+                                                                background: '#f3f4f6',
+                                                                padding: '2px 6px',
+                                                                borderRadius: '4px',
+                                                                display: 'inline-block',
+                                                                marginTop: '4px'
+                                                            }}>
+                                                                {lead.source}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td style={{ padding: '15px' }}>
+                                                        <div>
+                                                            <div style={{ fontWeight: '500', color: '#1f2937' }}>{lead.service}</div>
+                                                            <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                                                                {lead.description?.substring(0, 50)}{lead.description?.length > 50 ? '...' : ''}
+                                                            </div>
+                                                        </div>
+                                                    </td>
+                                                    <td style={{ padding: '15px' }}>
+                                                        <select
+                                                            value={lead.status}
+                                                            onChange={(e) => updateLeadStatus(lead.id, e.target.value)}
+                                                            style={{
+                                                                padding: '6px 12px',
+                                                                borderRadius: '12px',
+                                                                fontSize: '12px',
+                                                                fontWeight: '500',
+                                                                border: 'none',
+                                                                cursor: 'pointer',
+                                                                background:
+                                                                    lead.status === 'new' ? '#fef3c7' :
+                                                                        lead.status === 'contacted' ? '#ddd6fe' :
+                                                                            lead.status === 'quoted' ? '#fed7aa' :
+                                                                                lead.status === 'scheduled' ? '#bbf7d0' :
+                                                                                    lead.status === 'won' ? '#d1fae5' : '#fecaca',
+                                                                color:
+                                                                    lead.status === 'new' ? '#92400e' :
+                                                                        lead.status === 'contacted' ? '#5b21b6' :
+                                                                            lead.status === 'quoted' ? '#c2410c' :
+                                                                                lead.status === 'scheduled' ? '#065f46' :
+                                                                                    lead.status === 'won' ? '#064e3b' : '#991b1b'
+                                                            }}
+                                                        >
+                                                            <option value="new">New</option>
+                                                            <option value="contacted">Contacted</option>
+                                                            <option value="quoted">Quoted</option>
+                                                            <option value="scheduled">Scheduled</option>
+                                                            <option value="won">Won</option>
+                                                            <option value="lost">Lost</option>
+                                                        </select>
+                                                    </td>
+                                                    <td style={{ padding: '15px', fontWeight: '600', color: '#1f2937' }}>
+                                                        ${lead.value?.toLocaleString() || '0'}
+                                                    </td>
+                                                    <td style={{ padding: '15px' }}>
+                                                        <span style={{
+                                                            padding: '4px 8px',
+                                                            borderRadius: '8px',
+                                                            fontSize: '11px',
+                                                            fontWeight: '500',
+                                                            background:
+                                                                lead.urgency === 'high' ? '#fecaca' :
+                                                                    lead.urgency === 'medium' ? '#fed7aa' : '#d1fae5',
+                                                            color:
+                                                                lead.urgency === 'high' ? '#991b1b' :
+                                                                    lead.urgency === 'medium' ? '#c2410c' : '#065f46'
+                                                        }}>
+                                                            {lead.urgency}
+                                                        </span>
+                                                    </td>
+                                                    <td style={{ padding: '15px' }}>
+                                                        <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
+                                                            <button
+                                                                onClick={() => {
+                                                                    setEditingLead(lead)
+                                                                    setLeadForm({
+                                                                        name: lead.name,
+                                                                        phone: lead.phone,
+                                                                        email: lead.email,
+                                                                        address: lead.address,
+                                                                        service: lead.service,
+                                                                        description: lead.description,
+                                                                        urgency: lead.urgency,
+                                                                        source: lead.source,
+                                                                        estimatedValue: lead.value?.toString() || '',
+                                                                        notes: lead.notes || ''
+                                                                    })
+                                                                    setShowAddLead(true)
+                                                                }}
+                                                                style={{
+                                                                    padding: '6px 10px',
+                                                                    background: '#3b82f6',
+                                                                    color: 'white',
+                                                                    border: 'none',
+                                                                    borderRadius: '6px',
+                                                                    fontSize: '11px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                            >
+                                                                Edit
+                                                            </button>
+                                                            <button
+                                                                onClick={() => updateLeadStatus(lead.id, 'won')}
+                                                                style={{
+                                                                    padding: '6px 10px',
+                                                                    background: '#10b981',
+                                                                    color: 'white',
+                                                                    border: 'none',
+                                                                    borderRadius: '6px',
+                                                                    fontSize: '11px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                            >
+                                                                Convert
+                                                            </button>
+                                                            <button
+                                                                onClick={() => deleteLead(lead.id)}
+                                                                style={{
+                                                                    padding: '6px 10px',
+                                                                    background: '#ef4444',
+                                                                    color: 'white',
+                                                                    border: 'none',
+                                                                    borderRadius: '6px',
+                                                                    fontSize: '11px',
+                                                                    cursor: 'pointer'
+                                                                }}
+                                                            >
+                                                                Delete
+                                                            </button>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
+                                </div>
+                            )}
 
                             {filteredLeads.length === 0 && (
                                 <div style={{ textAlign: 'center', padding: '40px', color: '#6b7280' }}>
