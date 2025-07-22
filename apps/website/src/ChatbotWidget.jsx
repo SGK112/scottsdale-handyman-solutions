@@ -23,6 +23,15 @@ const ChatbotWidget = () => {
     const [shouldPulse, setShouldPulse] = useState(true);
     const messagesEndRef = useRef(null);
 
+    // Add tooltip timeout refs
+    const tooltipTimeoutRef = useRef(null);
+    const autoTooltipTimeoutRef = useRef(null);
+
+    // Initialize chatbot to always start blue
+    useEffect(() => {
+        setHasUnreadMessages(false);
+    }, []);
+
     // Initialize welcome message when chat opens
     useEffect(() => {
         if (chatOpen && chatMessages.length === 0) {
@@ -148,40 +157,74 @@ const ChatbotWidget = () => {
         handleSendMessage();
     };
 
-    // Tooltip management
+    // Enhanced tooltip management with auto-hide
     const handleTooltipEnter = () => {
+        if (tooltipTimeoutRef.current) {
+            clearTimeout(tooltipTimeoutRef.current);
+        }
         setShowTooltip(true);
         setShouldPulse(false);
     };
 
     const handleTooltipLeave = () => {
-        setTimeout(() => {
+        tooltipTimeoutRef.current = setTimeout(() => {
             setShowTooltip(false);
             setShouldPulse(true);
         }, 200);
     };
 
-    // Auto-show tooltip periodically
+    // Hide tooltip when clicking anywhere on the page
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (showTooltip) {
+                setShowTooltip(false);
+            }
+        };
+
+        document.addEventListener('click', handleClickOutside);
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
+    }, [showTooltip]);
+
+    // Auto-show tooltip periodically with auto-hide
     useEffect(() => {
         if (!chatOpen) {
-            const interval = setInterval(() => {
-                if (!showTooltip && !chatOpen) {
+            const showPeriodicTooltip = () => {
+                if (!showTooltip) {
                     setShowTooltip(true);
+                    // Auto-hide after 2 seconds
                     setTimeout(() => {
                         setShowTooltip(false);
-                    }, 3000);
+                    }, 2000);
                 }
-            }, 30000);
+            };
 
-            return () => clearInterval(interval);
+            // Show tooltip after 10 seconds initially
+            autoTooltipTimeoutRef.current = setTimeout(showPeriodicTooltip, 10000);
+
+            // Then show every 45 seconds
+            const interval = setInterval(() => {
+                if (!showTooltip && !chatOpen) {
+                    showPeriodicTooltip();
+                }
+            }, 45000);
+
+            return () => {
+                if (autoTooltipTimeoutRef.current) {
+                    clearTimeout(autoTooltipTimeoutRef.current);
+                }
+                clearInterval(interval);
+            };
         }
     }, [chatOpen, showTooltip]);
 
-    // Track unread messages
+    // Track unread messages - only for actual responses, not welcome messages
     useEffect(() => {
         if (!chatOpen && chatMessages.length > 0) {
             const lastMessage = chatMessages[chatMessages.length - 1];
-            if (lastMessage.sender === 'bot') {
+            // Only set unread for actual bot responses, not welcome messages
+            if (lastMessage.sender === 'bot' && !lastMessage.isWelcome && !lastMessage.isProactive) {
                 setHasUnreadMessages(true);
                 setShouldPulse(true);
             }
