@@ -40,6 +40,11 @@ const ChatbotWidget = ({
     const tooltipTimeoutRef = useRef(null);
     const autoTooltipTimeoutRef = useRef(null);
 
+    // Initialize chatbot to always start blue
+    useEffect(() => {
+        setHasUnreadMessages(false);
+    }, []);
+
     // Quick actions for new users
     const quickActions = [
         {
@@ -104,7 +109,7 @@ const ChatbotWidget = ({
         }, 100);
     };
 
-    // Enhanced tooltip management with auto-show
+    // Enhanced tooltip management with auto-hide
     const handleTooltipEnter = () => {
         if (tooltipTimeoutRef.current) {
             clearTimeout(tooltipTimeoutRef.current);
@@ -120,15 +125,30 @@ const ChatbotWidget = ({
         }, 200);
     };
 
-    // Auto-show tooltip periodically to remind users
+    // Hide tooltip when clicking anywhere on the page
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (showTooltip) {
+                setShowTooltip(false);
+            }
+        };
+
+        document.addEventListener('click', handleClickOutside);
+        return () => {
+            document.removeEventListener('click', handleClickOutside);
+        };
+    }, [showTooltip]);
+
+    // Auto-show tooltip periodically with auto-hide
     useEffect(() => {
         if (!chatOpen) {
             const showPeriodicTooltip = () => {
                 if (!showTooltip) {
                     setShowTooltip(true);
+                    // Auto-hide after 2 seconds
                     setTimeout(() => {
                         setShowTooltip(false);
-                    }, 3000); // Show for 3 seconds
+                    }, 2000);
                 }
             };
 
@@ -152,7 +172,7 @@ const ChatbotWidget = ({
                         timestamp: new Date(),
                         isProactive: true
                     }]);
-                    setHasUnreadMessages(true);
+                    // Don't set hasUnreadMessages to true for proactive messages
                 }
             }, 120000); // 2 minutes
 
@@ -189,7 +209,8 @@ const ChatbotWidget = ({
     useEffect(() => {
         if (!chatOpen && chatMessages.length > 0) {
             const lastMessage = chatMessages[chatMessages.length - 1];
-            if (lastMessage.sender === 'bot') {
+            // Only set unread for actual bot responses, not proactive messages
+            if (lastMessage.sender === 'bot' && !lastMessage.isProactive) {
                 setHasUnreadMessages(true);
                 setShouldPulse(true);
             }

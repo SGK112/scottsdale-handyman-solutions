@@ -10,6 +10,9 @@ const ProPortalApp = () => {
   const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // API configuration
+  const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3000';
+
   // Check authentication on component mount
   useEffect(() => {
     const authStatus = localStorage.getItem('scottsdaleProAuth');
@@ -58,7 +61,7 @@ const ProPortalApp = () => {
     // Fetch leads from backend
     const fetchLeads = async () => {
       try {
-        const response = await fetch('/api/pro/leads')
+        const response = await fetch(`${API_BASE_URL}/api/pro/leads`)
         const data = await response.json()
         if (data.success) {
           setLeads(data.leads)
@@ -135,7 +138,7 @@ const ProPortalApp = () => {
     const addLead = async (leadData) => {
       try {
         console.log('Adding lead:', leadData)
-        const response = await fetch('/api/pro/leads', {
+        const response = await fetch(`${API_BASE_URL}/api/pro/leads`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(leadData)
@@ -169,7 +172,7 @@ const ProPortalApp = () => {
     // Update lead status
     const updateLeadStatus = async (leadId, newStatus) => {
       try {
-        const response = await fetch(`/api/pro/leads/${leadId}`, {
+        const response = await fetch(`${API_BASE_URL}/api/pro/leads/${leadId}`, {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ status: newStatus })
@@ -194,7 +197,7 @@ const ProPortalApp = () => {
       if (!confirm('Are you sure you want to delete this lead?')) return
       
       try {
-        const response = await fetch(`/api/pro/leads/${leadId}`, { method: 'DELETE' })
+        const response = await fetch(`${API_BASE_URL}/api/pro/leads/${leadId}`, { method: 'DELETE' })
         const data = await response.json()
         if (data.success) {
           setLeads(prev => prev.filter(lead => lead.id !== leadId))
@@ -1199,16 +1202,36 @@ const ProPortalApp = () => {
             </p>
           </div>
 
-          <form onSubmit={(e) => {
+          <form onSubmit={async (e) => {
             e.preventDefault();
             const username = e.target.username.value;
             const password = e.target.password.value;
 
-            if (username === 'admin' && password === 'scottsdaleHandyman2025!') {
-              setIsAdminLoggedIn(true);
-              localStorage.setItem('scottsdaleProAuth', 'true');
-            } else {
-              alert('Invalid credentials');
+            try {
+              const response = await fetch(`${API_BASE_URL}/api/pro/auth/login`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+              });
+              
+              const data = await response.json();
+              
+              if (data.success) {
+                setIsAdminLoggedIn(true);
+                localStorage.setItem('scottsdaleProAuth', 'true');
+                localStorage.setItem('scottsdaleProToken', data.token);
+              } else {
+                alert('Invalid credentials');
+              }
+            } catch (error) {
+              console.error('Login error:', error);
+              // Fallback to client-side authentication for development
+              if (username === 'admin' && password === 'scottsdaleHandyman2025!') {
+                setIsAdminLoggedIn(true);
+                localStorage.setItem('scottsdaleProAuth', 'true');
+              } else {
+                alert('Invalid credentials');
+              }
             }
           }}>
             <div style={{ marginBottom: '20px' }}>
