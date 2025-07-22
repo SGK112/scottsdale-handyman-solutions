@@ -4,7 +4,7 @@ import ProPortalApp from './App.jsx'
 import './index.css'
 
 createRoot(document.getElementById('root')).render(
-  <StrictMode>
-    <ProPortalApp />
-  </StrictMode>
+    <StrictMode>
+        <ProPortalApp />
+    </StrictMode>
 )

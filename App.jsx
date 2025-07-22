@@ -8596,60 +8596,60 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         console.error('Error fetching leads:', error)
         // Use sample data as fallback
         setLeads([
-          { 
-            id: 1, 
-            name: 'John Smith', 
-            phone: '480-555-0123', 
+          {
+            id: 1,
+            name: 'John Smith',
+            phone: '480-555-0123',
             email: 'john@example.com',
             address: '123 Desert View Dr, Scottsdale, AZ',
-            service: 'Kitchen Repair', 
-            status: 'new', 
-            date: '2025-01-15', 
+            service: 'Kitchen Repair',
+            status: 'new',
+            date: '2025-01-15',
             value: 850,
             urgency: 'high',
             source: 'website',
             description: 'Kitchen sink is leaking and cabinet door is broken',
             notes: 'Available weekends only'
           },
-          { 
-            id: 2, 
-            name: 'Sarah Johnson', 
-            phone: '480-555-0156', 
+          {
+            id: 2,
+            name: 'Sarah Johnson',
+            phone: '480-555-0156',
             email: 'sarah@example.com',
             address: '456 Cactus Rd, Scottsdale, AZ',
-            service: 'Bathroom Remodel', 
-            status: 'contacted', 
-            date: '2025-01-14', 
+            service: 'Bathroom Remodel',
+            status: 'contacted',
+            date: '2025-01-14',
             value: 2400,
             urgency: 'medium',
             source: 'referral',
             description: 'Full bathroom renovation including tiles and fixtures',
             notes: 'Budget approved, ready to start'
           },
-          { 
-            id: 3, 
-            name: 'Mike Wilson', 
-            phone: '480-555-0189', 
+          {
+            id: 3,
+            name: 'Mike Wilson',
+            phone: '480-555-0189',
             email: 'mike@example.com',
             address: '789 Mountain View Blvd, Scottsdale, AZ',
-            service: 'Deck Installation', 
-            status: 'quoted', 
-            date: '2025-01-13', 
+            service: 'Deck Installation',
+            status: 'quoted',
+            date: '2025-01-13',
             value: 3200,
             urgency: 'low',
             source: 'phone',
             description: '20x12 composite deck with railing',
             notes: 'Waiting for HOA approval'
           },
-          { 
-            id: 4, 
-            name: 'Jennifer Brown', 
-            phone: '480-555-0198', 
+          {
+            id: 4,
+            name: 'Jennifer Brown',
+            phone: '480-555-0198',
             email: 'jennifer@example.com',
             address: '321 Palm Tree Lane, Scottsdale, AZ',
-            service: 'Fence Repair', 
-            status: 'scheduled', 
-            date: '2025-01-12', 
+            service: 'Fence Repair',
+            status: 'scheduled',
+            date: '2025-01-12',
             value: 650,
             urgency: 'high',
             source: 'google',
@@ -8705,14 +8705,14 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         })
         const data = await response.json()
         if (data.success) {
-          setLeads(prev => prev.map(lead => 
+          setLeads(prev => prev.map(lead =>
             lead.id === leadId ? { ...lead, status: newStatus } : lead
           ))
         }
       } catch (error) {
         console.error('Error updating lead:', error)
         // Fallback: update local state
-        setLeads(prev => prev.map(lead => 
+        setLeads(prev => prev.map(lead =>
           lead.id === leadId ? { ...lead, status: newStatus } : lead
         ))
       }
@@ -8721,7 +8721,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
     // Delete lead
     const deleteLead = async (leadId) => {
       if (!confirm('Are you sure you want to delete this lead?')) return
-      
+
       try {
         const response = await fetch(`/api/pro/leads/${leadId}`, { method: 'DELETE' })
         const data = await response.json()
@@ -8755,7 +8755,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
     // Filter and search leads
     const filteredLeads = leads.filter(lead => {
       const matchesFilter = leadFilter === 'all' || lead.status === leadFilter
-      const matchesSearch = leadSearch === '' || 
+      const matchesSearch = leadSearch === '' ||
         lead.name.toLowerCase().includes(leadSearch.toLowerCase()) ||
         lead.service.toLowerCase().includes(leadSearch.toLowerCase()) ||
         lead.phone.includes(leadSearch)
@@ -9068,7 +9068,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   <div style={{ fontSize: '32px' }}>👥</div>
                 </div>
               </div>
-              
+
               <div style={{
                 background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                 color: 'white',
@@ -9084,7 +9084,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   <div style={{ fontSize: '32px' }}>💰</div>
                 </div>
               </div>
-              
+
               <div style={{
                 background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
                 color: 'white',
@@ -9100,7 +9100,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   <div style={{ fontSize: '32px' }}>📈</div>
                 </div>
               </div>
-              
+
               <div style={{
                 background: 'linear-gradient(135deg, #f59e0b, #d97706)',
                 color: 'white',
@@ -9203,7 +9203,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
             }}>
               <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
                 <h2 style={{ margin: 0, color: '#1f2937', fontSize: '24px' }}>👥 Lead Management</h2>
-                <button 
+                <button
                   onClick={() => setShowAddLead(true)}
                   style={{
                     padding: '12px 24px',
@@ -9226,7 +9226,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               <div style={{ display: 'flex', gap: '15px', flexWrap: 'wrap', marginBottom: '20px' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                   <span style={{ fontSize: '14px', color: '#6b7280' }}>Filter:</span>
-                  <select 
+                  <select
                     value={leadFilter}
                     onChange={(e) => setLeadFilter(e.target.value)}
                     style={{
@@ -9270,40 +9270,40 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
               {/* Lead Stats */}
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '15px' }}>
-                <div style={{ 
-                  padding: '15px', 
-                  background: 'linear-gradient(135deg, #10b981, #059669)', 
-                  borderRadius: '8px', 
+                <div style={{
+                  padding: '15px',
+                  background: 'linear-gradient(135deg, #10b981, #059669)',
+                  borderRadius: '8px',
                   color: 'white',
                   textAlign: 'center'
                 }}>
                   <div style={{ fontSize: '24px', fontWeight: '700' }}>{leads.filter(l => l.status === 'new').length}</div>
                   <div style={{ fontSize: '12px', opacity: 0.9 }}>New Leads</div>
                 </div>
-                <div style={{ 
-                  padding: '15px', 
-                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', 
-                  borderRadius: '8px', 
+                <div style={{
+                  padding: '15px',
+                  background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                  borderRadius: '8px',
                   color: 'white',
                   textAlign: 'center'
                 }}>
                   <div style={{ fontSize: '24px', fontWeight: '700' }}>{leads.filter(l => l.status === 'contacted').length}</div>
                   <div style={{ fontSize: '12px', opacity: 0.9 }}>Contacted</div>
                 </div>
-                <div style={{ 
-                  padding: '15px', 
-                  background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', 
-                  borderRadius: '8px', 
+                <div style={{
+                  padding: '15px',
+                  background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)',
+                  borderRadius: '8px',
                   color: 'white',
                   textAlign: 'center'
                 }}>
                   <div style={{ fontSize: '24px', fontWeight: '700' }}>{leads.filter(l => l.status === 'quoted').length}</div>
                   <div style={{ fontSize: '12px', opacity: 0.9 }}>Quoted</div>
                 </div>
-                <div style={{ 
-                  padding: '15px', 
-                  background: 'linear-gradient(135deg, #f59e0b, #d97706)', 
-                  borderRadius: '8px', 
+                <div style={{
+                  padding: '15px',
+                  background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                  borderRadius: '8px',
                   color: 'white',
                   textAlign: 'center'
                 }}>
@@ -9337,7 +9337,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   </thead>
                   <tbody>
                     {filteredLeads.map(lead => (
-                      <tr key={lead.id} style={{ 
+                      <tr key={lead.id} style={{
                         borderBottom: '1px solid #f3f4f6',
                         transition: 'background-color 0.2s',
                         cursor: 'pointer'
@@ -9353,8 +9353,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                           <div>
                             <div style={{ color: '#1f2937', marginBottom: '2px' }}>{lead.phone}</div>
                             <div style={{ fontSize: '12px', color: '#6b7280' }}>{lead.email}</div>
-                            <div style={{ 
-                              fontSize: '11px', 
+                            <div style={{
+                              fontSize: '11px',
                               color: '#6b7280',
                               background: '#f3f4f6',
                               padding: '2px 6px',
@@ -9385,18 +9385,18 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                               fontWeight: '500',
                               border: 'none',
                               cursor: 'pointer',
-                              background: 
-                                lead.status === 'new' ? '#fef3c7' : 
-                                lead.status === 'contacted' ? '#ddd6fe' : 
-                                lead.status === 'quoted' ? '#fed7aa' :
-                                lead.status === 'scheduled' ? '#bbf7d0' :
-                                lead.status === 'won' ? '#d1fae5' : '#fecaca',
-                              color: 
-                                lead.status === 'new' ? '#92400e' : 
-                                lead.status === 'contacted' ? '#5b21b6' : 
-                                lead.status === 'quoted' ? '#c2410c' :
-                                lead.status === 'scheduled' ? '#065f46' :
-                                lead.status === 'won' ? '#064e3b' : '#991b1b'
+                              background:
+                                lead.status === 'new' ? '#fef3c7' :
+                                  lead.status === 'contacted' ? '#ddd6fe' :
+                                    lead.status === 'quoted' ? '#fed7aa' :
+                                      lead.status === 'scheduled' ? '#bbf7d0' :
+                                        lead.status === 'won' ? '#d1fae5' : '#fecaca',
+                              color:
+                                lead.status === 'new' ? '#92400e' :
+                                  lead.status === 'contacted' ? '#5b21b6' :
+                                    lead.status === 'quoted' ? '#c2410c' :
+                                      lead.status === 'scheduled' ? '#065f46' :
+                                        lead.status === 'won' ? '#064e3b' : '#991b1b'
                             }}
                           >
                             <option value="new">New</option>
@@ -9416,19 +9416,19 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                             borderRadius: '8px',
                             fontSize: '11px',
                             fontWeight: '500',
-                            background: 
-                              lead.urgency === 'high' ? '#fecaca' : 
-                              lead.urgency === 'medium' ? '#fed7aa' : '#d1fae5',
-                            color: 
-                              lead.urgency === 'high' ? '#991b1b' : 
-                              lead.urgency === 'medium' ? '#c2410c' : '#065f46'
+                            background:
+                              lead.urgency === 'high' ? '#fecaca' :
+                                lead.urgency === 'medium' ? '#fed7aa' : '#d1fae5',
+                            color:
+                              lead.urgency === 'high' ? '#991b1b' :
+                                lead.urgency === 'medium' ? '#c2410c' : '#065f46'
                           }}>
                             {lead.urgency}
                           </span>
                         </td>
                         <td style={{ padding: '15px' }}>
                           <div style={{ display: 'flex', gap: '6px', flexWrap: 'wrap' }}>
-                            <button 
+                            <button
                               onClick={() => {
                                 setEditingLead(lead)
                                 setLeadForm({
@@ -9457,7 +9457,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                             >
                               Edit
                             </button>
-                            <button 
+                            <button
                               onClick={() => updateLeadStatus(lead.id, 'won')}
                               style={{
                                 padding: '6px 10px',
@@ -9471,7 +9471,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                             >
                               Convert
                             </button>
-                            <button 
+                            <button
                               onClick={() => deleteLead(lead.id)}
                               style={{
                                 padding: '6px 10px',
@@ -9498,7 +9498,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                   <div style={{ fontSize: '48px', marginBottom: '16px' }}>👥</div>
                   <div style={{ fontSize: '18px', fontWeight: '500', marginBottom: '8px' }}>No leads found</div>
                   <div style={{ fontSize: '14px' }}>
-                    {leadSearch || leadFilter !== 'all' 
+                    {leadSearch || leadFilter !== 'all'
                       ? 'Try adjusting your search or filter criteria'
                       : 'Add your first lead to get started'
                     }
@@ -9534,7 +9534,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     <h3 style={{ margin: 0, fontSize: '20px', color: '#1f2937' }}>
                       {editingLead ? 'Edit Lead' : 'Add New Lead'}
                     </h3>
-                    <button 
+                    <button
                       onClick={() => {
                         setShowAddLead(false)
                         resetLeadForm()
@@ -9557,8 +9557,8 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                       // Update lead logic here
                       console.log('Update lead:', editingLead.id, leadForm)
                     } else {
-                      const leadDataWithDate = { 
-                        ...leadForm, 
+                      const leadDataWithDate = {
+                        ...leadForm,
                         value: parseFloat(leadForm.estimatedValue) || 0,
                         date: new Date().toISOString().split('T')[0] // Add current date
                       }
@@ -9843,7 +9843,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 + Create Invoice
               </button>
             </div>
-            
+
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
@@ -9934,7 +9934,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 ⏱️ Start Timer
               </button>
             </div>
-            
+
             <div style={{ marginBottom: '25px' }}>
               <div style={{
                 background: 'linear-gradient(135deg, #10b981, #059669)',
@@ -9948,7 +9948,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <div>Working on: Kitchen Repair - John Smith</div>
               </div>
             </div>
-            
+
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
@@ -10011,7 +10011,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 + Add Expense
               </button>
             </div>
-            
+
             {/* Expense Summary */}
             <div style={{
               display: 'grid',
@@ -10047,7 +10047,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 <div style={{ color: '#5b21b6' }}>This Year</div>
               </div>
             </div>
-            
+
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
@@ -10145,7 +10145,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 + Create Estimate
               </button>
             </div>
-            
+
             <div style={{ overflowX: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                 <thead>
@@ -10236,7 +10236,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 + Add Client
               </button>
             </div>
-            
+
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))',
@@ -10273,13 +10273,13 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                       <p style={{ margin: '2px 0 0 0', color: '#6b7280', fontSize: '14px' }}>{client.email}</p>
                     </div>
                   </div>
-                  
+
                   <div style={{ marginBottom: '15px' }}>
                     <div style={{ color: '#6b7280', fontSize: '14px' }}>Phone: {client.phone}</div>
                     <div style={{ color: '#6b7280', fontSize: '14px' }}>Projects: {client.projects}</div>
                     <div style={{ color: '#10b981', fontSize: '16px', fontWeight: '600' }}>Total Value: {client.totalValue}</div>
                   </div>
-                  
+
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button style={{
                       flex: 1,
@@ -10333,36 +10333,36 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 + New Project
               </button>
             </div>
-            
+
             <div style={{
               display: 'grid',
               gridTemplateColumns: 'repeat(auto-fill, minmax(350px, 1fr))',
               gap: '20px'
             }}>
               {[
-                { 
-                  name: 'Kitchen Renovation - Smith Residence', 
-                  client: 'John Smith', 
-                  status: 'in-progress', 
-                  progress: 65, 
+                {
+                  name: 'Kitchen Renovation - Smith Residence',
+                  client: 'John Smith',
+                  status: 'in-progress',
+                  progress: 65,
                   budget: '$8,500',
                   deadline: '2025-02-15',
                   tasks: ['Demo complete', 'Cabinets ordered', 'Plumbing rough-in']
                 },
-                { 
-                  name: 'Bathroom Remodel - Johnson Home', 
-                  client: 'Sarah Johnson', 
-                  status: 'planning', 
-                  progress: 15, 
+                {
+                  name: 'Bathroom Remodel - Johnson Home',
+                  client: 'Sarah Johnson',
+                  status: 'planning',
+                  progress: 15,
                   budget: '$12,000',
                   deadline: '2025-03-01',
                   tasks: ['Initial consultation', 'Design approval pending', 'Permits required']
                 },
-                { 
-                  name: 'Deck Installation - Wilson Property', 
-                  client: 'Mike Wilson', 
-                  status: 'completed', 
-                  progress: 100, 
+                {
+                  name: 'Deck Installation - Wilson Property',
+                  client: 'Mike Wilson',
+                  status: 'completed',
+                  progress: 100,
                   budget: '$6,200',
                   deadline: '2025-01-20',
                   tasks: ['Foundation complete', 'Framing done', 'Final inspection passed']
@@ -10376,7 +10376,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 }}>
                   <h3 style={{ margin: '0 0 10px 0', fontSize: '18px', fontWeight: '600' }}>{project.name}</h3>
                   <p style={{ margin: '0 0 15px 0', color: '#6b7280' }}>Client: {project.client}</p>
-                  
+
                   <div style={{ marginBottom: '15px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
                       <span>Progress</span>
@@ -10397,7 +10397,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                       }}></div>
                     </div>
                   </div>
-                  
+
                   <div style={{ marginBottom: '15px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '5px' }}>
                       <span style={{ color: '#6b7280', fontSize: '14px' }}>Budget: {project.budget}</span>
@@ -10414,7 +10414,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                       {project.status === 'completed' ? 'Completed' : project.status === 'in-progress' ? 'In Progress' : 'Planning'}
                     </span>
                   </div>
-                  
+
                   <div style={{ marginBottom: '15px' }}>
                     <h4 style={{ margin: '0 0 8px 0', fontSize: '14px', color: '#374151' }}>Recent Tasks:</h4>
                     {project.tasks.map((task, taskIndex) => (
@@ -10423,7 +10423,7 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                       </div>
                     ))}
                   </div>
-                  
+
                   <div style={{ display: 'flex', gap: '8px' }}>
                     <button style={{
                       flex: 1,

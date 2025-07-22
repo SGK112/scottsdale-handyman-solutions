@@ -1,0 +1,29 @@
+{
+  "name": "scottsdale-handyman-monorepo",
+  "version": "2.0.0",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "shared/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:website\" \"npm run dev:pro\" \"npm run dev:api\"",
+    "dev:website": "cd apps/website && npm run dev",
+    "dev:pro": "cd apps/pro-portal && npm run dev",
+    "dev:api": "cd apps/api && ./start.sh",
+    "build": "npm run build:website && npm run build:pro",
+    "build:website": "cd apps/website && npm run build",
+    "build:pro": "cd apps/pro-portal && npm run build",
+    "deploy": "npm run build && ./scripts/deploy.sh",
+    "test": "npm run test:website && npm run test:pro",
+    "test:website": "cd apps/website && npm test",
+    "test:pro": "cd apps/pro-portal && npm test",
+    "lint": "npm run lint:website && npm run lint:pro",
+    "lint:website": "cd apps/website && npm run lint",
+    "lint:pro": "cd apps/pro-portal && npm run lint"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.0",
+    "lerna": "^8.1.8"
+  }
+}
