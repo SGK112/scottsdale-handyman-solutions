@@ -441,152 +441,7 @@ const AdminLogin = ({ onLogin }) => {
   )
 }
 
-// Simple Admin Panel Component
-const SimpleAdminPanel = ({ onLogout }) => {
-  const [activeTab, setActiveTab] = useState('dashboard')
 
-  return (
-    <div style={{ display: 'flex', minHeight: '100vh', backgroundColor: '#f9fafb' }}>
-      {/* Sidebar */}
-      <div style={{
-        width: '250px',
-        backgroundColor: '#1f2937',
-        color: 'white',
-        padding: '2rem 0'
-      }}>
-        <div style={{ padding: '0 1.5rem', marginBottom: '2rem' }}>
-          <h2 style={{ fontSize: '1.25rem', fontWeight: '700' }}>Admin Panel</h2>
-        </div>
-
-        <nav>
-          {[
-            { id: 'dashboard', label: 'Dashboard', icon: FileText },
-            { id: 'forms', label: 'Form Submissions', icon: Users },
-            { id: 'settings', label: 'Settings', icon: Settings }
-          ].map(item => {
-            const Icon = item.icon
-            return (
-              <button
-                key={item.id}
-                onClick={() => setActiveTab(item.id)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 1.5rem',
-                  backgroundColor: activeTab === item.id ? '#374151' : 'transparent',
-                  color: 'white',
-                  border: 'none',
-                  textAlign: 'left',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.75rem',
-                  fontSize: '0.95rem',
-                  transition: 'background-color 0.2s'
-                }}
-              >
-                <Icon size={18} />
-                {item.label}
-              </button>
-            )
-          })}
-        </nav>
-
-        <div style={{ position: 'absolute', bottom: '2rem', left: '1.5rem', right: '1.5rem' }}>
-          <button
-            onClick={onLogout}
-            style={{
-              width: '100%',
-              padding: '0.75rem',
-              backgroundColor: '#dc2626',
-              color: 'white',
-              border: 'none',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '0.75rem',
-              fontSize: '0.95rem'
-            }}
-          >
-            <LogOut size={18} />
-            Logout
-          </button>
-        </div>
-      </div>
-
-      {/* Main Content */}
-      <div style={{ flex: 1, padding: '2rem' }}>
-        {activeTab === 'dashboard' && (
-          <div>
-            <h1 style={{ fontSize: '2rem', fontWeight: '700', color: '#1f2937', marginBottom: '2rem' }}>
-              Admin Dashboard
-            </h1>
-            <div style={{
-              background: 'white',
-              padding: '2rem',
-              borderRadius: '12px',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
-            }}>
-              <h2 style={{ fontSize: '1.5rem', fontWeight: '600', marginBottom: '1rem' }}>
-                Welcome to Admin Panel
-              </h2>
-              <p style={{ color: '#6b7280', lineHeight: '1.6' }}>
-                This is a simplified admin interface. The full admin panel with blog management
-                and GitHub integration will be available once you complete the backend setup.
-              </p>
-              <div style={{ marginTop: '2rem', padding: '1rem', backgroundColor: '#f0f9ff', borderRadius: '8px', border: '1px solid #0ea5e9' }}>
-                <h3 style={{ color: '#0ea5e9', fontSize: '1.1rem', fontWeight: '600', marginBottom: '0.5rem' }}>
-                  Next Steps:
-                </h3>
-                <ul style={{ color: '#0369a1', margin: 0, paddingLeft: '1.5rem' }}>
-                  <li>Set up your GitHub token in .env file</li>
-                  <li>Start the backend server with: npm run backend:dev</li>
-                  <li>Full blog management and form handling will be available</li>
-                </ul>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'forms' && (
-          <div>
-            <h1 style={{ fontSize: '2rem', fontWeight: '700', color: '#1f2937', marginBottom: '2rem' }}>
-              Form Submissions
-            </h1>
-            <div style={{
-              background: 'white',
-              padding: '2rem',
-              borderRadius: '12px',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
-            }}>
-              <p style={{ color: '#6b7280' }}>
-                Form submissions will appear here once the backend is connected.
-              </p>
-            </div>
-          </div>
-        )}
-
-        {activeTab === 'settings' && (
-          <div>
-            <h1 style={{ fontSize: '2rem', fontWeight: '700', color: '#1f2937', marginBottom: '2rem' }}>
-              Settings
-            </h1>
-            <div style={{
-              background: 'white',
-              padding: '2rem',
-              borderRadius: '12px',
-              boxShadow: '0 4px 15px rgba(0,0,0,0.1)'
-            }}>
-              <p style={{ color: '#6b7280' }}>
-                Settings panel coming soon...
-              </p>
-            </div>
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}
 
 function App() {
   const [isMenuOpen, setIsMenuOpen] = useState(false)
@@ -4996,13 +4851,13 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
 
           <div className="process-grid" style={{
             display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-            gap: '2rem',
+            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+            gap: '1.5rem',
             marginBottom: '3rem'
           }}>
             <div className="process-step" style={{
               textAlign: 'center',
-              padding: '2rem',
+              padding: '1.5rem',
               background: 'white',
               borderRadius: '12px',
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
@@ -5010,29 +4865,29 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               position: 'relative'
             }}>
               <div style={{
-                width: '60px',
-                height: '60px',
+                width: '50px',
+                height: '50px',
                 background: 'linear-gradient(135deg, #3b82f6, #1e40af)',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: '0 auto 1.5rem',
+                margin: '0 auto 1rem',
                 color: 'white',
-                fontSize: '1.5rem',
+                fontSize: '1.25rem',
                 fontWeight: '700'
               }}>1</div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1rem', color: '#1e293b' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '0.75rem', color: '#1e293b' }}>
                 Free Consultation
               </h3>
-              <p style={{ color: '#64748b', lineHeight: '1.6' }}>
-                We assess your needs, discuss options, and provide detailed estimates with transparent pricing
+              <p style={{ color: '#64748b', lineHeight: '1.5', fontSize: '0.9rem' }}>
+                We assess your needs and provide transparent estimates
               </p>
             </div>
 
             <div className="process-step" style={{
               textAlign: 'center',
-              padding: '2rem',
+              padding: '1.5rem',
               background: 'white',
               borderRadius: '12px',
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
@@ -5040,29 +4895,29 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               position: 'relative'
             }}>
               <div style={{
-                width: '60px',
-                height: '60px',
+                width: '50px',
+                height: '50px',
                 background: 'linear-gradient(135deg, #3b82f6, #1e40af)',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: '0 auto 1.5rem',
+                margin: '0 auto 1rem',
                 color: 'white',
-                fontSize: '1.5rem',
+                fontSize: '1.25rem',
                 fontWeight: '700'
               }}>2</div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1rem', color: '#1e293b' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '0.75rem', color: '#1e293b' }}>
                 Planning & Design
               </h3>
-              <p style={{ color: '#64748b', lineHeight: '1.6' }}>
-                We create detailed plans and source quality materials, ensuring everything meets your vision
+              <p style={{ color: '#64748b', lineHeight: '1.5', fontSize: '0.9rem' }}>
+                We create detailed plans and source quality materials
               </p>
             </div>
 
             <div className="process-step" style={{
               textAlign: 'center',
-              padding: '2rem',
+              padding: '1.5rem',
               background: 'white',
               borderRadius: '12px',
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
@@ -5070,29 +4925,29 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               position: 'relative'
             }}>
               <div style={{
-                width: '60px',
-                height: '60px',
+                width: '50px',
+                height: '50px',
                 background: 'linear-gradient(135deg, #3b82f6, #1e40af)',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: '0 auto 1.5rem',
+                margin: '0 auto 1rem',
                 color: 'white',
-                fontSize: '1.5rem',
+                fontSize: '1.25rem',
                 fontWeight: '700'
               }}>3</div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1rem', color: '#1e293b' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '0.75rem', color: '#1e293b' }}>
                 Permit & Preparation
               </h3>
-              <p style={{ color: '#64748b', lineHeight: '1.6' }}>
-                We handle all permits and prep work, protecting your home and ensuring code compliance
+              <p style={{ color: '#64748b', lineHeight: '1.5', fontSize: '0.9rem' }}>
+                We handle all permits and prep work for compliance
               </p>
             </div>
 
             <div className="process-step" style={{
               textAlign: 'center',
-              padding: '2rem',
+              padding: '1.5rem',
               background: 'white',
               borderRadius: '12px',
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
@@ -5100,29 +4955,29 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               position: 'relative'
             }}>
               <div style={{
-                width: '60px',
-                height: '60px',
+                width: '50px',
+                height: '50px',
                 background: 'linear-gradient(135deg, #3b82f6, #1e40af)',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: '0 auto 1.5rem',
+                margin: '0 auto 1rem',
                 color: 'white',
-                fontSize: '1.5rem',
+                fontSize: '1.25rem',
                 fontWeight: '700'
               }}>4</div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1rem', color: '#1e293b' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '0.75rem', color: '#1e293b' }}>
                 Expert Installation
               </h3>
-              <p style={{ color: '#64748b', lineHeight: '1.6' }}>
-                Our skilled craftsmen execute the work with precision, keeping you informed every step
+              <p style={{ color: '#64748b', lineHeight: '1.5', fontSize: '0.9rem' }}>
+                Our skilled craftsmen execute with precision
               </p>
             </div>
 
             <div className="process-step" style={{
               textAlign: 'center',
-              padding: '2rem',
+              padding: '1.5rem',
               background: 'white',
               borderRadius: '12px',
               boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
@@ -5130,23 +4985,23 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
               position: 'relative'
             }}>
               <div style={{
-                width: '60px',
-                height: '60px',
+                width: '50px',
+                height: '50px',
                 background: 'linear-gradient(135deg, #3b82f6, #1e40af)',
                 borderRadius: '50%',
                 display: 'flex',
                 alignItems: 'center',
                 justifyContent: 'center',
-                margin: '0 auto 1.5rem',
+                margin: '0 auto 1rem',
                 color: 'white',
-                fontSize: '1.5rem',
+                fontSize: '1.25rem',
                 fontWeight: '700'
               }}>5</div>
-              <h3 style={{ fontSize: '1.25rem', fontWeight: '700', marginBottom: '1rem', color: '#1e293b' }}>
+              <h3 style={{ fontSize: '1.1rem', fontWeight: '700', marginBottom: '0.75rem', color: '#1e293b' }}>
                 Final Walkthrough
               </h3>
-              <p style={{ color: '#64748b', lineHeight: '1.6' }}>
-                We ensure everything meets our high standards and your complete satisfaction
+              <p style={{ color: '#64748b', lineHeight: '1.5', fontSize: '0.9rem' }}>
+                We ensure everything meets our high standards
               </p>
             </div>
           </div>
@@ -5541,9 +5396,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     border: '4px solid rgba(255, 215, 0, 0.8)',
                     boxShadow: '0 8px 25px rgba(0,0,0,0.3)'
                   }}></div>
-                  <h3 style={{ fontSize: '1.7rem', marginBottom: '15px', fontWeight: '700', textShadow: '1px 1px 4px rgba(0,0,0,0.3)' }}>Mike Johnson</h3>
+                  <h3 style={{ fontSize: '1.7rem', marginBottom: '15px', fontWeight: '700', textShadow: '1px 1px 4px rgba(0,0,0,0.3)', color: 'white' }}>Mike Johnson</h3>
                   <p style={{ fontSize: '1.2rem', color: '#FFD700', marginBottom: '15px', fontWeight: '600' }}>Lead Handyman & Owner</p>
-                  <p style={{ fontSize: '1rem', opacity: '0.95', lineHeight: '1.6', textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                  <p style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.95)', lineHeight: '1.6', textShadow: '2px 2px 6px rgba(0,0,0,0.7)', fontWeight: '400' }}>
                     15+ years experience in residential repairs and improvements. Licensed ROC contractor specializing in electrical and plumbing.
                   </p>
                 </div>
@@ -5565,9 +5420,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     border: '4px solid rgba(255, 215, 0, 0.8)',
                     boxShadow: '0 8px 25px rgba(0,0,0,0.3)'
                   }}></div>
-                  <h3 style={{ fontSize: '1.7rem', marginBottom: '15px', fontWeight: '700', textShadow: '1px 1px 4px rgba(0,0,0,0.3)' }}>Carlos Rodriguez</h3>
+                  <h3 style={{ fontSize: '1.7rem', marginBottom: '15px', fontWeight: '700', textShadow: '1px 1px 4px rgba(0,0,0,0.3)', color: 'white' }}>Carlos Rodriguez</h3>
                   <p style={{ fontSize: '1.2rem', color: '#FFD700', marginBottom: '15px', fontWeight: '600' }}>Senior Technician</p>
-                  <p style={{ fontSize: '1rem', opacity: '0.95', lineHeight: '1.6', textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                  <p style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.95)', lineHeight: '1.6', textShadow: '2px 2px 6px rgba(0,0,0,0.7)', fontWeight: '400' }}>
                     Expert in home improvements and renovations. Specializes in kitchen and bathroom remodeling with 12+ years experience.
                   </p>
                 </div>
@@ -5589,9 +5444,9 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                     border: '4px solid rgba(255, 215, 0, 0.8)',
                     boxShadow: '0 8px 25px rgba(0,0,0,0.3)'
                   }}></div>
-                  <h3 style={{ fontSize: '1.7rem', marginBottom: '15px', fontWeight: '700', textShadow: '1px 1px 4px rgba(0,0,0,0.3)' }}>Dave Thompson</h3>
+                  <h3 style={{ fontSize: '1.7rem', marginBottom: '15px', fontWeight: '700', textShadow: '1px 1px 4px rgba(0,0,0,0.3)', color: 'white' }}>Dave Thompson</h3>
                   <p style={{ fontSize: '1.2rem', color: '#FFD700', marginBottom: '15px', fontWeight: '600' }}>Smart Home Specialist</p>
-                  <p style={{ fontSize: '1rem', opacity: '0.95', lineHeight: '1.6', textShadow: '1px 1px 2px rgba(0,0,0,0.3)' }}>
+                  <p style={{ fontSize: '1rem', color: 'rgba(255,255,255,0.95)', lineHeight: '1.6', textShadow: '2px 2px 6px rgba(0,0,0,0.7)', fontWeight: '400' }}>
                     Technology expert specializing in smart home installations, security systems, and home automation solutions.
                   </p>
                 </div>
@@ -8901,17 +8756,17 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
         }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <div>
-              <h1 style={{ margin: 0, fontSize: '28px', fontWeight: '700' }}>
+              <h1 style={{ margin: 0, fontSize: '28px', fontWeight: '700', color: 'white' }}>
                 🛠️ Pro Dashboard
               </h1>
-              <p style={{ margin: '8px 0 0 0', fontSize: '16px', opacity: 0.9 }}>
+              <p style={{ margin: '8px 0 0 0', fontSize: '16px', opacity: 0.9, color: 'rgba(255,255,255,0.95)' }}>
                 Welcome back! Manage your business operations.
               </p>
             </div>
             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
               <div style={{ textAlign: 'right', marginRight: '15px' }}>
-                <div style={{ fontSize: '14px', opacity: 0.8 }}>Today's Revenue</div>
-                <div style={{ fontSize: '24px', fontWeight: '700' }}>$1,232</div>
+                <div style={{ fontSize: '14px', opacity: 0.8, color: 'rgba(255,255,255,0.8)' }}>Today's Revenue</div>
+                <div style={{ fontSize: '24px', fontWeight: '700', color: 'white' }}>$1,232</div>
               </div>
               <button
                 onClick={() => setCurrentPage('home')}
@@ -9852,12 +9707,6 @@ Fire Prevention: Desert mountain locations face wildfire risks requiring defensi
                 </div>
               ))}
             </div>
-          </div>
-        )}
-      </div>
-    );
-  };
-            {adminSection === 'chatbot' && <ChatbotLogs />}
           </div>
         )}
       </div>
