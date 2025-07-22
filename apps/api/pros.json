@@ -35,5 +35,42 @@
       "availableWeekends": true,
       "availableEvenings": false
     }
+  },
+  {
+    "id": 1753204789860,
+    "username": "mikewilson",
+    "email": "mike@electricpro.com",
+    "password": "electricpro2025",
+    "fullName": "Mike Wilson",
+    "phone": "602-555-4321",
+    "businessName": "Wilson Electric & Handyman",
+    "licenseNumber": "AZ789012",
+    "specialties": "electrical",
+    "experience": "15+",
+    "serviceArea": "Scottsdale, Tempe, Mesa",
+    "hourlyRate": 95.0,
+    "status": "pending",
+    "createdAt": "2025-07-22T10:19:49.860377",
+    "approvedAt": null,
+    "rating": 0.0,
+    "completedJobs": 0,
+    "totalEarnings": 0.0,
+    "isActive": true,
+    "profilePicture": null,
+    "certifications": [],
+    "insurance": {
+      "hasLiability": false,
+      "hasBonding": false,
+      "expiryDate": null
+    },
+    "preferences": {
+      "maxDistanceMiles": 25,
+      "preferredJobTypes": [
+        "electrical"
+      ],
+      "availableWeekdays": true,
+      "availableWeekends": true,
+      "availableEvenings": false
+    }
   }
 ]
