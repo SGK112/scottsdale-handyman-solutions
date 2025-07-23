@@ -1599,28 +1599,28 @@ const ProPortalApp = () => {
 
                             <button
                                 type="submit"
-                                disabled={loginLoading}
+                                disabled={isLoggingIn}
                                 style={{
                                     width: '100%',
                                     padding: '12px',
-                                    background: loginLoading ? '#ccc' : '#1e3a5f',
+                                    background: isLoggingIn ? '#ccc' : '#1e3a5f',
                                     color: 'white',
                                     border: 'none',
                                     borderRadius: '8px',
                                     fontSize: '16px',
                                     fontWeight: '600',
-                                    cursor: loginLoading ? 'not-allowed' : 'pointer',
+                                    cursor: isLoggingIn ? 'not-allowed' : 'pointer',
                                     transition: 'background 0.3s ease',
-                                    opacity: loginLoading ? 0.7 : 1
+                                    opacity: isLoggingIn ? 0.7 : 1
                                 }}
                                 onMouseOver={(e) => {
-                                    if (!loginLoading) e.target.style.background = '#2c5aa0';
+                                    if (!isLoggingIn) e.target.style.background = '#2c5aa0';
                                 }}
                                 onMouseOut={(e) => {
-                                    if (!loginLoading) e.target.style.background = '#1e3a5f';
+                                    if (!isLoggingIn) e.target.style.background = '#1e3a5f';
                                 }}
                             >
-                                {loginLoading ? 'Logging in...' : 'Login to Pro Portal'}
+                                {isLoggingIn ? 'Logging in...' : 'Login to Pro Portal'}
                             </button>
 
                             {/* Error Message Display */}
