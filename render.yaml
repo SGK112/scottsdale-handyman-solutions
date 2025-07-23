@@ -12,9 +12,9 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        value: https://scottsdale-handyman-api.onrender.com
+        value: https://api.scottsdalehandyman.com
       - key: VITE_PRO_PORTAL_URL
-        value: https://scottsdale-handyman-pro-portal.onrender.com
+        value: https://pro.scottsdalehandyman.com
 
   # Pro Portal (React/Vite) - Static Site
   - type: web
@@ -29,7 +29,7 @@ services:
         destination: /index.html
     envVars:
       - key: VITE_API_URL
-        value: https://scottsdale-handyman-api.onrender.com
+        value: https://api.scottsdalehandyman.com
 
   # API Backend (Flask) - Web Service
   - type: web
