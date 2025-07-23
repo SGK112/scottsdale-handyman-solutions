@@ -1639,7 +1639,7 @@ Our design team understands the unique requirements of outdoor living in the Son
 
                         {/* Pro Portal Link */}
                         <a
-                            href={import.meta.env.VITE_PRO_PORTAL_URL || "https://scottsdale-handyman-pro-portal.onrender.com"}
+                            href="http://localhost:5180"
                             target="_blank"
                             rel="noopener noreferrer"
                             style={{
@@ -2134,7 +2134,7 @@ Our design team understands the unique requirements of outdoor living in the Son
                                     scrollbarWidth: 'thin',
                                     scrollbarColor: 'rgba(79, 70, 229, 0.3) transparent'
                                 }}
-                                className="quick-links-carousel">
+                                    className="quick-links-carousel">
                                     {/* Schedule Service */}
                                     <div className="quick-link-card" style={{
                                         background: 'white',
@@ -2150,17 +2150,17 @@ Our design team understands the unique requirements of outdoor living in the Son
                                         minWidth: '180px',
                                         flexShrink: 0
                                     }}
-                                    onClick={() => openLeadForm('quote')}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(-8px)';
-                                        e.currentTarget.style.boxShadow = '0 12px 40px rgba(79, 70, 229, 0.15)';
-                                        e.currentTarget.style.borderColor = 'rgba(79, 70, 229, 0.3)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
-                                        e.currentTarget.style.borderColor = 'rgba(226, 232, 240, 0.8)';
-                                    }}>
+                                        onClick={() => openLeadForm('quote')}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(-8px)';
+                                            e.currentTarget.style.boxShadow = '0 12px 40px rgba(79, 70, 229, 0.15)';
+                                            e.currentTarget.style.borderColor = 'rgba(79, 70, 229, 0.3)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(0)';
+                                            e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
+                                            e.currentTarget.style.borderColor = 'rgba(226, 232, 240, 0.8)';
+                                        }}>
                                         <div style={{
                                             position: 'absolute',
                                             top: '-10px',
@@ -2171,22 +2171,22 @@ Our design team understands the unique requirements of outdoor living in the Son
                                             borderRadius: '50%',
                                             zIndex: 0
                                         }}></div>
-                                        <Calendar size={32} style={{ 
-                                            color: '#4f46e5', 
+                                        <Calendar size={32} style={{
+                                            color: '#4f46e5',
                                             marginBottom: '1rem',
                                             position: 'relative',
                                             zIndex: 1
                                         }} />
-                                        <h3 style={{ 
-                                            fontSize: '1.1rem', 
-                                            color: '#1a365e', 
+                                        <h3 style={{
+                                            fontSize: '1.1rem',
+                                            color: '#1a365e',
                                             marginBottom: '0.5rem',
                                             fontWeight: '600',
                                             position: 'relative',
                                             zIndex: 1
                                         }}>Schedule Service</h3>
-                                        <p style={{ 
-                                            color: '#64748b', 
+                                        <p style={{
+                                            color: '#64748b',
                                             fontSize: '0.9rem',
                                             lineHeight: '1.4',
                                             position: 'relative',
@@ -2209,17 +2209,17 @@ Our design team understands the unique requirements of outdoor living in the Son
                                         minWidth: '180px',
                                         flexShrink: 0
                                     }}
-                                    onClick={() => openLeadForm('emergency')}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(-8px)';
-                                        e.currentTarget.style.boxShadow = '0 12px 40px rgba(220, 38, 38, 0.15)';
-                                        e.currentTarget.style.borderColor = 'rgba(220, 38, 38, 0.3)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
-                                        e.currentTarget.style.borderColor = 'rgba(226, 232, 240, 0.8)';
-                                    }}>
+                                        onClick={() => openLeadForm('emergency')}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(-8px)';
+                                            e.currentTarget.style.boxShadow = '0 12px 40px rgba(220, 38, 38, 0.15)';
+                                            e.currentTarget.style.borderColor = 'rgba(220, 38, 38, 0.3)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(0)';
+                                            e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
+                                            e.currentTarget.style.borderColor = 'rgba(226, 232, 240, 0.8)';
+                                        }}>
                                         <div style={{
                                             position: 'absolute',
                                             top: '-10px',
@@ -2230,22 +2230,22 @@ Our design team understands the unique requirements of outdoor living in the Son
                                             borderRadius: '50%',
                                             zIndex: 0
                                         }}></div>
-                                        <AlertTriangle size={32} style={{ 
-                                            color: '#dc2626', 
+                                        <AlertTriangle size={32} style={{
+                                            color: '#dc2626',
                                             marginBottom: '1rem',
                                             position: 'relative',
                                             zIndex: 1
                                         }} />
-                                        <h3 style={{ 
-                                            fontSize: '1.1rem', 
-                                            color: '#1a365e', 
+                                        <h3 style={{
+                                            fontSize: '1.1rem',
+                                            color: '#1a365e',
                                             marginBottom: '0.5rem',
                                             fontWeight: '600',
                                             position: 'relative',
                                             zIndex: 1
                                         }}>Emergency Service</h3>
-                                        <p style={{ 
-                                            color: '#64748b', 
+                                        <p style={{
+                                            color: '#64748b',
                                             fontSize: '0.9rem',
                                             lineHeight: '1.4',
                                             position: 'relative',
@@ -2268,17 +2268,17 @@ Our design team understands the unique requirements of outdoor living in the Son
                                         minWidth: '180px',
                                         flexShrink: 0
                                     }}
-                                    onClick={() => setCurrentPage('services')}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(-8px)';
-                                        e.currentTarget.style.boxShadow = '0 12px 40px rgba(34, 197, 94, 0.15)';
-                                        e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.3)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
-                                        e.currentTarget.style.borderColor = 'rgba(226, 232, 240, 0.8)';
-                                    }}>
+                                        onClick={() => setCurrentPage('services')}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(-8px)';
+                                            e.currentTarget.style.boxShadow = '0 12px 40px rgba(34, 197, 94, 0.15)';
+                                            e.currentTarget.style.borderColor = 'rgba(34, 197, 94, 0.3)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(0)';
+                                            e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
+                                            e.currentTarget.style.borderColor = 'rgba(226, 232, 240, 0.8)';
+                                        }}>
                                         <div style={{
                                             position: 'absolute',
                                             top: '-10px',
@@ -2289,22 +2289,22 @@ Our design team understands the unique requirements of outdoor living in the Son
                                             borderRadius: '50%',
                                             zIndex: 0
                                         }}></div>
-                                        <Wrench size={32} style={{ 
-                                            color: '#22c55e', 
+                                        <Wrench size={32} style={{
+                                            color: '#22c55e',
                                             marginBottom: '1rem',
                                             position: 'relative',
                                             zIndex: 1
                                         }} />
-                                        <h3 style={{ 
-                                            fontSize: '1.1rem', 
-                                            color: '#1a365e', 
+                                        <h3 style={{
+                                            fontSize: '1.1rem',
+                                            color: '#1a365e',
                                             marginBottom: '0.5rem',
                                             fontWeight: '600',
                                             position: 'relative',
                                             zIndex: 1
                                         }}>View Services</h3>
-                                        <p style={{ 
-                                            color: '#64748b', 
+                                        <p style={{
+                                            color: '#64748b',
                                             fontSize: '0.9rem',
                                             lineHeight: '1.4',
                                             position: 'relative',
@@ -2327,17 +2327,17 @@ Our design team understands the unique requirements of outdoor living in the Son
                                         minWidth: '180px',
                                         flexShrink: 0
                                     }}
-                                    onClick={() => setCurrentPage('blog')}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(-8px)';
-                                        e.currentTarget.style.boxShadow = '0 12px 40px rgba(168, 85, 247, 0.15)';
-                                        e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
-                                        e.currentTarget.style.borderColor = 'rgba(226, 232, 240, 0.8)';
-                                    }}>
+                                        onClick={() => setCurrentPage('blog')}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(-8px)';
+                                            e.currentTarget.style.boxShadow = '0 12px 40px rgba(168, 85, 247, 0.15)';
+                                            e.currentTarget.style.borderColor = 'rgba(168, 85, 247, 0.3)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(0)';
+                                            e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
+                                            e.currentTarget.style.borderColor = 'rgba(226, 232, 240, 0.8)';
+                                        }}>
                                         <div style={{
                                             position: 'absolute',
                                             top: '-10px',
@@ -2348,22 +2348,22 @@ Our design team understands the unique requirements of outdoor living in the Son
                                             borderRadius: '50%',
                                             zIndex: 0
                                         }}></div>
-                                        <FileText size={32} style={{ 
-                                            color: '#a855f7', 
+                                        <FileText size={32} style={{
+                                            color: '#a855f7',
                                             marginBottom: '1rem',
                                             position: 'relative',
                                             zIndex: 1
                                         }} />
-                                        <h3 style={{ 
-                                            fontSize: '1.1rem', 
-                                            color: '#1a365e', 
+                                        <h3 style={{
+                                            fontSize: '1.1rem',
+                                            color: '#1a365e',
                                             marginBottom: '0.5rem',
                                             fontWeight: '600',
                                             position: 'relative',
                                             zIndex: 1
                                         }}>Read Blog</h3>
-                                        <p style={{ 
-                                            color: '#64748b', 
+                                        <p style={{
+                                            color: '#64748b',
                                             fontSize: '0.9rem',
                                             lineHeight: '1.4',
                                             position: 'relative',
@@ -2386,17 +2386,17 @@ Our design team understands the unique requirements of outdoor living in the Son
                                         minWidth: '180px',
                                         flexShrink: 0
                                     }}
-                                    onClick={() => window.open(import.meta.env.VITE_PRO_PORTAL_URL || "https://scottsdale-handyman-pro-portal.onrender.com", '_blank')}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(-8px)';
-                                        e.currentTarget.style.boxShadow = '0 12px 40px rgba(59, 130, 246, 0.15)';
-                                        e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
-                                        e.currentTarget.style.borderColor = 'rgba(226, 232, 240, 0.8)';
-                                    }}>
+                                        onClick={() => window.open("http://localhost:5180", '_blank')}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(-8px)';
+                                            e.currentTarget.style.boxShadow = '0 12px 40px rgba(59, 130, 246, 0.15)';
+                                            e.currentTarget.style.borderColor = 'rgba(59, 130, 246, 0.3)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(0)';
+                                            e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
+                                            e.currentTarget.style.borderColor = 'rgba(226, 232, 240, 0.8)';
+                                        }}>
                                         <div style={{
                                             position: 'absolute',
                                             top: '-10px',
@@ -2407,22 +2407,22 @@ Our design team understands the unique requirements of outdoor living in the Son
                                             borderRadius: '50%',
                                             zIndex: 0
                                         }}></div>
-                                        <Lock size={32} style={{ 
-                                            color: '#3b82f6', 
+                                        <Lock size={32} style={{
+                                            color: '#3b82f6',
                                             marginBottom: '1rem',
                                             position: 'relative',
                                             zIndex: 1
                                         }} />
-                                        <h3 style={{ 
-                                            fontSize: '1.1rem', 
-                                            color: '#1a365e', 
+                                        <h3 style={{
+                                            fontSize: '1.1rem',
+                                            color: '#1a365e',
                                             marginBottom: '0.5rem',
                                             fontWeight: '600',
                                             position: 'relative',
                                             zIndex: 1
                                         }}>Pro Portal</h3>
-                                        <p style={{ 
-                                            color: '#64748b', 
+                                        <p style={{
+                                            color: '#64748b',
                                             fontSize: '0.9rem',
                                             lineHeight: '1.4',
                                             position: 'relative',
@@ -2445,17 +2445,17 @@ Our design team understands the unique requirements of outdoor living in the Son
                                         minWidth: '180px',
                                         flexShrink: 0
                                     }}
-                                    onClick={() => setCurrentPage('pay')}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(-8px)';
-                                        e.currentTarget.style.boxShadow = '0 12px 40px rgba(245, 158, 11, 0.15)';
-                                        e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.3)';
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(0)';
-                                        e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
-                                        e.currentTarget.style.borderColor = 'rgba(226, 232, 240, 0.8)';
-                                    }}>
+                                        onClick={() => setCurrentPage('pay')}
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(-8px)';
+                                            e.currentTarget.style.boxShadow = '0 12px 40px rgba(245, 158, 11, 0.15)';
+                                            e.currentTarget.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(0)';
+                                            e.currentTarget.style.boxShadow = '0 4px 20px rgba(0, 0, 0, 0.08)';
+                                            e.currentTarget.style.borderColor = 'rgba(226, 232, 240, 0.8)';
+                                        }}>
                                         <div style={{
                                             position: 'absolute',
                                             top: '-10px',
@@ -2466,22 +2466,22 @@ Our design team understands the unique requirements of outdoor living in the Son
                                             borderRadius: '50%',
                                             zIndex: 0
                                         }}></div>
-                                        <CreditCard size={32} style={{ 
-                                            color: '#f59e0b', 
+                                        <CreditCard size={32} style={{
+                                            color: '#f59e0b',
                                             marginBottom: '1rem',
                                             position: 'relative',
                                             zIndex: 1
                                         }} />
-                                        <h3 style={{ 
-                                            fontSize: '1.1rem', 
-                                            color: '#1a365e', 
+                                        <h3 style={{
+                                            fontSize: '1.1rem',
+                                            color: '#1a365e',
                                             marginBottom: '0.5rem',
                                             fontWeight: '600',
                                             position: 'relative',
                                             zIndex: 1
                                         }}>Pay Invoice</h3>
-                                        <p style={{ 
-                                            color: '#64748b', 
+                                        <p style={{
+                                            color: '#64748b',
                                             fontSize: '0.9rem',
                                             lineHeight: '1.4',
                                             position: 'relative',
@@ -2525,7 +2525,7 @@ Our design team understands the unique requirements of outdoor living in the Son
                                                 justifyContent: 'space-between',
                                                 marginBottom: '1.5rem'
                                             }}>
-                                                <AlertTriangle size={52} style={{ 
+                                                <AlertTriangle size={52} style={{
                                                     color: '#dc3545',
                                                     filter: 'drop-shadow(0 4px 8px rgba(220, 53, 69, 0.3))'
                                                 }} />
@@ -2541,16 +2541,16 @@ Our design team understands the unique requirements of outdoor living in the Son
                                                     animation: 'tooltipPulse 2s ease-in-out infinite'
                                                 }}>24/7 AVAILABLE</span>
                                             </div>
-                                            <h3 style={{ 
-                                                fontSize: '1.6rem', 
-                                                marginBottom: '1rem', 
+                                            <h3 style={{
+                                                fontSize: '1.6rem',
+                                                marginBottom: '1rem',
                                                 color: '#1a365e',
                                                 fontWeight: 'bold',
                                                 letterSpacing: '-0.5px'
                                             }}>Emergency Repairs</h3>
-                                            <p style={{ 
-                                                color: '#64748b', 
-                                                lineHeight: '1.7', 
+                                            <p style={{
+                                                color: '#64748b',
+                                                lineHeight: '1.7',
                                                 marginBottom: '2rem',
                                                 fontSize: '1rem'
                                             }}>
@@ -3054,31 +3054,31 @@ Our design team understands the unique requirements of outdoor living in the Son
                                         transition: 'transform 0.3s ease, box-shadow 0.3s ease',
                                         cursor: 'pointer'
                                     }}
-                                    onMouseEnter={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(-5px)'
-                                        e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.15)'
-                                    }}
-                                    onMouseLeave={(e) => {
-                                        e.currentTarget.style.transform = 'translateY(0)'
-                                        e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1)'
-                                    }}>
+                                        onMouseEnter={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(-5px)'
+                                            e.currentTarget.style.boxShadow = '0 8px 30px rgba(0,0,0,0.15)'
+                                        }}
+                                        onMouseLeave={(e) => {
+                                            e.currentTarget.style.transform = 'translateY(0)'
+                                            e.currentTarget.style.boxShadow = '0 4px 20px rgba(0,0,0,0.1)'
+                                        }}>
                                         <img
                                             src={post.image}
                                             alt={post.title}
                                             style={{ width: '100%', height: '200px', objectFit: 'cover' }}
                                         />
                                         <div style={{ padding: '1.5rem' }}>
-                                            <div style={{ 
-                                                display: 'flex', 
-                                                justifyContent: 'space-between', 
+                                            <div style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
                                                 alignItems: 'center',
-                                                marginBottom: '0.5rem' 
+                                                marginBottom: '0.5rem'
                                             }}>
                                                 <span style={{ fontSize: '0.9rem', color: '#FFD700' }}>
                                                     {post.date}
                                                 </span>
-                                                <span style={{ 
-                                                    fontSize: '0.8rem', 
+                                                <span style={{
+                                                    fontSize: '0.8rem',
                                                     color: '#64748b',
                                                     background: '#f1f5f9',
                                                     padding: '0.25rem 0.5rem',
@@ -3093,12 +3093,12 @@ Our design team understands the unique requirements of outdoor living in the Son
                                             <p style={{ color: '#64748b', lineHeight: '1.6', marginBottom: '1rem' }}>
                                                 {post.excerpt}
                                             </p>
-                                            <div style={{ 
-                                                display: 'flex', 
-                                                justifyContent: 'space-between', 
-                                                alignItems: 'center' 
+                                            <div style={{
+                                                display: 'flex',
+                                                justifyContent: 'space-between',
+                                                alignItems: 'center'
                                             }}>
-                                                <button 
+                                                <button
                                                     onClick={() => setSelectedBlogPost(post)}
                                                     style={{
                                                         background: 'linear-gradient(135deg, #1a365e, #2c5aa0)',
@@ -3119,8 +3119,8 @@ Our design team understands the unique requirements of outdoor living in the Son
                                                 >
                                                     Read More <ChevronRight size={16} style={{ display: 'inline', marginLeft: '4px' }} />
                                                 </button>
-                                                <span style={{ 
-                                                    fontSize: '0.8rem', 
+                                                <span style={{
+                                                    fontSize: '0.8rem',
                                                     color: '#64748b',
                                                     background: '#e2e8f0',
                                                     padding: '0.25rem 0.5rem',
@@ -3141,7 +3141,7 @@ Our design team understands the unique requirements of outdoor living in the Son
                     <section style={{ padding: '4rem 2rem', minHeight: '80vh' }}>
                         <div className="container" style={{ maxWidth: '800px', margin: '0 auto' }}>
                             {/* Back to Blog Button */}
-                            <button 
+                            <button
                                 onClick={() => setSelectedBlogPost(null)}
                                 style={{
                                     display: 'flex',
@@ -3167,15 +3167,15 @@ Our design team understands the unique requirements of outdoor living in the Son
 
                             {/* Blog Post Header */}
                             <div style={{ marginBottom: '2rem' }}>
-                                <div style={{ 
-                                    display: 'flex', 
-                                    gap: '1rem', 
+                                <div style={{
+                                    display: 'flex',
+                                    gap: '1rem',
                                     alignItems: 'center',
                                     marginBottom: '1rem',
                                     flexWrap: 'wrap'
                                 }}>
-                                    <span style={{ 
-                                        fontSize: '0.9rem', 
+                                    <span style={{
+                                        fontSize: '0.9rem',
                                         color: '#FFD700',
                                         background: '#fef3c7',
                                         padding: '0.25rem 0.75rem',
@@ -3183,8 +3183,8 @@ Our design team understands the unique requirements of outdoor living in the Son
                                     }}>
                                         {selectedBlogPost.date}
                                     </span>
-                                    <span style={{ 
-                                        fontSize: '0.9rem', 
+                                    <span style={{
+                                        fontSize: '0.9rem',
                                         color: '#64748b',
                                         background: '#f1f5f9',
                                         padding: '0.25rem 0.75rem',
@@ -3192,8 +3192,8 @@ Our design team understands the unique requirements of outdoor living in the Son
                                     }}>
                                         {selectedBlogPost.readTime}
                                     </span>
-                                    <span style={{ 
-                                        fontSize: '0.9rem', 
+                                    <span style={{
+                                        fontSize: '0.9rem',
                                         color: '#1a365e',
                                         background: '#e2e8f0',
                                         padding: '0.25rem 0.75rem',
@@ -3202,24 +3202,24 @@ Our design team understands the unique requirements of outdoor living in the Son
                                         {selectedBlogPost.category}
                                     </span>
                                 </div>
-                                <h1 style={{ 
-                                    fontSize: '2.5rem', 
+                                <h1 style={{
+                                    fontSize: '2.5rem',
                                     color: '#1a365e',
                                     lineHeight: '1.2',
                                     marginBottom: '1rem'
                                 }}>
                                     {selectedBlogPost.title}
                                 </h1>
-                                <p style={{ 
-                                    fontSize: '1.2rem', 
+                                <p style={{
+                                    fontSize: '1.2rem',
                                     color: '#64748b',
                                     lineHeight: '1.6',
                                     marginBottom: '1rem'
                                 }}>
                                     {selectedBlogPost.excerpt}
                                 </p>
-                                <div style={{ 
-                                    fontSize: '0.9rem', 
+                                <div style={{
+                                    fontSize: '0.9rem',
                                     color: '#64748b',
                                     borderBottom: '1px solid #e5e7eb',
                                     paddingBottom: '1rem'
@@ -3233,9 +3233,9 @@ Our design team understands the unique requirements of outdoor living in the Son
                                 <img
                                     src={selectedBlogPost.image}
                                     alt={selectedBlogPost.title}
-                                    style={{ 
-                                        width: '100%', 
-                                        height: '400px', 
+                                    style={{
+                                        width: '100%',
+                                        height: '400px',
                                         objectFit: 'cover',
                                         borderRadius: '12px',
                                         boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
@@ -3244,7 +3244,7 @@ Our design team understands the unique requirements of outdoor living in the Son
                             </div>
 
                             {/* Blog Content */}
-                            <div style={{ 
+                            <div style={{
                                 fontSize: '1.1rem',
                                 lineHeight: '1.8',
                                 color: '#374151',
@@ -3275,8 +3275,8 @@ Our design team understands the unique requirements of outdoor living in the Son
                             {/* Tags */}
                             {selectedBlogPost.tags && selectedBlogPost.tags.length > 0 && (
                                 <div style={{ marginBottom: '2rem' }}>
-                                    <h4 style={{ 
-                                        fontSize: '1rem', 
+                                    <h4 style={{
+                                        fontSize: '1rem',
                                         color: '#1a365e',
                                         marginBottom: '0.5rem'
                                     }}>
@@ -3307,20 +3307,20 @@ Our design team understands the unique requirements of outdoor living in the Son
                                 textAlign: 'center',
                                 border: '1px solid #e2e8f0'
                             }}>
-                                <h3 style={{ 
-                                    fontSize: '1.3rem', 
+                                <h3 style={{
+                                    fontSize: '1.3rem',
                                     color: '#1a365e',
                                     marginBottom: '1rem'
                                 }}>
                                     Need Professional Help?
                                 </h3>
-                                <p style={{ 
+                                <p style={{
                                     color: '#64748b',
                                     marginBottom: '1.5rem'
                                 }}>
                                     Our experienced team is here to help with all your home maintenance and repair needs.
                                 </p>
-                                <button 
+                                <button
                                     onClick={() => {
                                         setCurrentPage('home')
                                         setLeadFormModal('quote')

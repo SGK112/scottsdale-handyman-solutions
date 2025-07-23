@@ -92,7 +92,7 @@ const ChatbotWidget = () => {
         const lowerMessage = message.toLowerCase();
 
         // Enhanced emergency detection
-        if (lowerMessage.includes('emergency') || lowerMessage.includes('urgent') || lowerMessage.includes('broke') || 
+        if (lowerMessage.includes('emergency') || lowerMessage.includes('urgent') || lowerMessage.includes('broke') ||
             lowerMessage.includes('flooding') || lowerMessage.includes('leak') || lowerMessage.includes('electrical fire') ||
             lowerMessage.includes('no power') || lowerMessage.includes('burst pipe') || lowerMessage.includes('gas leak')) {
             return '🚨 **EMERGENCY RESPONSE ACTIVATED** 🚨\n\n📞 **CALL NOW: (480) 255-5887**\n\nFor immediate emergencies:\n• Electrical fires: Call 911 first!\n• Gas leaks: Evacuate & call gas company\n• Major flooding: Shut off main water valve\n• No power: Check circuit breaker first\n\n⚡ Our emergency team responds within 1 hour, 24/7. We\'re dispatching help now!\n\nStay safe and call us immediately at (480) 255-5887';
@@ -121,7 +121,7 @@ const ChatbotWidget = () => {
         }
 
         // Enhanced area coverage with more specific locations
-        if (lowerMessage.includes('area') || lowerMessage.includes('location') || lowerMessage.includes('scottsdale') || 
+        if (lowerMessage.includes('area') || lowerMessage.includes('location') || lowerMessage.includes('scottsdale') ||
             lowerMessage.includes('serve') || lowerMessage.includes('coverage')) {
             return '📍 **Scottsdale & Greater Phoenix Service Area:**\n\n🏠 **Primary Service Areas:**\n• Scottsdale (all zip codes)\n• Paradise Valley\n• Fountain Hills\n• Cave Creek\n• Carefree\n\n🌆 **Extended Coverage:**\n• Tempe • Mesa • Chandler\n• Glendale • Peoria • Ahwatukee\n• North Phoenix • Arcadia\n\n⏱️ **Response Times:**\n• Scottsdale: 30-60 minutes\n• Extended areas: 1-2 hours\n• Emergency: Always within 1 hour\n\n📞 Serving your area! Call (480) 255-5887';
         }
@@ -132,13 +132,13 @@ const ChatbotWidget = () => {
         }
 
         // Enhanced scheduling with specific time options
-        if (lowerMessage.includes('time') || lowerMessage.includes('schedule') || lowerMessage.includes('when') || 
+        if (lowerMessage.includes('time') || lowerMessage.includes('schedule') || lowerMessage.includes('when') ||
             lowerMessage.includes('appointment') || lowerMessage.includes('available')) {
             return '📅 **Flexible Scheduling Options:**\n\n**Same-Day Service:**\n• Morning slots: 8:00 AM - 12:00 PM\n• Afternoon slots: 1:00 PM - 5:00 PM\n• Evening slots: 5:00 PM - 8:00 PM\n\n**Scheduling Options:**\n• 📱 Call: (480) 255-5887\n• 💬 Text your preferred time\n• 🌐 Online booking form\n• 💬 Continue here in chat\n\n⚡ **Priority Service:**\n• Emergency: Within 1 hour\n• Urgent: Within 4 hours\n• Standard: Next business day\n• Weekend: Available Sat-Sun\n\nWhen works best for you?';
         }
 
         // Enhanced greeting with service options
-        if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey') || 
+        if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey') ||
             lowerMessage.includes('good morning') || lowerMessage.includes('good afternoon')) {
             return '👋 **Welcome to Scottsdale Handyman Solutions!**\n\n🏠 I\'m your AI assistant, ready to help with:\n\n🔧 **Quick Help:**\n• Get service pricing\n• Schedule appointments\n• Emergency support\n• Service area info\n\n🎯 **Popular Services:**\n• Electrical repairs\n• Plumbing fixes\n• Painting projects\n• Home repairs\n\n**What can I help you with today?**\n💬 Ask me anything or call (480) 255-5887!';
         }
@@ -241,7 +241,7 @@ const ChatbotWidget = () => {
         const handleScroll = () => {
             const scrollPosition = window.scrollY;
             const windowHeight = window.innerHeight;
-            
+
             // Show tooltip when user scrolls past 50% of viewport height (only if no unread messages)
             if (scrollPosition > windowHeight * 0.5 && !tooltipShownOnScroll && !showTooltip && !chatOpen && !hasUnreadMessages) {
                 setShowTooltip(true);
@@ -513,9 +513,9 @@ const ChatbotWidget = () => {
                                 <Bot size={isMinimized ? 16 : 20} style={{ color: '#3b82f6' }} />
                             </div>
                             <div>
-                                <div style={{ 
-                                    fontWeight: '600', 
-                                    fontSize: isMinimized ? '14px' : '16px' 
+                                <div style={{
+                                    fontWeight: '600',
+                                    fontSize: isMinimized ? '14px' : '16px'
                                 }}>The Scottsdale Handyman</div>
                                 {!isMinimized && (
                                     <div style={{ fontSize: '12px', opacity: 0.9, color: '#FFD700' }}>
@@ -713,7 +713,7 @@ const ChatbotWidget = () => {
                                                             Get Quote
                                                         </button>
                                                     </div>
-                                                    
+
                                                     {/* Suggested Questions */}
                                                     <div style={{
                                                         marginTop: '12px',
