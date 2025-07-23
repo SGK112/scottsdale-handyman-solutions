@@ -18,14 +18,16 @@ const ChatbotWidget = () => {
     const [chatInput, setChatInput] = useState('');
     const [chatTyping, setChatTyping] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
+    // Tooltip state management
     const [showTooltip, setShowTooltip] = useState(false);
     const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
     const [shouldPulse, setShouldPulse] = useState(true);
+    const [tooltipShownOnLoad, setTooltipShownOnLoad] = useState(false);
+    const [tooltipShownOnScroll, setTooltipShownOnScroll] = useState(false);
     const messagesEndRef = useRef(null);
 
     // Add tooltip timeout refs
     const tooltipTimeoutRef = useRef(null);
-    const autoTooltipTimeoutRef = useRef(null);
 
     // Initialize chatbot to always start blue
     useEffect(() => {
@@ -37,9 +39,10 @@ const ChatbotWidget = () => {
         if (chatOpen && chatMessages.length === 0) {
             const welcomeMessage = {
                 sender: 'bot',
-                text: '🏠 Hi! I\'m your AI handyman assistant. I can help you with service information, pricing, scheduling, and emergency support. What can I help you with today?',
+                text: '🏠 **Welcome to Scottsdale Handyman Solutions!**\n\nI\'m your AI assistant ready to help with:\n• 🔧 Service information & pricing\n• 📅 Scheduling appointments\n• 🚨 Emergency support\n• 📍 Service area questions\n• 💰 Free quotes & estimates\n\n**What can I help you with today?**',
                 timestamp: new Date(),
-                isWelcome: true
+                isWelcome: true,
+                showSuggestions: true
             };
             setChatMessages([welcomeMessage]);
         }
@@ -88,40 +91,70 @@ const ChatbotWidget = () => {
     const getBotResponse = (message) => {
         const lowerMessage = message.toLowerCase();
 
-        if (lowerMessage.includes('emergency') || lowerMessage.includes('urgent')) {
-            return '🚨 For emergency services, please call us immediately at (480) 255-5887. We offer 24/7 emergency handyman services throughout Scottsdale and surrounding areas.\n\nOur emergency team can handle:\n• Plumbing emergencies\n• Electrical issues\n• Broken doors/windows\n• Water damage repairs\n• And more!';
+        // Enhanced emergency detection
+        if (lowerMessage.includes('emergency') || lowerMessage.includes('urgent') || lowerMessage.includes('broke') || 
+            lowerMessage.includes('flooding') || lowerMessage.includes('leak') || lowerMessage.includes('electrical fire') ||
+            lowerMessage.includes('no power') || lowerMessage.includes('burst pipe') || lowerMessage.includes('gas leak')) {
+            return '🚨 **EMERGENCY RESPONSE ACTIVATED** 🚨\n\n📞 **CALL NOW: (480) 255-5887**\n\nFor immediate emergencies:\n• Electrical fires: Call 911 first!\n• Gas leaks: Evacuate & call gas company\n• Major flooding: Shut off main water valve\n• No power: Check circuit breaker first\n\n⚡ Our emergency team responds within 1 hour, 24/7. We\'re dispatching help now!\n\nStay safe and call us immediately at (480) 255-5887';
         }
 
-        if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('quote') || lowerMessage.includes('much')) {
-            return '💰 Our transparent pricing:\n• General Handyman: $85/hour\n• Electrical Work: $125/hour\n• Plumbing: $95/hour\n• Painting: $200-400/room\n• Drywall Repair: $85/hour\n• HVAC Service: $125/hour\n\nWould you like a detailed quote for your specific project? I can connect you with our team for a free estimate!';
+        // Enhanced pricing and quotes with specific service detection
+        if (lowerMessage.includes('price') || lowerMessage.includes('cost') || lowerMessage.includes('quote') || lowerMessage.includes('estimate') || lowerMessage.includes('much')) {
+            if (lowerMessage.includes('electrical') || lowerMessage.includes('outlet') || lowerMessage.includes('wiring')) {
+                return '💡 **Electrical Service Pricing:**\n\n• Outlet installation: $75-$150\n• Light fixture install: $100-$200\n• Circuit breaker replacement: $150-$300\n• Fan installation: $125-$250\n• Panel upgrade: $1,200-$2,500\n\n📋 **Free detailed estimate includes:**\n✓ Complete electrical inspection\n✓ Code compliance check\n✓ 1-year warranty\n\n🎯 **Get Your FREE Quote:** Call (480) 255-5887 or click "Get Quote" button!';
+            }
+            if (lowerMessage.includes('plumbing') || lowerMessage.includes('pipe') || lowerMessage.includes('drain') || lowerMessage.includes('toilet')) {
+                return '� **Plumbing Service Pricing:**\n\n• Drain cleaning: $100-$200\n• Toilet repair/replace: $150-$400\n• Faucet installation: $125-$250\n• Pipe repair: $200-$500\n• Water heater service: $300-$800\n\n📋 **Free estimate includes:**\n✓ Complete plumbing inspection\n✓ Water pressure test\n✓ Parts & labor warranty\n\n🎯 **Get Your FREE Quote:** Call (480) 255-5887!';
+            }
+            return '💰 **Transparent Pricing - No Hidden Fees!**\n\n**Popular Services:**\n• Basic repairs: $75-$150/hour\n• Installation work: $100-$300\n• Emergency calls: $125 service fee\n• Multi-service discount: 15% off\n\n📋 **Every estimate includes:**\n✓ Detailed scope of work\n✓ Material costs breakdown\n✓ Timeline expectations\n✓ 100% satisfaction guarantee\n\n🎯 **Get Your FREE Quote:** Call (480) 255-5887 or use our smart quote form!';
         }
 
+        // Enhanced service detection with more specific responses
         if (lowerMessage.includes('service') || lowerMessage.includes('repair') || lowerMessage.includes('fix')) {
-            return '🔧 We offer comprehensive handyman services:\n\n• Electrical repairs & installations\n• Plumbing fixes & maintenance\n• Interior/exterior painting\n• Drywall repair & installation\n• Flooring installation & repair\n• HVAC maintenance\n• General home repairs\n• Emergency services 24/7\n\nWhat specific service do you need help with?';
+            if (lowerMessage.includes('electrical')) {
+                return '⚡ **Expert Electrical Services:**\n\n🔧 **Residential:**\n• Outlet & switch installation\n• Ceiling fan installation\n• Light fixtures & chandeliers\n• Circuit breaker repairs\n• Panel upgrades & rewiring\n• GFCI installation\n\n🏢 **Commercial:**\n• Office lighting upgrades\n• Electrical troubleshooting\n• Code compliance updates\n\n✅ **Licensed & Insured** | ⚡ **24/7 Emergency** | 🛡️ **1-Year Warranty**\n\nReady to get started? Call (480) 255-5887!';
+            }
+            if (lowerMessage.includes('plumbing')) {
+                return '🔧 **Professional Plumbing Services:**\n\n💧 **Repairs & Maintenance:**\n• Drain cleaning & unclogging\n• Pipe leak repairs\n• Toilet repairs & replacement\n• Faucet & fixture installation\n• Water heater service\n• Garbage disposal repair\n\n🚿 **Bathroom & Kitchen:**\n• Sink installations\n• Shower repairs\n• Dishwasher connections\n\n✅ **Licensed Plumber** | 💧 **24/7 Emergency** | 🛡️ **Parts & Labor Warranty**\n\nNeed plumbing help? Call (480) 255-5887!';
+            }
+            return '🏠 **Complete Handyman Services:**\n\n🔧 **Popular Services:**\n• ⚡ Electrical repairs & installations\n• 🔧 Plumbing fixes & maintenance\n• 🎨 Interior/exterior painting\n• 🔨 Drywall repair & installation\n• 🏠 Flooring installation & repair\n• ❄️ HVAC maintenance\n• 🛠️ General home repairs\n• 🚨 24/7 Emergency services\n\n**Why Choose Us:**\n✅ Licensed & Insured\n✅ 1-Year Warranty\n✅ Free Estimates\n✅ Same-Day Service Available\n\nWhat specific service do you need? Call (480) 255-5887!';
         }
 
-        if (lowerMessage.includes('area') || lowerMessage.includes('location') || lowerMessage.includes('scottsdale')) {
-            return '📍 We proudly serve Scottsdale and surrounding areas including:\n\n• Scottsdale\n• Paradise Valley\n• Fountain Hills\n• Cave Creek\n• Tempe\n• Mesa\n• Chandler\n• Glendale\n• Ahwatukee\n\nWe typically respond within 2-4 hours for regular service calls!';
+        // Enhanced area coverage with more specific locations
+        if (lowerMessage.includes('area') || lowerMessage.includes('location') || lowerMessage.includes('scottsdale') || 
+            lowerMessage.includes('serve') || lowerMessage.includes('coverage')) {
+            return '📍 **Scottsdale & Greater Phoenix Service Area:**\n\n🏠 **Primary Service Areas:**\n• Scottsdale (all zip codes)\n• Paradise Valley\n• Fountain Hills\n• Cave Creek\n• Carefree\n\n🌆 **Extended Coverage:**\n• Tempe • Mesa • Chandler\n• Glendale • Peoria • Ahwatukee\n• North Phoenix • Arcadia\n\n⏱️ **Response Times:**\n• Scottsdale: 30-60 minutes\n• Extended areas: 1-2 hours\n• Emergency: Always within 1 hour\n\n📞 Serving your area! Call (480) 255-5887';
         }
 
-        if (lowerMessage.includes('contact') || lowerMessage.includes('phone') || lowerMessage.includes('call')) {
-            return '📞 Contact Scottsdale Handyman Solutions:\n\n• Phone: (480) 255-5887\n• Email: help.scottsdalehandyman@gmail.com\n• Available: 24/7 for emergencies\n• Regular Hours: Mon-Sat 7AM-6PM\n\nWould you like me to help you schedule a service call or get a quote?';
+        // Enhanced contact with multiple options
+        if (lowerMessage.includes('contact') || lowerMessage.includes('phone') || lowerMessage.includes('call') || lowerMessage.includes('reach')) {
+            return '📞 **Contact Scottsdale Handyman Solutions:**\n\n**Primary Contact:**\n• 📱 Phone: (480) 255-5887\n• 📧 Email: help.scottsdalehandyman@gmail.com\n• 💬 Text: (480) 255-5887\n\n**Business Hours:**\n• Mon-Sat: 7:00 AM - 6:00 PM\n• Sunday: Emergency calls only\n• 🚨 24/7 Emergency Response\n\n**Quick Actions:**\n🎯 Get instant quote\n📅 Schedule service\n💬 Continue chatting here\n\nPrefer to call? (480) 255-5887 - We\'re standing by!';
         }
 
-        if (lowerMessage.includes('time') || lowerMessage.includes('schedule') || lowerMessage.includes('when')) {
-            return '⏰ We offer flexible scheduling:\n\n• Same-day service available\n• Evening appointments\n• Weekend service\n• Emergency 24/7 response\n\nTypical response times:\n• Emergency: Within 1 hour\n• Urgent: Within 4 hours\n• Regular: Next business day\n\nWhen would work best for you?';
+        // Enhanced scheduling with specific time options
+        if (lowerMessage.includes('time') || lowerMessage.includes('schedule') || lowerMessage.includes('when') || 
+            lowerMessage.includes('appointment') || lowerMessage.includes('available')) {
+            return '📅 **Flexible Scheduling Options:**\n\n**Same-Day Service:**\n• Morning slots: 8:00 AM - 12:00 PM\n• Afternoon slots: 1:00 PM - 5:00 PM\n• Evening slots: 5:00 PM - 8:00 PM\n\n**Scheduling Options:**\n• 📱 Call: (480) 255-5887\n• 💬 Text your preferred time\n• 🌐 Online booking form\n• 💬 Continue here in chat\n\n⚡ **Priority Service:**\n• Emergency: Within 1 hour\n• Urgent: Within 4 hours\n• Standard: Next business day\n• Weekend: Available Sat-Sun\n\nWhen works best for you?';
         }
 
-        if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey')) {
-            return '👋 Hello! Great to meet you! I\'m here to help with all your handyman needs. What project are you working on or what needs fixing today?';
+        // Enhanced greeting with service options
+        if (lowerMessage.includes('hello') || lowerMessage.includes('hi') || lowerMessage.includes('hey') || 
+            lowerMessage.includes('good morning') || lowerMessage.includes('good afternoon')) {
+            return '👋 **Welcome to Scottsdale Handyman Solutions!**\n\n🏠 I\'m your AI assistant, ready to help with:\n\n🔧 **Quick Help:**\n• Get service pricing\n• Schedule appointments\n• Emergency support\n• Service area info\n\n🎯 **Popular Services:**\n• Electrical repairs\n• Plumbing fixes\n• Painting projects\n• Home repairs\n\n**What can I help you with today?**\n💬 Ask me anything or call (480) 255-5887!';
         }
 
-        if (lowerMessage.includes('thank') || lowerMessage.includes('thanks')) {
-            return '😊 You\'re very welcome! Is there anything else I can help you with today? \n\nRemember, we\'re available 24/7 for emergencies at (480) 255-5887, and I can connect you with our team anytime for quotes or scheduling!';
+        // Enhanced thank you with call-to-action
+        if (lowerMessage.includes('thank') || lowerMessage.includes('thanks') || lowerMessage.includes('appreciate')) {
+            return '😊 **You\'re very welcome!**\n\n🌟 **Ready to get started?**\n• 📞 Call us: (480) 255-5887\n• 📱 Text us your project details\n• 🎯 Click "Get Quote" for instant estimate\n• 💬 Keep chatting here for more help\n\n**Remember:**\n✅ Free estimates always\n✅ Licensed & insured\n✅ 1-year warranty\n✅ 24/7 emergency service\n\n**Anything else I can help with?**';
         }
 
-        // Default response
-        return '🏠 I\'m here to help with all your handyman needs! I can assist with:\n\n• Service information & pricing\n• Scheduling appointments\n• Emergency services\n• Service area questions\n• Getting quotes\n\nWhat would you like to know more about? Or would you prefer to speak directly with our team?';
+        // Enhanced warranty and guarantee information
+        if (lowerMessage.includes('warranty') || lowerMessage.includes('guarantee') || lowerMessage.includes('insurance') || lowerMessage.includes('licensed')) {
+            return '🛡️ **Your Peace of Mind Guarantee:**\n\n**Warranties:**\n• 1-year warranty on all work\n• Manufacturer warranties on parts\n• Extended warranties available\n\n**Insurance & Licensing:**\n✅ Fully licensed handyman\n✅ General liability insurance\n✅ Bonded & insured\n✅ Workers compensation coverage\n\n**100% Satisfaction Guarantee:**\n• Work isn\'t right? We\'ll fix it free\n• Transparent pricing - no surprises\n• Professional, courteous service\n\nQuestions about our guarantees? Call (480) 255-5887!';
+        }
+
+        // Enhanced default response with quick actions
+        return '🏠 **I\'m here to help with your home projects!**\n\n💬 **Ask me about:**\n• Service pricing & quotes\n• Scheduling appointments\n• Our service areas\n• Emergency services\n• Specific repairs\n\n🎯 **Quick Actions:**\n• 📞 Call: (480) 255-5887\n• 🎯 Get instant quote\n• 📅 Schedule service\n• 🚨 Emergency help\n\n**What would you like to know?** I\'m here to help make your project easy!';
     };
 
     const handleSendMessage = (message = chatInput) => {
@@ -187,60 +220,61 @@ const ChatbotWidget = () => {
         };
     }, [showTooltip]);
 
-    // Auto-show tooltip periodically with auto-hide
+    // Show tooltip on page load (only when no unread messages)
     useEffect(() => {
-        if (!chatOpen) {
-            const showPeriodicTooltip = () => {
-                if (!showTooltip) {
-                    setShowTooltip(true);
-                    // Auto-hide after 2 seconds
-                    setTimeout(() => {
-                        setShowTooltip(false);
-                    }, 2000);
-                }
-            };
+        if (!chatOpen && !tooltipShownOnLoad && !hasUnreadMessages) {
+            const timer = setTimeout(() => {
+                setShowTooltip(true);
+                setTooltipShownOnLoad(true);
+                // Auto-hide after 4 seconds
+                setTimeout(() => {
+                    setShowTooltip(false);
+                }, 4000);
+            }, 2000); // Show 2 seconds after page load
 
-            // Show tooltip after 10 seconds initially
-            autoTooltipTimeoutRef.current = setTimeout(showPeriodicTooltip, 10000);
-
-            // Then show every 45 seconds
-            const interval = setInterval(() => {
-                if (!showTooltip && !chatOpen) {
-                    showPeriodicTooltip();
-                }
-            }, 45000);
-
-            return () => {
-                if (autoTooltipTimeoutRef.current) {
-                    clearTimeout(autoTooltipTimeoutRef.current);
-                }
-                clearInterval(interval);
-            };
+            return () => clearTimeout(timer);
         }
-    }, [chatOpen, showTooltip]);
+    }, [chatOpen, tooltipShownOnLoad, hasUnreadMessages]);
 
-    // Track unread messages - only for actual responses, not welcome messages
+    // Show tooltip on scroll (only when no unread messages)
     useEffect(() => {
-        if (!chatOpen && chatMessages.length > 0) {
-            const lastMessage = chatMessages[chatMessages.length - 1];
-            // Only set unread for actual bot responses, not welcome messages
-            if (lastMessage.sender === 'bot' && !lastMessage.isWelcome && !lastMessage.isProactive) {
-                setHasUnreadMessages(true);
-                setShouldPulse(true);
+        const handleScroll = () => {
+            const scrollPosition = window.scrollY;
+            const windowHeight = window.innerHeight;
+            
+            // Show tooltip when user scrolls past 50% of viewport height (only if no unread messages)
+            if (scrollPosition > windowHeight * 0.5 && !tooltipShownOnScroll && !showTooltip && !chatOpen && !hasUnreadMessages) {
+                setShowTooltip(true);
+                setTooltipShownOnScroll(true);
+                // Auto-hide after 3 seconds
+                setTimeout(() => {
+                    setShowTooltip(false);
+                }, 3000);
             }
-        } else if (chatOpen) {
+        };
+
+        window.addEventListener('scroll', handleScroll);
+        return () => window.removeEventListener('scroll', handleScroll);
+    }, [showTooltip, tooltipShownOnScroll, chatOpen, hasUnreadMessages]);
+
+    // Track unread messages - only for proactive messages sent while chat is closed
+    useEffect(() => {
+        if (chatOpen) {
+            // Clear unread status when chat is open
             setHasUnreadMessages(false);
             setShouldPulse(false);
         }
-    }, [chatMessages, chatOpen]);
+        // Note: We don't set unread messages when closing chat after normal conversation
+        // Only proactive/push messages should trigger unread state
+    }, [chatOpen]);
 
     return (
         <>
             {/* Chat Button */}
             {!chatOpen && (
                 <>
-                    {/* Tooltip */}
-                    {showTooltip && (
+                    {/* Tooltip - only show when no unread messages */}
+                    {showTooltip && !hasUnreadMessages && (
                         <div
                             style={{
                                 position: 'fixed',
@@ -455,18 +489,19 @@ const ChatbotWidget = () => {
                 }}>
                     {/* Header */}
                     <div style={{
-                        background: 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)',
+                        background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
                         color: 'white',
-                        padding: '16px 20px',
+                        padding: isMinimized ? '10px 20px' : '16px 20px',
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        borderRadius: '16px 16px 0 0'
+                        borderRadius: isMinimized ? '16px' : '16px 16px 0 0',
+                        minHeight: isMinimized ? '40px' : 'auto'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <div style={{
-                                width: '40px',
-                                height: '40px',
+                                width: isMinimized ? '32px' : '40px',
+                                height: isMinimized ? '32px' : '40px',
                                 borderRadius: '50%',
                                 backgroundColor: 'white',
                                 display: 'flex',
@@ -475,13 +510,18 @@ const ChatbotWidget = () => {
                                 border: '2px solid #3b82f6',
                                 boxShadow: '0 2px 8px rgba(59, 130, 246, 0.2)'
                             }}>
-                                <Bot size={20} style={{ color: '#3b82f6' }} />
+                                <Bot size={isMinimized ? 16 : 20} style={{ color: '#3b82f6' }} />
                             </div>
                             <div>
-                                <div style={{ fontWeight: '600', fontSize: '16px' }}>The Scottsdale Handyman</div>
-                                <div style={{ fontSize: '12px', opacity: 0.9, color: '#FFD700' }}>
-                                    {chatTyping ? 'Typing...' : 'Online • Ready to Help'}
-                                </div>
+                                <div style={{ 
+                                    fontWeight: '600', 
+                                    fontSize: isMinimized ? '14px' : '16px' 
+                                }}>The Scottsdale Handyman</div>
+                                {!isMinimized && (
+                                    <div style={{ fontSize: '12px', opacity: 0.9, color: '#FFD700' }}>
+                                        {chatTyping ? 'Typing...' : 'Online • Ready to Help'}
+                                    </div>
+                                )}
                             </div>
                         </div>
 
@@ -616,7 +656,7 @@ const ChatbotWidget = () => {
                                             padding: '12px 16px',
                                             borderRadius: msg.sender === 'user' ? '16px 16px 4px 16px' : '16px 16px 16px 4px',
                                             background: msg.sender === 'user'
-                                                ? 'linear-gradient(135deg, #dc2626, #b91c1c)'
+                                                ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)'
                                                 : 'white',
                                             color: msg.sender === 'user' ? 'white' : '#374151',
                                             fontSize: '14px',
@@ -627,51 +667,171 @@ const ChatbotWidget = () => {
                                         }}>
                                             {msg.text}
                                             {msg.isWelcome && (
-                                                <div style={{
-                                                    marginTop: '12px',
-                                                    paddingTop: '12px',
-                                                    borderTop: '1px solid #e5e7eb',
-                                                    display: 'flex',
-                                                    gap: '8px',
-                                                    justifyContent: 'center'
-                                                }}>
-                                                    <button
-                                                        onClick={() => window.location.href = 'tel:+14802555887'}
-                                                        style={{
-                                                            background: '#ef4444',
-                                                            color: 'white',
-                                                            border: 'none',
-                                                            borderRadius: '6px',
-                                                            padding: '6px 12px',
-                                                            fontSize: '12px',
-                                                            cursor: 'pointer',
+                                                <>
+                                                    <div style={{
+                                                        marginTop: '12px',
+                                                        paddingTop: '12px',
+                                                        borderTop: '1px solid #e5e7eb',
+                                                        display: 'flex',
+                                                        gap: '8px',
+                                                        justifyContent: 'center'
+                                                    }}>
+                                                        <button
+                                                            onClick={() => window.location.href = 'tel:+14802555887'}
+                                                            style={{
+                                                                background: '#ef4444',
+                                                                color: 'white',
+                                                                border: 'none',
+                                                                borderRadius: '6px',
+                                                                padding: '6px 12px',
+                                                                fontSize: '12px',
+                                                                cursor: 'pointer',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: '4px'
+                                                            }}
+                                                        >
+                                                            <Phone size={12} />
+                                                            Emergency
+                                                        </button>
+                                                        <button
+                                                            onClick={() => handleSendMessage('I would like to get a quote')}
+                                                            style={{
+                                                                background: '#10b981',
+                                                                color: 'white',
+                                                                border: 'none',
+                                                                borderRadius: '6px',
+                                                                padding: '6px 12px',
+                                                                fontSize: '12px',
+                                                                cursor: 'pointer',
+                                                                display: 'flex',
+                                                                alignItems: 'center',
+                                                                gap: '4px'
+                                                            }}
+                                                        >
+                                                            <Mail size={12} />
+                                                            Get Quote
+                                                        </button>
+                                                    </div>
+                                                    
+                                                    {/* Suggested Questions */}
+                                                    <div style={{
+                                                        marginTop: '12px',
+                                                        paddingTop: '8px',
+                                                        borderTop: '1px dashed #e5e7eb'
+                                                    }}>
+                                                        <div style={{
+                                                            fontSize: '11px',
+                                                            color: '#6b7280',
+                                                            marginBottom: '8px',
+                                                            textAlign: 'center'
+                                                        }}>
+                                                            ⚡ Quick Questions:
+                                                        </div>
+                                                        <div style={{
                                                             display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: '4px'
-                                                        }}
-                                                    >
-                                                        <Phone size={12} />
-                                                        Emergency
-                                                    </button>
-                                                    <button
-                                                        onClick={() => handleSendMessage('I would like to get a quote')}
-                                                        style={{
-                                                            background: '#10b981',
-                                                            color: 'white',
-                                                            border: 'none',
-                                                            borderRadius: '6px',
-                                                            padding: '6px 12px',
-                                                            fontSize: '12px',
-                                                            cursor: 'pointer',
-                                                            display: 'flex',
-                                                            alignItems: 'center',
-                                                            gap: '4px'
-                                                        }}
-                                                    >
-                                                        <Mail size={12} />
-                                                        Get Quote
-                                                    </button>
-                                                </div>
+                                                            flexDirection: 'column',
+                                                            gap: '6px'
+                                                        }}>
+                                                            <button
+                                                                onClick={() => handleSendMessage('What electrical services do you offer?')}
+                                                                style={{
+                                                                    background: 'transparent',
+                                                                    color: '#3b82f6',
+                                                                    border: '1px solid #e5e7eb',
+                                                                    borderRadius: '4px',
+                                                                    padding: '6px 8px',
+                                                                    fontSize: '11px',
+                                                                    cursor: 'pointer',
+                                                                    textAlign: 'left',
+                                                                    transition: 'all 0.2s ease'
+                                                                }}
+                                                                onMouseOver={(e) => {
+                                                                    e.target.style.background = '#f8fafc';
+                                                                    e.target.style.borderColor = '#3b82f6';
+                                                                }}
+                                                                onMouseOut={(e) => {
+                                                                    e.target.style.background = 'transparent';
+                                                                    e.target.style.borderColor = '#e5e7eb';
+                                                                }}
+                                                            >
+                                                                ⚡ What electrical services do you offer?
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleSendMessage('Do you provide plumbing services?')}
+                                                                style={{
+                                                                    background: 'transparent',
+                                                                    color: '#3b82f6',
+                                                                    border: '1px solid #e5e7eb',
+                                                                    borderRadius: '4px',
+                                                                    padding: '6px 8px',
+                                                                    fontSize: '11px',
+                                                                    cursor: 'pointer',
+                                                                    textAlign: 'left',
+                                                                    transition: 'all 0.2s ease'
+                                                                }}
+                                                                onMouseOver={(e) => {
+                                                                    e.target.style.background = '#f8fafc';
+                                                                    e.target.style.borderColor = '#3b82f6';
+                                                                }}
+                                                                onMouseOut={(e) => {
+                                                                    e.target.style.background = 'transparent';
+                                                                    e.target.style.borderColor = '#e5e7eb';
+                                                                }}
+                                                            >
+                                                                🔧 Do you provide plumbing services?
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleSendMessage('What areas do you serve?')}
+                                                                style={{
+                                                                    background: 'transparent',
+                                                                    color: '#3b82f6',
+                                                                    border: '1px solid #e5e7eb',
+                                                                    borderRadius: '4px',
+                                                                    padding: '6px 8px',
+                                                                    fontSize: '11px',
+                                                                    cursor: 'pointer',
+                                                                    textAlign: 'left',
+                                                                    transition: 'all 0.2s ease'
+                                                                }}
+                                                                onMouseOver={(e) => {
+                                                                    e.target.style.background = '#f8fafc';
+                                                                    e.target.style.borderColor = '#3b82f6';
+                                                                }}
+                                                                onMouseOut={(e) => {
+                                                                    e.target.style.background = 'transparent';
+                                                                    e.target.style.borderColor = '#e5e7eb';
+                                                                }}
+                                                            >
+                                                                📍 What areas do you serve?
+                                                            </button>
+                                                            <button
+                                                                onClick={() => handleSendMessage('How much do your services cost?')}
+                                                                style={{
+                                                                    background: 'transparent',
+                                                                    color: '#3b82f6',
+                                                                    border: '1px solid #e5e7eb',
+                                                                    borderRadius: '4px',
+                                                                    padding: '6px 8px',
+                                                                    fontSize: '11px',
+                                                                    cursor: 'pointer',
+                                                                    textAlign: 'left',
+                                                                    transition: 'all 0.2s ease'
+                                                                }}
+                                                                onMouseOver={(e) => {
+                                                                    e.target.style.background = '#f8fafc';
+                                                                    e.target.style.borderColor = '#3b82f6';
+                                                                }}
+                                                                onMouseOut={(e) => {
+                                                                    e.target.style.background = 'transparent';
+                                                                    e.target.style.borderColor = '#e5e7eb';
+                                                                }}
+                                                            >
+                                                                💰 How much do your services cost?
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </>
                                             )}
                                         </div>
 
@@ -793,7 +953,7 @@ const ChatbotWidget = () => {
                                             height: '44px',
                                             borderRadius: '12px',
                                             background: chatInput.trim() && !chatTyping
-                                                ? 'linear-gradient(135deg, #dc2626, #b91c1c)'
+                                                ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)'
                                                 : '#d1d5db',
                                             border: 'none',
                                             cursor: chatInput.trim() && !chatTyping ? 'pointer' : 'not-allowed',
@@ -806,6 +966,72 @@ const ChatbotWidget = () => {
                                         <Send size={18} color="white" />
                                     </button>
                                 </form>
+
+                                {/* Quick Action Buttons */}
+                                <div style={{
+                                    display: 'flex',
+                                    gap: '8px',
+                                    marginTop: '12px',
+                                    flexWrap: 'wrap'
+                                }}>
+                                    <button
+                                        onClick={() => handleSendMessage('I need emergency service')}
+                                        style={{
+                                            padding: '6px 12px',
+                                            background: 'linear-gradient(135deg, #ef4444, #dc2626)',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '20px',
+                                            fontSize: '12px',
+                                            fontWeight: '500',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px'
+                                        }}
+                                        onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'}
+                                        onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+                                    >
+                                        🚨 Emergency
+                                    </button>
+                                    <button
+                                        onClick={() => handleSendMessage('I need a quote')}
+                                        style={{
+                                            padding: '6px 12px',
+                                            background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '20px',
+                                            fontSize: '12px',
+                                            fontWeight: '500',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease'
+                                        }}
+                                        onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'}
+                                        onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+                                    >
+                                        💰 Get Quote
+                                    </button>
+                                    <button
+                                        onClick={() => handleSendMessage('I want to schedule service')}
+                                        style={{
+                                            padding: '6px 12px',
+                                            background: 'linear-gradient(135deg, #10b981, #059669)',
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '20px',
+                                            fontSize: '12px',
+                                            fontWeight: '500',
+                                            cursor: 'pointer',
+                                            transition: 'all 0.2s ease'
+                                        }}
+                                        onMouseOver={(e) => e.target.style.transform = 'scale(1.05)'}
+                                        onMouseOut={(e) => e.target.style.transform = 'scale(1)'}
+                                    >
+                                        📅 Schedule
+                                    </button>
+                                </div>
 
                                 <div style={{
                                     textAlign: 'center',

@@ -382,11 +382,6 @@ function App() {
     const [leadFormModal, setLeadFormModal] = useState(null) // 'quote', 'emergency', 'consultation', 'general'
     const [selectedServiceType, setSelectedServiceType] = useState('')
 
-    // Professional Chat Tooltip State
-    const [showChatTooltip, setShowChatTooltip] = useState(false)
-    const [tooltipShownOnLogin, setTooltipShownOnLogin] = useState(false)
-    const [scrollTooltipShown, setScrollTooltipShown] = useState(false)
-
     // Intelligent form data with service-specific fields
     const [intelligentFormData, setIntelligentFormData] = useState({
         // Basic info
@@ -922,46 +917,6 @@ function App() {
 
         initializeStripe()
     }, [])
-
-    // Professional Chat Tooltip Management
-    useEffect(() => {
-        // Show tooltip on initial load (simulating login)
-        const showInitialTooltip = () => {
-            if (!tooltipShownOnLogin) {
-                setTimeout(() => {
-                    setShowChatTooltip(true)
-                    setTooltipShownOnLogin(true)
-                    // Hide after 4 seconds
-                    setTimeout(() => {
-                        setShowChatTooltip(false)
-                    }, 4000)
-                }, 2000) // Show 2 seconds after page load
-            }
-        }
-
-        showInitialTooltip()
-    }, [tooltipShownOnLogin])
-
-    // Scroll-based tooltip trigger
-    useEffect(() => {
-        const handleScroll = () => {
-            const scrollPosition = window.scrollY
-            const windowHeight = window.innerHeight
-            
-            // Show tooltip when user scrolls past 50% of viewport height
-            if (scrollPosition > windowHeight * 0.5 && !scrollTooltipShown && !showChatTooltip) {
-                setShowChatTooltip(true)
-                setScrollTooltipShown(true)
-                // Hide after 3 seconds
-                setTimeout(() => {
-                    setShowChatTooltip(false)
-                }, 3000)
-            }
-        }
-
-        window.addEventListener('scroll', handleScroll)
-        return () => window.removeEventListener('scroll', handleScroll)
-    }, [scrollTooltipShown, showChatTooltip])
 
     // Blog posts data
     const [blogPosts] = useState([
@@ -3695,27 +3650,52 @@ While these temporary fixes can prevent immediate damage, always call qualified 
                 </section>
             </main>
 
-            {/* Professional ChatBot with Smart Tooltip */}
-            <div style={{ position: 'relative' }}>
-                {/* Smart Tooltip */}
-                {showChatTooltip && (
-                    <div style={{
-                        position: 'fixed',
-                        bottom: '100px',
-                        right: '30px',
-                        zIndex: 9999
+            {/* Professional ChatBot */}
+            <ChatbotWidget />
+
+            {/* Footer - Powered by REMODELY */}
+            <footer style={{
+                background: 'linear-gradient(135deg, #1e293b, #0f172a)',
+                color: 'white',
+                textAlign: 'center',
+                padding: '20px',
+                marginTop: '50px',
+                borderTop: '3px solid #3b82f6'
+            }}>
+                <div style={{
+                    maxWidth: '1200px',
+                    margin: '0 auto',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    gap: '10px',
+                    fontSize: '14px'
+                }}>
+                    <span style={{ color: '#94a3b8' }}>Powered by</span>
+                    <span style={{
+                        fontWeight: 'bold',
+                        fontSize: '16px',
+                        background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                        WebkitBackgroundClip: 'text',
+                        WebkitTextFillColor: 'transparent',
+                        backgroundClip: 'text',
+                        letterSpacing: '1px'
                     }}>
-                        <div className="chat-tooltip">
-                            <MessageCircle size={16} style={{ display: 'inline', marginRight: '6px' }} />
-                            Need help? Chat with our experts!
-                            <div style={{ fontSize: '12px', opacity: 0.9, marginTop: '4px' }}>
-                                Get instant answers & quick quotes
-                            </div>
-                        </div>
-                    </div>
-                )}
-                <ChatbotWidget />
-            </div>
+                        REMODELY
+                    </span>
+                    <span style={{ color: '#94a3b8' }}>|</span>
+                    <span style={{ color: '#94a3b8', fontSize: '12px' }}>
+                        Advanced AI-Powered Home Services Platform
+                    </span>
+                </div>
+                <div style={{
+                    marginTop: '8px',
+                    fontSize: '12px',
+                    color: '#64748b'
+                }}>
+                    © 2025 Scottsdale Handyman Solutions | Licensed & Insured | (480) 255-5887
+                </div>
+            </footer>
 
             {/* Smart Lead Form Modal */}
             {leadFormModal && (

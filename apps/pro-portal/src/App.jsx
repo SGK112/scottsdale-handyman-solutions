@@ -10,9 +10,11 @@ const ProPortalApp = () => {
     const [isAdminLoggedIn, setIsAdminLoggedIn] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [showSignup, setShowSignup] = useState(false);
+    const [isLoggingIn, setIsLoggingIn] = useState(false);
+    const [loginError, setLoginError] = useState('');
 
     // API configuration
-    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3001';
+    const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:3002';
 
     // Check authentication on component mount
     useEffect(() => {
@@ -1496,6 +1498,9 @@ const ProPortalApp = () => {
                     {!showSignup && (
                         <form onSubmit={async (e) => {
                             e.preventDefault();
+                            setIsLoggingIn(true);
+                            setLoginError('');
+                            
                             const username = e.target.username.value;
                             const password = e.target.password.value;
 
@@ -1506,24 +1511,30 @@ const ProPortalApp = () => {
                                     body: JSON.stringify({ username, password })
                                 });
 
-                                const data = await response.json();
-
-                                if (data.success) {
-                                    setIsAdminLoggedIn(true);
-                                    localStorage.setItem('scottsdaleProAuth', 'true');
-                                    localStorage.setItem('scottsdaleProToken', data.token);
-                                    localStorage.setItem('scottsdaleProUser', JSON.stringify(data.user));
-                                } else {
-                                    alert('Invalid credentials');
+                                if (response.ok) {
+                                    const data = await response.json();
+                                    if (data.success) {
+                                        setIsAdminLoggedIn(true);
+                                        localStorage.setItem('scottsdaleProAuth', 'true');
+                                        localStorage.setItem('scottsdaleProToken', data.token);
+                                        localStorage.setItem('scottsdaleProUser', JSON.stringify(data.user));
+                                        setIsLoggingIn(false);
+                                        return;
+                                    }
                                 }
+                                
+                                // If API fails or returns error, fall back to client-side auth
+                                throw new Error('API authentication failed');
                             } catch (error) {
                                 console.error('Login error:', error);
                                 // Fallback to client-side authentication for development
                                 if (username === 'admin' && password === 'scottsdaleHandyman2025!') {
                                     setIsAdminLoggedIn(true);
                                     localStorage.setItem('scottsdaleProAuth', 'true');
+                                    setIsLoggingIn(false);
                                 } else {
-                                    alert('Invalid credentials');
+                                    setLoginError('Invalid credentials. Please check your username and password.');
+                                    setIsLoggingIn(false);
                                 }
                             }
                         }}>
@@ -1588,23 +1599,45 @@ const ProPortalApp = () => {
 
                             <button
                                 type="submit"
+                                disabled={loginLoading}
                                 style={{
                                     width: '100%',
                                     padding: '12px',
-                                    background: '#1e3a5f',
+                                    background: loginLoading ? '#ccc' : '#1e3a5f',
                                     color: 'white',
                                     border: 'none',
                                     borderRadius: '8px',
                                     fontSize: '16px',
                                     fontWeight: '600',
-                                    cursor: 'pointer',
-                                    transition: 'background 0.3s ease'
+                                    cursor: loginLoading ? 'not-allowed' : 'pointer',
+                                    transition: 'background 0.3s ease',
+                                    opacity: loginLoading ? 0.7 : 1
                                 }}
-                                onMouseOver={(e) => e.target.style.background = '#2c5aa0'}
-                                onMouseOut={(e) => e.target.style.background = '#1e3a5f'}
+                                onMouseOver={(e) => {
+                                    if (!loginLoading) e.target.style.background = '#2c5aa0';
+                                }}
+                                onMouseOut={(e) => {
+                                    if (!loginLoading) e.target.style.background = '#1e3a5f';
+                                }}
                             >
-                                Login to Pro Portal
+                                {loginLoading ? 'Logging in...' : 'Login to Pro Portal'}
                             </button>
+
+                            {/* Error Message Display */}
+                            {loginError && (
+                                <div style={{
+                                    marginTop: '16px',
+                                    padding: '12px',
+                                    background: '#fee',
+                                    border: '1px solid #f88',
+                                    borderRadius: '8px',
+                                    color: '#d33',
+                                    fontSize: '14px',
+                                    textAlign: 'center'
+                                }}>
+                                    {loginError}
+                                </div>
+                            )}
                         </form>
                     )}
 
