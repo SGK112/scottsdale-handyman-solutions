@@ -1639,7 +1639,7 @@ Our design team understands the unique requirements of outdoor living in the Son
 
                         {/* Pro Portal Link */}
                         <a
-                            href={import.meta.env.VITE_PRO_PORTAL_URL || "https://pro.scottsdalehandyman.com"}
+                            href={import.meta.env.VITE_PRO_PORTAL_URL || "https://scottsdale-handyman-pro-portal.onrender.com"}
                             target="_blank"
                             rel="noopener noreferrer"
                             style={{
@@ -2386,7 +2386,7 @@ Our design team understands the unique requirements of outdoor living in the Son
                                         minWidth: '180px',
                                         flexShrink: 0
                                     }}
-                                        onClick={() => window.open(import.meta.env.VITE_PRO_PORTAL_URL || "https://pro.scottsdalehandyman.com", '_blank')}
+                                        onClick={() => window.open(import.meta.env.VITE_PRO_PORTAL_URL || "https://scottsdale-handyman-pro-portal.onrender.com", '_blank')}
                                         onMouseEnter={(e) => {
                                             e.currentTarget.style.transform = 'translateY(-8px)';
                                             e.currentTarget.style.boxShadow = '0 12px 40px rgba(59, 130, 246, 0.15)';
