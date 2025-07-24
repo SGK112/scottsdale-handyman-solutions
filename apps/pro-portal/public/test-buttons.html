@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Pro Portal Button Test</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; }
+        button { padding: 10px 20px; margin: 10px; font-size: 16px; }
+        .test-result { background: #f0f0f0; padding: 10px; margin: 10px 0; }
+        .error { background: #ffe6e6; }
+        .success { background: #e6ffe6; }
+    </style>
+</head>
+<body>
+    <h1>Testing Pro Portal CTA Buttons</h1>
+    
+    <h2>Environment Variables Test:</h2>
+    <div class='test-result'>
+        <p><strong>Current Environment:</strong> <span id="env"></span></p>
+        <p><strong>VITE_WEBSITE_URL:</strong> <span id="websiteUrl"></span></p>
+        <p><strong>VITE_API_URL:</strong> <span id="apiUrl"></span></p>
+        <p><strong>Fallback URL:</strong> https://scottsdale-handyman-website.onrender.com</p>
+    </div>
+    
+    <h2>URL Tests:</h2>
+    <button onclick="testCurrentSite()">Test - This Pro Portal Site</button>
+    <button onclick="testMainWebsite()">Test - Main Website (localhost)</button>
+    <button onclick="testProductionWebsite()">Test - Production Website</button>
+    <button onclick="testViewSiteFunction()">Test - View Site Function</button>
+    <button onclick="testBackToWebsiteFunction()">Test - Back to Website Function</button>
+    
+    <h2>Results:</h2>
+    <div id="results"></div>
+    
+    <script>
+        // Environment detection
+        const isDev = location.hostname === 'localhost';
+        document.getElementById('env').textContent = isDev ? 'Development (localhost)' : 'Production';
+        
+        // Show all environment variables
+        const websiteUrl = import.meta?.env?.VITE_WEBSITE_URL;
+        const apiUrl = import.meta?.env?.VITE_API_URL;
+        
+        document.getElementById('websiteUrl').textContent = websiteUrl || 'undefined';
+        document.getElementById('apiUrl').textContent = apiUrl || 'undefined';
+        
+        function addResult(message, success = true) {
+            const div = document.createElement('div');
+            div.className = 'test-result ' + (success ? 'success' : 'error');
+            div.innerHTML = '<p>' + new Date().toLocaleTimeString() + ': ' + message + '</p>';
+            document.getElementById('results').appendChild(div);
+        }
+        
+        function testCurrentSite() {
+            const url = location.origin;
+            addResult('Current site: ' + url);
+            window.open(url, '_blank');
+        }
+        
+        function testMainWebsite() {
+            const url = 'http://localhost:5173';
+            addResult('Opening main website (localhost): ' + url);
+            window.open(url, '_blank');
+        }
+        
+        function testProductionWebsite() {
+            const url = 'https://scottsdale-handyman-website.onrender.com';
+            addResult('Opening production website: ' + url);
+            window.open(url, '_blank');
+        }
+        
+        function testViewSiteFunction() {
+            try {
+                const url = (import.meta?.env?.VITE_WEBSITE_URL) || "https://scottsdale-handyman-website.onrender.com";
+                addResult('View Site Function - URL resolved to: ' + url);
+                console.log('View Site button clicked, URL:', url);
+                console.log('Environment vars:', import.meta?.env);
+                window.open(url, '_blank');
+            } catch (error) {
+                addResult('Error in View Site Function: ' + error.message, false);
+                console.error('View Site Error:', error);
+            }
+        }
+        
+        function testBackToWebsiteFunction() {
+            try {
+                const url = (import.meta?.env?.VITE_WEBSITE_URL) || "https://scottsdale-handyman-website.onrender.com";
+                addResult('Back to Website Function - URL resolved to: ' + url);
+                console.log('Back to Website clicked, URL:', url);
+                console.log('Environment vars:', import.meta?.env);
+                window.open(url, '_blank');
+            } catch (error) {
+                addResult('Error in Back to Website Function: ' + error.message, false);
+                console.error('Back to Website Error:', error);
+            }
+        }
+        
+        // Log everything for debugging
+        console.log('=== Pro Portal Button Test Debug ===');
+        console.log('Location:', location.href);
+        console.log('Is Development:', isDev);
+        console.log('Environment Variables:', import.meta?.env);
+        console.log('VITE_WEBSITE_URL:', websiteUrl);
+        console.log('VITE_API_URL:', apiUrl);
+        
+        // Test the actual import.meta.env access
+        try {
+            console.log('import.meta.env test:', import.meta.env);
+            if (import.meta.env) {
+                addResult('✅ import.meta.env is accessible');
+            } else {
+                addResult('❌ import.meta.env is undefined', false);
+            }
+        } catch (error) {
+            addResult('❌ Error accessing import.meta.env: ' + error.message, false);
+        }
+    </script>
+</body>
+</html>

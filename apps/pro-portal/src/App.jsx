@@ -1257,7 +1257,35 @@ const ProPortalApp = () => {
                                 width: window.innerWidth <= 768 ? '100%' : 'auto'
                             }}>
                                 <button
-                                    onClick={() => window.open(import.meta.env.VITE_WEBSITE_URL || "https://scottsdale-handyman-website.onrender.com", '_blank')}
+                                    onClick={() => {
+                                        // Multiple fallback strategies
+                                        let websiteUrl;
+                                        
+                                        // Strategy 1: Environment variable
+                                        if (import.meta.env.VITE_WEBSITE_URL) {
+                                            websiteUrl = import.meta.env.VITE_WEBSITE_URL;
+                                        }
+                                        // Strategy 2: Check if we're in development
+                                        else if (window.location.hostname === 'localhost') {
+                                            websiteUrl = 'http://localhost:5173';
+                                        }
+                                        // Strategy 3: Production fallback
+                                        else {
+                                            websiteUrl = 'https://scottsdale-handyman-website.onrender.com';
+                                        }
+                                        
+                                        console.log('View Site button clicked, URL:', websiteUrl);
+                                        console.log('Current location:', window.location.href);
+                                        console.log('Environment vars:', import.meta.env);
+                                        
+                                        try {
+                                            window.open(websiteUrl, '_blank');
+                                        } catch (error) {
+                                            console.error('Error opening window:', error);
+                                            // Fallback: try direct navigation
+                                            window.location.href = websiteUrl;
+                                        }
+                                    }}
                                     style={{
                                         padding: window.innerWidth <= 768 ? '14px 18px' : '12px 24px',
                                         background: 'rgba(255,255,255,0.2)',
@@ -7200,9 +7228,40 @@ const ProPortalApp = () => {
 
                     <div style={{ textAlign: 'center', marginTop: '20px' }}>
                         <a
-                            href={import.meta.env.VITE_WEBSITE_URL || "https://scottsdale-handyman-website.onrender.com"}
+                            href="#"
                             target="_blank"
                             rel="noopener noreferrer"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                
+                                // Multiple fallback strategies
+                                let websiteUrl;
+                                
+                                // Strategy 1: Environment variable
+                                if (import.meta.env.VITE_WEBSITE_URL) {
+                                    websiteUrl = import.meta.env.VITE_WEBSITE_URL;
+                                }
+                                // Strategy 2: Check if we're in development
+                                else if (window.location.hostname === 'localhost') {
+                                    websiteUrl = 'http://localhost:5173';
+                                }
+                                // Strategy 3: Production fallback
+                                else {
+                                    websiteUrl = 'https://scottsdale-handyman-website.onrender.com';
+                                }
+                                
+                                console.log('Back to Website clicked, URL:', websiteUrl);
+                                console.log('Current location:', window.location.href);
+                                console.log('Environment vars:', import.meta.env);
+                                
+                                try {
+                                    window.open(websiteUrl, '_blank');
+                                } catch (error) {
+                                    console.error('Error opening window:', error);
+                                    // Fallback: try direct navigation
+                                    window.location.href = websiteUrl;
+                                }
+                            }}
                             style={{
                                 background: 'none',
                                 border: 'none',
