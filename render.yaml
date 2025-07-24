@@ -30,6 +30,8 @@ services:
     envVars:
       - key: VITE_API_URL
         value: https://scottsdale-handyman-api.onrender.com
+      - key: VITE_WEBSITE_URL
+        value: https://scottsdale-handyman-website.onrender.com
 
   # API Backend (Flask) - Web Service
   - type: web

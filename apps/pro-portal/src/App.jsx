@@ -1257,7 +1257,7 @@ const ProPortalApp = () => {
                                 width: window.innerWidth <= 768 ? '100%' : 'auto'
                             }}>
                                 <button
-                                    onClick={() => window.location.href = '/'}
+                                    onClick={() => window.open(import.meta.env.VITE_WEBSITE_URL || "https://scottsdale-handyman-website.onrender.com", '_blank')}
                                     style={{
                                         padding: window.innerWidth <= 768 ? '14px 18px' : '12px 24px',
                                         background: 'rgba(255,255,255,0.2)',
@@ -7200,7 +7200,9 @@ const ProPortalApp = () => {
 
                     <div style={{ textAlign: 'center', marginTop: '20px' }}>
                         <a
-                            href="/"
+                            href={import.meta.env.VITE_WEBSITE_URL || "https://scottsdale-handyman-website.onrender.com"}
+                            target="_blank"
+                            rel="noopener noreferrer"
                             style={{
                                 background: 'none',
                                 border: 'none',
