@@ -4,6 +4,12 @@ __pycache__/
 *.py[cod]
 *$py.class
 
+# Virtual environments
+venv/
+apps/api/venv/
+env/
+ENV/
+
 # Distribution / packaging
 .Python
 build/

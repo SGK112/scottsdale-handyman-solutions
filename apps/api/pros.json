@@ -8,32 +8,41 @@
     "phone": "480-555-9876",
     "businessName": "Smith Handyman Services",
     "licenseNumber": "AZ123456",
-    "specialties": "general",
+    "specialties": ["General Handyman", "Electrical"],
     "experience": "8-15",
-    "serviceArea": "Scottsdale, Phoenix",
+    "serviceAreas": ["Scottsdale", "Phoenix"],
     "hourlyRate": 75.0,
     "status": "approved",
     "createdAt": "2025-07-22T10:18:31.108028",
     "approvedAt": "2025-07-22T10:18:49.028149",
-    "rating": 0.0,
-    "completedJobs": 0,
-    "totalEarnings": 0.0,
+    "rating": 4.8,
+    "completedJobs": 47,
+    "totalEarnings": 12450.00,
     "isActive": true,
     "profilePicture": null,
-    "certifications": [],
+    "certifications": ["OSHA 10-Hour Safety", "Arizona Electrical License"],
     "insurance": {
-      "hasLiability": false,
-      "hasBonding": false,
-      "expiryDate": null
+      "hasLiability": true,
+      "hasBonding": true,
+      "expiryDate": "2025-12-31",
+      "documents": []
     },
     "preferences": {
       "maxDistanceMiles": 25,
-      "preferredJobTypes": [
-        "general"
-      ],
+      "preferredJobTypes": ["General Handyman"],
       "availableWeekdays": true,
       "availableWeekends": true,
       "availableEvenings": false
+    },
+    "application": {
+      "whyJoinUs": "I want to expand my business and work with a reputable company.",
+      "previousExperience": "8 years of residential and commercial handyman work.",
+      "references": [
+        { "name": "Mike Johnson", "phone": "480-555-1111", "email": "mike@contractor.com", "relationship": "Former supervisor" }
+      ],
+      "agreeToTerms": true,
+      "agreeToBackground": true,
+      "agreeToMarketing": true
     }
   },
   {
@@ -45,32 +54,182 @@
     "phone": "602-555-4321",
     "businessName": "Wilson Electric & Handyman",
     "licenseNumber": "AZ789012",
-    "specialties": "electrical",
+    "specialties": ["Electrical", "Smart Home"],
     "experience": "15+",
-    "serviceArea": "Scottsdale, Tempe, Mesa",
-    "hourlyRate": 95.0,
-    "status": "pending",
-    "createdAt": "2025-07-22T10:19:49.860377",
-    "approvedAt": null,
-    "rating": 0.0,
-    "completedJobs": 0,
-    "totalEarnings": 0.0,
+    "serviceAreas": ["Scottsdale", "Tempe", "Mesa"],
+    "hourlyRate": 85.0,
+    "status": "approved",
+    "createdAt": "2025-07-22T10:19:49.861234",
+    "approvedAt": "2025-07-22T10:20:15.123456",
+    "rating": 4.9,
+    "completedJobs": 89,
+    "totalEarnings": 28750.00,
     "isActive": true,
     "profilePicture": null,
-    "certifications": [],
+    "certifications": ["Master Electrician", "Smart Home Certification"],
+    "insurance": {
+      "hasLiability": true,
+      "hasBonding": true,
+      "expiryDate": "2026-03-15",
+      "documents": []
+    },
+    "preferences": {
+      "maxDistanceMiles": 30,
+      "preferredJobTypes": ["Electrical"],
+      "availableWeekdays": true,
+      "availableWeekends": false,
+      "availableEvenings": true
+    }
+  },
+  {
+    "id": 1753254912345,
+    "email": "sarah.rodriguez@email.com",
+    "fullName": "Sarah Rodriguez",
+    "phone": "480-555-7890",
+    "businessName": "Rodriguez Home Solutions",
+    "website": "",
+    "licenseNumber": "",
+    "specialties": ["Painting", "Carpentry", "General Handyman"],
+    "experience": "5-10",
+    "serviceAreas": ["Scottsdale", "Paradise Valley"],
+    "hourlyRate": 65.0,
+    "insurance": {
+      "hasLiability": true,
+      "hasBonding": false,
+      "expiryDate": "2025-11-30",
+      "documents": []
+    },
+    "certifications": ["Interior Design Certificate"],
+    "preferences": {
+      "availableWeekdays": true,
+      "availableWeekends": true,
+      "availableEvenings": false,
+      "maxDistanceMiles": 20,
+      "preferredJobTypes": ["Home Improvements", "Small Projects"]
+    },
+    "profilePhoto": null,
+    "licenseDocument": null,
+    "portfolioImages": [],
+    "application": {
+      "whyJoinUs": "I'm passionate about home improvement and want to work with quality clients through your platform.",
+      "previousExperience": "5 years specializing in interior painting and custom carpentry work.",
+      "references": [
+        { "name": "Jennifer Adams", "phone": "480-555-2222", "email": "jennifer@homeowner.com", "relationship": "Previous client" }
+      ],
+      "agreeToTerms": true,
+      "agreeToBackground": true,
+      "agreeToMarketing": false
+    },
+    "status": "pending",
+    "createdAt": "2025-07-30T08:30:12.345678",
+    "reviewedAt": null,
+    "approvedAt": null,
+    "reviewNotes": "",
+    "rating": 0.0,
+    "completedJobs": 0,
+    "totalEarnings": 0.00,
+    "isActive": false,
+    "username": "sarah.rodriguez345"
+  },
+  {
+    "id": 1753254923456,
+    "email": "carlos.martinez@handyman.com",
+    "fullName": "Carlos Martinez",
+    "phone": "623-555-3456",
+    "businessName": "Martinez Construction Services",
+    "website": "https://martinez-construction.com",
+    "licenseNumber": "AZ345678",
+    "specialties": ["Plumbing", "HVAC", "General Handyman"],
+    "experience": "10-15",
+    "serviceAreas": ["Phoenix", "Scottsdale", "Glendale"],
+    "hourlyRate": 80.0,
+    "insurance": {
+      "hasLiability": true,
+      "hasBonding": true,
+      "expiryDate": "2026-01-15",
+      "documents": []
+    },
+    "certifications": ["Plumbing License", "HVAC Certification", "OSHA 30-Hour"],
+    "preferences": {
+      "availableWeekdays": true,
+      "availableWeekends": true,
+      "availableEvenings": false,
+      "maxDistanceMiles": 35,
+      "preferredJobTypes": ["Emergency Repairs", "Scheduled Maintenance", "Large Projects"]
+    },
+    "profilePhoto": null,
+    "licenseDocument": null,
+    "portfolioImages": [],
+    "application": {
+      "whyJoinUs": "Your company has an excellent reputation and I want to be part of a professional network that values quality work.",
+      "previousExperience": "12 years running my own construction business, specializing in residential plumbing and HVAC systems.",
+      "references": [
+        { "name": "Robert Wilson", "phone": "623-555-9999", "email": "robert@supplier.com", "relationship": "Supplier/Business partner" },
+        { "name": "Lisa Chen", "phone": "480-555-7777", "email": "lisa@homeowner.com", "relationship": "Long-term client" }
+      ],
+      "agreeToTerms": true,
+      "agreeToBackground": true,
+      "agreeToMarketing": true
+    },
+    "status": "pending",
+    "createdAt": "2025-07-30T09:15:45.678901",
+    "reviewedAt": null,
+    "approvedAt": null,
+    "reviewNotes": "",
+    "rating": 0.0,
+    "completedJobs": 0,
+    "totalEarnings": 0.00,
+    "isActive": false,
+    "username": "carlos.martinez456"
+  },
+  {
+    "id": 1753254934567,
+    "email": "emily.white@contractor.com",
+    "fullName": "Emily White",
+    "phone": "480-555-6789",
+    "businessName": "",
+    "website": "",
+    "licenseNumber": "",
+    "specialties": ["Landscaping", "General Handyman"],
+    "experience": "2-5",
+    "serviceAreas": ["Scottsdale"],
+    "hourlyRate": 45.0,
     "insurance": {
       "hasLiability": false,
       "hasBonding": false,
-      "expiryDate": null
+      "expiryDate": "",
+      "documents": []
     },
+    "certifications": [],
     "preferences": {
-      "maxDistanceMiles": 25,
-      "preferredJobTypes": [
-        "electrical"
-      ],
-      "availableWeekdays": true,
+      "availableWeekdays": false,
       "availableWeekends": true,
-      "availableEvenings": false
-    }
+      "availableEvenings": true,
+      "maxDistanceMiles": 15,
+      "preferredJobTypes": ["Small Projects"]
+    },
+    "profilePhoto": null,
+    "licenseDocument": null,
+    "portfolioImages": [],
+    "application": {
+      "whyJoinUs": "I'm new to the industry and looking for opportunities to gain experience and build my reputation.",
+      "previousExperience": "Recently completed landscaping certification program, some volunteer work.",
+      "references": [
+        { "name": "Tom Green", "phone": "480-555-5555", "email": "tom@school.edu", "relationship": "Instructor" }
+      ],
+      "agreeToTerms": true,
+      "agreeToBackground": true,
+      "agreeToMarketing": true
+    },
+    "status": "rejected",
+    "createdAt": "2025-07-30T10:45:12.789012",
+    "reviewedAt": "2025-07-30T11:30:00.000000",
+    "approvedAt": null,
+    "reviewNotes": "Insufficient insurance coverage and experience level below requirements.",
+    "rating": 0.0,
+    "completedJobs": 0,
+    "totalEarnings": 0.00,
+    "isActive": false,
+    "username": "emily.white567"
   }
 ]

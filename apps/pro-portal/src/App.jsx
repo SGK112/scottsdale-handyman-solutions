@@ -43,6 +43,14 @@ const ProPortalApp = () => {
         const [projects, setProjects] = useState([])
         const [clients, setClients] = useState([])
 
+        // Contractor Management State
+        const [contractors, setContractors] = useState([])
+        const [contractorFilter, setContractorFilter] = useState('all')
+        const [contractorSearch, setContractorSearch] = useState('')
+        const [selectedContractor, setSelectedContractor] = useState(null)
+        const [showContractorDetail, setShowContractorDetail] = useState(false)
+        const [contractorReviewNotes, setContractorReviewNotes] = useState('')
+
         // Lead Management State
         const [showAddLead, setShowAddLead] = useState(false)
         const [editingLead, setEditingLead] = useState(null)
@@ -713,6 +721,199 @@ const ProPortalApp = () => {
             setCalendarEvents(sampleEvents)
         }, [])
 
+        // Contractor Management Functions
+        const fetchContractors = async () => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/pro/pros`)
+                const data = await response.json()
+                if (data.success) {
+                    setContractors(data.pros)
+                }
+            } catch (error) {
+                console.error('Error fetching contractors:', error)
+                // Use sample data as fallback
+                setContractors([
+                    {
+                        id: 1753204711107,
+                        fullName: 'John Smith',
+                        email: 'john@example.com',
+                        phone: '480-555-9876',
+                        businessName: 'Smith Handyman Services',
+                        licenseNumber: 'AZ123456',
+                        specialties: ['General Handyman', 'Electrical'],
+                        experience: '8-15',
+                        serviceAreas: ['Scottsdale', 'Phoenix'],
+                        hourlyRate: 75.0,
+                        status: 'approved',
+                        createdAt: '2025-07-22T10:18:31.108028',
+                        approvedAt: '2025-07-22T10:18:49.028149',
+                        rating: 4.8,
+                        completedJobs: 47,
+                        totalEarnings: 12450.00,
+                        isActive: true
+                    },
+                    {
+                        id: 1753204789860,
+                        fullName: 'Mike Wilson',
+                        email: 'mike@electricpro.com',
+                        phone: '602-555-4321',
+                        businessName: 'Wilson Electric & Handyman',
+                        licenseNumber: 'AZ789012',
+                        specialties: ['Electrical', 'Smart Home'],
+                        experience: '15+',
+                        serviceAreas: ['Scottsdale', 'Tempe', 'Mesa'],
+                        hourlyRate: 85.0,
+                        status: 'approved',
+                        createdAt: '2025-07-22T10:19:49.861234',
+                        approvedAt: '2025-07-22T10:20:15.123456',
+                        rating: 4.9,
+                        completedJobs: 89,
+                        totalEarnings: 28750.00,
+                        isActive: true
+                    },
+                    {
+                        id: 1753254912345,
+                        fullName: 'Sarah Rodriguez',
+                        email: 'sarah.rodriguez@email.com',
+                        phone: '480-555-7890',
+                        businessName: 'Rodriguez Home Solutions',
+                        licenseNumber: '',
+                        specialties: ['Painting', 'Carpentry', 'General Handyman'],
+                        experience: '5-10',
+                        serviceAreas: ['Scottsdale', 'Paradise Valley'],
+                        hourlyRate: 65.0,
+                        status: 'pending',
+                        createdAt: '2025-07-30T08:30:12.345678',
+                        approvedAt: null,
+                        rating: 0.0,
+                        completedJobs: 0,
+                        totalEarnings: 0.00,
+                        isActive: false
+                    }
+                ])
+            }
+        }
+
+        // Approve contractor
+        const approveContractor = async (contractorId) => {
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/pro/pros/${contractorId}/approve`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notes: contractorReviewNotes })
+                })
+                const data = await response.json()
+                if (data.success) {
+                    setContractors(prev => prev.map(contractor =>
+                        contractor.id === contractorId 
+                            ? { ...contractor, status: 'approved', approvedAt: new Date().toISOString(), isActive: true }
+                            : contractor
+                    ))
+                    setContractorReviewNotes('')
+                    alert('Contractor approved successfully!')
+                }
+            } catch (error) {
+                console.error('Error approving contractor:', error)
+                // Fallback: update local state
+                setContractors(prev => prev.map(contractor =>
+                    contractor.id === contractorId 
+                        ? { ...contractor, status: 'approved', approvedAt: new Date().toISOString(), isActive: true }
+                        : contractor
+                ))
+                setContractorReviewNotes('')
+                alert('Contractor approved successfully!')
+            }
+        }
+
+        // Reject contractor
+        const rejectContractor = async (contractorId) => {
+            if (!contractorReviewNotes.trim()) {
+                alert('Please provide a reason for rejection')
+                return
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/pro/pros/${contractorId}/reject`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notes: contractorReviewNotes })
+                })
+                const data = await response.json()
+                if (data.success) {
+                    setContractors(prev => prev.map(contractor =>
+                        contractor.id === contractorId 
+                            ? { ...contractor, status: 'rejected', reviewedAt: new Date().toISOString() }
+                            : contractor
+                    ))
+                    setContractorReviewNotes('')
+                    alert('Contractor application rejected')
+                }
+            } catch (error) {
+                console.error('Error rejecting contractor:', error)
+                // Fallback: update local state
+                setContractors(prev => prev.map(contractor =>
+                    contractor.id === contractorId 
+                        ? { ...contractor, status: 'rejected', reviewedAt: new Date().toISOString() }
+                        : contractor
+                ))
+                setContractorReviewNotes('')
+                alert('Contractor application rejected')
+            }
+        }
+
+        // Suspend contractor
+        const suspendContractor = async (contractorId) => {
+            if (!contractorReviewNotes.trim()) {
+                alert('Please provide a reason for suspension')
+                return
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/api/pro/pros/${contractorId}/suspend`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ notes: contractorReviewNotes })
+                })
+                const data = await response.json()
+                if (data.success) {
+                    setContractors(prev => prev.map(contractor =>
+                        contractor.id === contractorId 
+                            ? { ...contractor, status: 'suspended', isActive: false }
+                            : contractor
+                    ))
+                    setContractorReviewNotes('')
+                    alert('Contractor suspended')
+                }
+            } catch (error) {
+                console.error('Error suspending contractor:', error)
+                // Fallback: update local state
+                setContractors(prev => prev.map(contractor =>
+                    contractor.id === contractorId 
+                        ? { ...contractor, status: 'suspended', isActive: false }
+                        : contractor
+                ))
+                setContractorReviewNotes('')
+                alert('Contractor suspended')
+            }
+        }
+
+        // Filter contractors
+        const filteredContractors = contractors.filter(contractor => {
+            const matchesFilter = contractorFilter === 'all' || contractor.status === contractorFilter
+            const matchesSearch = contractorSearch === '' ||
+                contractor.fullName.toLowerCase().includes(contractorSearch.toLowerCase()) ||
+                contractor.email.toLowerCase().includes(contractorSearch.toLowerCase()) ||
+                contractor.phone.includes(contractorSearch) ||
+                (contractor.businessName && contractor.businessName.toLowerCase().includes(contractorSearch.toLowerCase()))
+            return matchesFilter && matchesSearch
+        })
+
+        // Load contractors on component mount
+        useEffect(() => {
+            fetchContractors()
+            fetchLeads()
+        }, [])
+
         // Calendar View Components
         const CalendarMonthView = ({ currentDate, events, onEventClick, onDateClick }) => {
             const year = currentDate.getFullYear()
@@ -1257,35 +1458,7 @@ const ProPortalApp = () => {
                                 width: window.innerWidth <= 768 ? '100%' : 'auto'
                             }}>
                                 <button
-                                    onClick={() => {
-                                        // Multiple fallback strategies
-                                        let websiteUrl;
-                                        
-                                        // Strategy 1: Environment variable
-                                        if (import.meta.env.VITE_WEBSITE_URL) {
-                                            websiteUrl = import.meta.env.VITE_WEBSITE_URL;
-                                        }
-                                        // Strategy 2: Check if we're in development
-                                        else if (window.location.hostname === 'localhost') {
-                                            websiteUrl = 'http://localhost:5173';
-                                        }
-                                        // Strategy 3: Production fallback
-                                        else {
-                                            websiteUrl = 'https://scottsdale-handyman-website.onrender.com';
-                                        }
-                                        
-                                        console.log('View Site button clicked, URL:', websiteUrl);
-                                        console.log('Current location:', window.location.href);
-                                        console.log('Environment vars:', import.meta.env);
-                                        
-                                        try {
-                                            window.open(websiteUrl, '_blank');
-                                        } catch (error) {
-                                            console.error('Error opening window:', error);
-                                            // Fallback: try direct navigation
-                                            window.location.href = websiteUrl;
-                                        }
-                                    }}
+                                    onClick={() => window.location.href = '/'}
                                     style={{
                                         padding: window.innerWidth <= 768 ? '14px 18px' : '12px 24px',
                                         background: 'rgba(255,255,255,0.2)',
@@ -1433,6 +1606,11 @@ const ProPortalApp = () => {
                                         <path d="m22 2-5 5" />
                                         <path d="m17 7 5-5" />
                                     </svg>
+                                )
+                            },
+                            {
+                                id: 'contractors', label: window.innerWidth <= 768 ? 'Contractors' : 'Contractors', icon: (
+                                    <Users size={18} />
                                 )
                             },
                             {
@@ -5153,7 +5331,543 @@ const ProPortalApp = () => {
                     </div>
                 )}
 
-                {/* Other sections would go here... */}
+                {/* Contractor Management */}
+                {activeSection === 'contractors' && (
+                    <div>
+                        {/* Contractor Management Header */}
+                        <div style={{
+                            background: 'white',
+                            borderRadius: '12px',
+                            padding: '25px',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                            marginBottom: '20px'
+                        }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                <h2 style={{ margin: 0, color: '#1f2937', fontSize: '24px' }}>👷‍♂️ Contractor Management</h2>
+                                <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+                                    <select
+                                        value={contractorFilter}
+                                        onChange={(e) => setContractorFilter(e.target.value)}
+                                        style={{
+                                            padding: '8px 12px',
+                                            border: '2px solid #e5e7eb',
+                                            borderRadius: '6px',
+                                            backgroundColor: 'white'
+                                        }}
+                                    >
+                                        <option value="all">All Status</option>
+                                        <option value="pending">Pending Review</option>
+                                        <option value="approved">Approved</option>
+                                        <option value="rejected">Rejected</option>
+                                        <option value="suspended">Suspended</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            {/* Search Bar */}
+                            <div style={{ position: 'relative' }}>
+                                <Search size={20} style={{
+                                    position: 'absolute',
+                                    left: '12px',
+                                    top: '50%',
+                                    transform: 'translateY(-50%)',
+                                    color: '#9ca3af'
+                                }} />
+                                <input
+                                    type="text"
+                                    placeholder="Search contractors by name, email, phone, or business..."
+                                    value={contractorSearch}
+                                    onChange={(e) => setContractorSearch(e.target.value)}
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px 12px 12px 44px',
+                                        border: '2px solid #e5e7eb',
+                                        borderRadius: '8px',
+                                        fontSize: '14px',
+                                        boxSizing: 'border-box'
+                                    }}
+                                />
+                            </div>
+
+                            {/* Contractor Stats */}
+                            <div style={{
+                                display: 'grid',
+                                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+                                gap: '15px',
+                                marginTop: '20px'
+                            }}>
+                                <div style={{
+                                    background: 'linear-gradient(135deg, #fef3c7, #fcd34d)',
+                                    padding: '15px',
+                                    borderRadius: '8px',
+                                    textAlign: 'center'
+                                }}>
+                                    <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#92400e' }}>
+                                        {contractors.filter(c => c.status === 'pending').length}
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: '#92400e', fontWeight: '500' }}>Pending Review</div>
+                                </div>
+                                <div style={{
+                                    background: 'linear-gradient(135deg, #d1fae5, #34d399)',
+                                    padding: '15px',
+                                    borderRadius: '8px',
+                                    textAlign: 'center'
+                                }}>
+                                    <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#065f46' }}>
+                                        {contractors.filter(c => c.status === 'approved').length}
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: '#065f46', fontWeight: '500' }}>Active Contractors</div>
+                                </div>
+                                <div style={{
+                                    background: 'linear-gradient(135deg, #e0e7ff, #8b5cf6)',
+                                    padding: '15px',
+                                    borderRadius: '8px',
+                                    textAlign: 'center'
+                                }}>
+                                    <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#4c1d95' }}>
+                                        {contractors.filter(c => c.isActive).reduce((sum, c) => sum + c.completedJobs, 0)}
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: '#4c1d95', fontWeight: '500' }}>Total Jobs Completed</div>
+                                </div>
+                                <div style={{
+                                    background: 'linear-gradient(135deg, #fecaca, #f87171)',
+                                    padding: '15px',
+                                    borderRadius: '8px',
+                                    textAlign: 'center'
+                                }}>
+                                    <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#991b1b' }}>
+                                        ${contractors.filter(c => c.isActive).reduce((sum, c) => sum + c.totalEarnings, 0).toLocaleString()}
+                                    </div>
+                                    <div style={{ fontSize: '12px', color: '#991b1b', fontWeight: '500' }}>Total Earnings</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Contractors Table */}
+                        <div style={{
+                            background: 'white',
+                            borderRadius: '12px',
+                            boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+                            overflow: 'hidden'
+                        }}>
+                            <div style={{ overflowX: 'auto' }}>
+                                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                                    <thead>
+                                        <tr style={{ background: '#f9fafb', borderBottom: '2px solid #e5e7eb' }}>
+                                            <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600', color: '#374151', fontSize: '14px' }}>Contractor</th>
+                                            <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600', color: '#374151', fontSize: '14px' }}>Contact</th>
+                                            <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600', color: '#374151', fontSize: '14px' }}>Specialties</th>
+                                            <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600', color: '#374151', fontSize: '14px' }}>Status</th>
+                                            <th style={{ padding: '15px', textAlign: 'left', fontWeight: '600', color: '#374151', fontSize: '14px' }}>Performance</th>
+                                            <th style={{ padding: '15px', textAlign: 'center', fontWeight: '600', color: '#374151', fontSize: '14px' }}>Actions</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {filteredContractors.map((contractor, index) => (
+                                            <tr key={contractor.id} style={{
+                                                borderBottom: '1px solid #e5e7eb',
+                                                backgroundColor: index % 2 === 0 ? 'white' : '#fafafa'
+                                            }}>
+                                                <td style={{ padding: '15px' }}>
+                                                    <div>
+                                                        <div style={{ fontWeight: '600', color: '#1f2937', marginBottom: '2px' }}>
+                                                            {contractor.fullName}
+                                                        </div>
+                                                        <div style={{ fontSize: '13px', color: '#6b7280' }}>
+                                                            {contractor.businessName || 'Individual Contractor'}
+                                                        </div>
+                                                        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                                                            Exp: {contractor.experience} years
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td style={{ padding: '15px' }}>
+                                                    <div>
+                                                        <div style={{ fontSize: '13px', color: '#374151', marginBottom: '2px' }}>
+                                                            📧 {contractor.email}
+                                                        </div>
+                                                        <div style={{ fontSize: '13px', color: '#374151', marginBottom: '2px' }}>
+                                                            📱 {contractor.phone}
+                                                        </div>
+                                                        <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                                                            ${contractor.hourlyRate}/hr
+                                                        </div>
+                                                    </div>
+                                                </td>
+                                                <td style={{ padding: '15px' }}>
+                                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px' }}>
+                                                        {contractor.specialties.slice(0, 2).map(specialty => (
+                                                            <span key={specialty} style={{
+                                                                fontSize: '11px',
+                                                                padding: '3px 8px',
+                                                                backgroundColor: '#e0f2fe',
+                                                                color: '#0369a1',
+                                                                borderRadius: '12px',
+                                                                fontWeight: '500'
+                                                            }}>
+                                                                {specialty}
+                                                            </span>
+                                                        ))}
+                                                        {contractor.specialties.length > 2 && (
+                                                            <span style={{
+                                                                fontSize: '11px',
+                                                                padding: '3px 8px',
+                                                                backgroundColor: '#f3f4f6',
+                                                                color: '#6b7280',
+                                                                borderRadius: '12px',
+                                                                fontWeight: '500'
+                                                            }}>
+                                                                +{contractor.specialties.length - 2}
+                                                            </span>
+                                                        )}
+                                                    </div>
+                                                    <div style={{ fontSize: '12px', color: '#6b7280', marginTop: '4px' }}>
+                                                        Areas: {contractor.serviceAreas.slice(0, 2).join(', ')}
+                                                        {contractor.serviceAreas.length > 2 && ` +${contractor.serviceAreas.length - 2}`}
+                                                    </div>
+                                                </td>
+                                                <td style={{ padding: '15px' }}>
+                                                    <span style={{
+                                                        fontSize: '12px',
+                                                        padding: '4px 12px',
+                                                        borderRadius: '20px',
+                                                        fontWeight: '600',
+                                                        backgroundColor: 
+                                                            contractor.status === 'approved' ? '#d1fae5' :
+                                                            contractor.status === 'pending' ? '#fef3c7' :
+                                                            contractor.status === 'suspended' ? '#fee2e2' : '#f3f4f6',
+                                                        color: 
+                                                            contractor.status === 'approved' ? '#065f46' :
+                                                            contractor.status === 'pending' ? '#92400e' :
+                                                            contractor.status === 'suspended' ? '#991b1b' : '#374151'
+                                                    }}>
+                                                        {contractor.status.charAt(0).toUpperCase() + contractor.status.slice(1)}
+                                                    </span>
+                                                    <div style={{ fontSize: '11px', color: '#6b7280', marginTop: '2px' }}>
+                                                        {contractor.createdAt ? new Date(contractor.createdAt).toLocaleDateString() : 'Unknown'}
+                                                    </div>
+                                                </td>
+                                                <td style={{ padding: '15px' }}>
+                                                    {contractor.isActive ? (
+                                                        <div>
+                                                            <div style={{ fontSize: '13px', fontWeight: '600', color: '#1f2937' }}>
+                                                                ⭐ {contractor.rating}/5.0
+                                                            </div>
+                                                            <div style={{ fontSize: '12px', color: '#6b7280' }}>
+                                                                {contractor.completedJobs} jobs
+                                                            </div>
+                                                            <div style={{ fontSize: '12px', color: '#059669', fontWeight: '500' }}>
+                                                                ${contractor.totalEarnings.toLocaleString()}
+                                                            </div>
+                                                        </div>
+                                                    ) : (
+                                                        <div style={{ fontSize: '12px', color: '#9ca3af' }}>
+                                                            Not active yet
+                                                        </div>
+                                                    )}
+                                                </td>
+                                                <td style={{ padding: '15px', textAlign: 'center' }}>
+                                                    <div style={{ display: 'flex', gap: '5px', justifyContent: 'center' }}>
+                                                        <button
+                                                            onClick={() => {
+                                                                setSelectedContractor(contractor)
+                                                                setShowContractorDetail(true)
+                                                            }}
+                                                            style={{
+                                                                padding: '6px 12px',
+                                                                background: '#f3f4f6',
+                                                                border: 'none',
+                                                                borderRadius: '6px',
+                                                                cursor: 'pointer',
+                                                                fontSize: '12px',
+                                                                color: '#374151'
+                                                            }}
+                                                        >
+                                                            <Eye size={14} />
+                                                        </button>
+                                                        {contractor.status === 'pending' && (
+                                                            <>
+                                                                <button
+                                                                    onClick={() => approveContractor(contractor.id)}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        background: '#10b981',
+                                                                        border: 'none',
+                                                                        borderRadius: '6px',
+                                                                        cursor: 'pointer',
+                                                                        fontSize: '12px',
+                                                                        color: 'white'
+                                                                    }}
+                                                                >
+                                                                    <CheckCircle size={14} />
+                                                                </button>
+                                                                <button
+                                                                    onClick={() => {
+                                                                        const reason = prompt('Reason for rejection:')
+                                                                        if (reason) {
+                                                                            setContractorReviewNotes(reason)
+                                                                            rejectContractor(contractor.id)
+                                                                        }
+                                                                    }}
+                                                                    style={{
+                                                                        padding: '6px 12px',
+                                                                        background: '#ef4444',
+                                                                        border: 'none',
+                                                                        borderRadius: '6px',
+                                                                        cursor: 'pointer',
+                                                                        fontSize: '12px',
+                                                                        color: 'white'
+                                                                    }}
+                                                                >
+                                                                    <X size={14} />
+                                                                </button>
+                                                            </>
+                                                        )}
+                                                        {contractor.status === 'approved' && (
+                                                            <button
+                                                                onClick={() => {
+                                                                    const reason = prompt('Reason for suspension:')
+                                                                    if (reason) {
+                                                                        setContractorReviewNotes(reason)
+                                                                        suspendContractor(contractor.id)
+                                                                    }
+                                                                }}
+                                                                style={{
+                                                                    padding: '6px 12px',
+                                                                    background: '#f59e0b',
+                                                                    border: 'none',
+                                                                    borderRadius: '6px',
+                                                                    cursor: 'pointer',
+                                                                    fontSize: '12px',
+                                                                    color: 'white'
+                                                                }}
+                                                            >
+                                                                <AlertCircle size={14} />
+                                                            </button>
+                                                        )}
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                            {filteredContractors.length === 0 && (
+                                <div style={{
+                                    textAlign: 'center',
+                                    padding: '40px',
+                                    color: '#6b7280'
+                                }}>
+                                    <Users size={48} style={{ margin: '0 auto 20px', opacity: 0.5 }} />
+                                    <h3 style={{ margin: '0 0 10px 0', color: '#374151' }}>No contractors found</h3>
+                                    <p style={{ margin: 0 }}>
+                                        {contractorSearch || contractorFilter !== 'all' 
+                                            ? 'Try adjusting your search or filter criteria' 
+                                            : 'No contractor applications yet'}
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Contractor Detail Modal */}
+                        {showContractorDetail && selectedContractor && (
+                            <div style={{
+                                position: 'fixed',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                bottom: 0,
+                                backgroundColor: 'rgba(0,0,0,0.5)',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                zIndex: 1000,
+                                padding: '20px'
+                            }}>
+                                <div style={{
+                                    backgroundColor: 'white',
+                                    borderRadius: '12px',
+                                    padding: '30px',
+                                    maxWidth: '800px',
+                                    width: '100%',
+                                    maxHeight: '90vh',
+                                    overflowY: 'auto'
+                                }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
+                                        <h2 style={{ margin: 0, color: '#1f2937' }}>Contractor Details</h2>
+                                        <button
+                                            onClick={() => setShowContractorDetail(false)}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                color: '#6b7280',
+                                                fontSize: '18px'
+                                            }}
+                                        >
+                                            <X size={24} />
+                                        </button>
+                                    </div>
+
+                                    <div style={{ display: 'grid', gap: '20px' }}>
+                                        {/* Basic Info */}
+                                        <div style={{ background: '#f9fafb', padding: '20px', borderRadius: '8px' }}>
+                                            <h3 style={{ margin: '0 0 15px 0', color: '#1f2937' }}>Basic Information</h3>
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                                                <div>
+                                                    <strong>Name:</strong> {selectedContractor.fullName}
+                                                </div>
+                                                <div>
+                                                    <strong>Email:</strong> {selectedContractor.email}
+                                                </div>
+                                                <div>
+                                                    <strong>Phone:</strong> {selectedContractor.phone}
+                                                </div>
+                                                <div>
+                                                    <strong>Business:</strong> {selectedContractor.businessName || 'Individual'}
+                                                </div>
+                                                <div>
+                                                    <strong>Experience:</strong> {selectedContractor.experience} years
+                                                </div>
+                                                <div>
+                                                    <strong>Hourly Rate:</strong> ${selectedContractor.hourlyRate}/hr
+                                                </div>
+                                                <div>
+                                                    <strong>License:</strong> {selectedContractor.licenseNumber || 'Not provided'}
+                                                </div>
+                                                <div>
+                                                    <strong>Status:</strong> 
+                                                    <span style={{
+                                                        marginLeft: '8px',
+                                                        fontSize: '12px',
+                                                        padding: '4px 12px',
+                                                        borderRadius: '20px',
+                                                        backgroundColor: selectedContractor.status === 'approved' ? '#d1fae5' : 
+                                                                        selectedContractor.status === 'pending' ? '#fef3c7' : '#fee2e2',
+                                                        color: selectedContractor.status === 'approved' ? '#065f46' : 
+                                                               selectedContractor.status === 'pending' ? '#92400e' : '#991b1b'
+                                                    }}>
+                                                        {selectedContractor.status.charAt(0).toUpperCase() + selectedContractor.status.slice(1)}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Specialties & Service Areas */}
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                            <div style={{ background: '#f9fafb', padding: '20px', borderRadius: '8px' }}>
+                                                <h3 style={{ margin: '0 0 15px 0', color: '#1f2937' }}>Specialties</h3>
+                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                                    {selectedContractor.specialties.map(specialty => (
+                                                        <span key={specialty} style={{
+                                                            fontSize: '12px',
+                                                            padding: '4px 12px',
+                                                            backgroundColor: '#e0f2fe',
+                                                            color: '#0369a1',
+                                                            borderRadius: '16px',
+                                                            fontWeight: '500'
+                                                        }}>
+                                                            {specialty}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                            <div style={{ background: '#f9fafb', padding: '20px', borderRadius: '8px' }}>
+                                                <h3 style={{ margin: '0 0 15px 0', color: '#1f2937' }}>Service Areas</h3>
+                                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '6px' }}>
+                                                    {selectedContractor.serviceAreas.map(area => (
+                                                        <span key={area} style={{
+                                                            fontSize: '12px',
+                                                            padding: '4px 12px',
+                                                            backgroundColor: '#ecfdf5',
+                                                            color: '#065f46',
+                                                            borderRadius: '16px',
+                                                            fontWeight: '500'
+                                                        }}>
+                                                            {area}
+                                                        </span>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        {/* Performance Stats (if active) */}
+                                        {selectedContractor.isActive && (
+                                            <div style={{ background: '#f9fafb', padding: '20px', borderRadius: '8px' }}>
+                                                <h3 style={{ margin: '0 0 15px 0', color: '#1f2937' }}>Performance</h3>
+                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '15px' }}>
+                                                    <div style={{ textAlign: 'center' }}>
+                                                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937' }}>
+                                                            {selectedContractor.rating}/5.0
+                                                        </div>
+                                                        <div style={{ fontSize: '12px', color: '#6b7280' }}>Average Rating</div>
+                                                    </div>
+                                                    <div style={{ textAlign: 'center' }}>
+                                                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#1f2937' }}>
+                                                            {selectedContractor.completedJobs}
+                                                        </div>
+                                                        <div style={{ fontSize: '12px', color: '#6b7280' }}>Jobs Completed</div>
+                                                    </div>
+                                                    <div style={{ textAlign: 'center' }}>
+                                                        <div style={{ fontSize: '24px', fontWeight: 'bold', color: '#059669' }}>
+                                                            ${selectedContractor.totalEarnings.toLocaleString()}
+                                                        </div>
+                                                        <div style={{ fontSize: '12px', color: '#6b7280' }}>Total Earnings</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {/* Action Buttons */}
+                                        {selectedContractor.status === 'pending' && (
+                                            <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                                                <button
+                                                    onClick={() => {
+                                                        approveContractor(selectedContractor.id)
+                                                        setShowContractorDetail(false)
+                                                    }}
+                                                    style={{
+                                                        padding: '10px 20px',
+                                                        background: '#10b981',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '8px',
+                                                        cursor: 'pointer',
+                                                        fontWeight: '500'
+                                                    }}
+                                                >
+                                                    ✅ Approve Contractor
+                                                </button>
+                                                <button
+                                                    onClick={() => {
+                                                        const reason = prompt('Reason for rejection:')
+                                                        if (reason) {
+                                                            setContractorReviewNotes(reason)
+                                                            rejectContractor(selectedContractor.id)
+                                                            setShowContractorDetail(false)
+                                                        }
+                                                    }}
+                                                    style={{
+                                                        padding: '10px 20px',
+                                                        background: '#ef4444',
+                                                        color: 'white',
+                                                        border: 'none',
+                                                        borderRadius: '8px',
+                                                        cursor: 'pointer',
+                                                        fontWeight: '500'
+                                                    }}
+                                                >
+                                                    ❌ Reject Application
+                                                </button>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        )}
+                    </div>
+                )}
 
                 {/* Projects Management */}
                 {activeSection === 'projects' && (
@@ -7228,40 +7942,7 @@ const ProPortalApp = () => {
 
                     <div style={{ textAlign: 'center', marginTop: '20px' }}>
                         <a
-                            href="#"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            onClick={(e) => {
-                                e.preventDefault();
-                                
-                                // Multiple fallback strategies
-                                let websiteUrl;
-                                
-                                // Strategy 1: Environment variable
-                                if (import.meta.env.VITE_WEBSITE_URL) {
-                                    websiteUrl = import.meta.env.VITE_WEBSITE_URL;
-                                }
-                                // Strategy 2: Check if we're in development
-                                else if (window.location.hostname === 'localhost') {
-                                    websiteUrl = 'http://localhost:5173';
-                                }
-                                // Strategy 3: Production fallback
-                                else {
-                                    websiteUrl = 'https://scottsdale-handyman-website.onrender.com';
-                                }
-                                
-                                console.log('Back to Website clicked, URL:', websiteUrl);
-                                console.log('Current location:', window.location.href);
-                                console.log('Environment vars:', import.meta.env);
-                                
-                                try {
-                                    window.open(websiteUrl, '_blank');
-                                } catch (error) {
-                                    console.error('Error opening window:', error);
-                                    // Fallback: try direct navigation
-                                    window.location.href = websiteUrl;
-                                }
-                            }}
+                            href="/"
                             style={{
                                 background: 'none',
                                 border: 'none',

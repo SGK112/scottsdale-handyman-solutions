@@ -66,12 +66,32 @@ def create_pro_routes(app):
 
     @app.route('/api/pro/auth/signup', methods=['POST'])
     def pro_signup():
-        """Handle pro handyman registration"""
+        """Enhanced contractor application submission with file uploads"""
         try:
-            data = request.get_json()
+            # Handle both JSON and FormData
+            if request.content_type and 'multipart/form-data' in request.content_type:
+                # Handle file uploads
+                data = request.form.to_dict()
+                files = request.files
+                
+                # Parse JSON fields
+                if 'specialties' in data:
+                    data['specialties'] = json.loads(data['specialties'])
+                if 'serviceAreas' in data:
+                    data['serviceAreas'] = json.loads(data['serviceAreas'])
+                if 'references' in data:
+                    data['references'] = json.loads(data['references'])
+                if 'certifications' in data:
+                    data['certifications'] = json.loads(data['certifications'])
+                if 'preferredJobTypes' in data:
+                    data['preferredJobTypes'] = json.loads(data['preferredJobTypes'])
+            else:
+                # Handle JSON request
+                data = request.get_json()
+                files = {}
             
-            # Validate required fields
-            required_fields = ['username', 'email', 'password', 'fullName', 'phone', 'specialties', 'experience', 'serviceArea']
+            # Validate required fields for comprehensive application
+            required_fields = ['fullName', 'email', 'phone', 'experience']
             missing_fields = [field for field in required_fields if not data.get(field)]
             
             if missing_fields:
@@ -84,80 +104,147 @@ def create_pro_routes(app):
             PROS_FILE = os.path.join(os.path.dirname(__file__), 'pros.json')
             pros = load_json_file(PROS_FILE, [])
             
-            # Check for existing username or email
-            existing_pro = next((p for p in pros if p['username'] == data['username'] or p['email'] == data['email']), None)
+            # Check for existing email
+            existing_pro = next((p for p in pros if p['email'] == data['email']), None)
             if existing_pro:
                 return jsonify({
                     'success': False,
-                    'message': 'Username or email already exists'
+                    'message': 'Email already exists in our system'
                 }), 400
             
-            # Create new pro profile
-            new_pro = {
-                'id': int(datetime.now().timestamp() * 1000),
-                'username': data['username'],
+            # Create uploads directory
+            uploads_dir = os.path.join(os.path.dirname(__file__), 'uploads', 'contractors')
+            os.makedirs(uploads_dir, exist_ok=True)
+            
+            # Process file uploads
+            uploaded_files = {}
+            contractor_id = int(datetime.now().timestamp() * 1000)
+            
+            # Handle single files
+            single_file_fields = ['profilePhoto', 'licenseDocument']
+            for field in single_file_fields:
+                if field in files and files[field].filename:
+                    file = files[field]
+                    filename = f"{contractor_id}_{field}_{file.filename}"
+                    filepath = os.path.join(uploads_dir, filename)
+                    file.save(filepath)
+                    uploaded_files[field] = filename
+            
+            # Handle multiple files (arrays)
+            multi_file_fields = ['insuranceDocuments', 'certificationDocuments', 'portfolioImages']
+            for field in multi_file_fields:
+                uploaded_files[field] = []
+                # Handle multiple files with array notation like field[0], field[1], etc.
+                for key in files.keys():
+                    if key.startswith(f"{field}[") and files[key].filename:
+                        file = files[key]
+                        filename = f"{contractor_id}_{field}_{len(uploaded_files[field])}_{file.filename}"
+                        filepath = os.path.join(uploads_dir, filename)
+                        file.save(filepath)
+                        uploaded_files[field].append(filename)
+            
+            # Create comprehensive contractor profile
+            new_contractor = {
+                'id': contractor_id,
                 'email': data['email'],
-                'password': data['password'],  # In production, hash this!
                 'fullName': data['fullName'],
                 'phone': data['phone'],
                 'businessName': data.get('businessName', ''),
+                'website': data.get('website', ''),
+                
+                # Professional Details
                 'licenseNumber': data.get('licenseNumber', ''),
-                'specialties': data['specialties'],
+                'specialties': data.get('specialties', []),
                 'experience': data['experience'],
-                'serviceArea': data['serviceArea'],
-                'hourlyRate': float(data.get('hourlyRate', 0)) if data.get('hourlyRate') else None,
-                'status': 'pending',  # pending, approved, suspended
+                'serviceAreas': data.get('serviceAreas', []),
+                'hourlyRate': float(data.get('hourlyRate', 0)) if data.get('hourlyRate') else 0,
+                
+                # Insurance & Certifications
+                'insurance': {
+                    'hasLiability': data.get('hasLiabilityInsurance', 'false').lower() == 'true',
+                    'hasBonding': data.get('hasBondingInsurance', 'false').lower() == 'true',
+                    'expiryDate': data.get('insuranceExpiryDate', ''),
+                    'documents': uploaded_files.get('insuranceDocuments', [])
+                },
+                'certifications': data.get('certifications', []),
+                'certificationDocuments': uploaded_files.get('certificationDocuments', []),
+                
+                # Work Preferences
+                'preferences': {
+                    'availableWeekdays': data.get('availableWeekdays', 'true').lower() == 'true',
+                    'availableWeekends': data.get('availableWeekends', 'false').lower() == 'true',
+                    'availableEvenings': data.get('availableEvenings', 'false').lower() == 'true',
+                    'maxDistanceMiles': int(data.get('maxDistanceMiles', 25)),
+                    'preferredJobTypes': data.get('preferredJobTypes', [])
+                },
+                
+                # Documents & Media
+                'profilePhoto': uploaded_files.get('profilePhoto'),
+                'licenseDocument': uploaded_files.get('licenseDocument'),
+                'portfolioImages': uploaded_files.get('portfolioImages', []),
+                
+                # Application Details
+                'application': {
+                    'whyJoinUs': data.get('whyJoinUs', ''),
+                    'previousExperience': data.get('previousExperience', ''),
+                    'references': data.get('references', []),
+                    'agreeToTerms': data.get('agreeToTerms', 'false').lower() == 'true',
+                    'agreeToBackground': data.get('agreeToBackground', 'false').lower() == 'true',
+                    'agreeToMarketing': data.get('agreeToMarketing', 'false').lower() == 'true'
+                },
+                
+                # System Fields
+                'status': 'pending',  # pending, under_review, approved, rejected
                 'createdAt': datetime.now().isoformat(),
+                'reviewedAt': None,
                 'approvedAt': None,
+                'reviewNotes': '',
                 'rating': 0.0,
                 'completedJobs': 0,
                 'totalEarnings': 0.0,
-                'isActive': True,
-                'profilePicture': None,
-                'certifications': [],
-                'insurance': {
-                    'hasLiability': False,
-                    'hasBonding': False,
-                    'expiryDate': None
-                },
-                'preferences': {
-                    'maxDistanceMiles': 25,
-                    'preferredJobTypes': [data['specialties']],
-                    'availableWeekdays': True,
-                    'availableWeekends': True,
-                    'availableEvenings': False
-                }
+                'isActive': False,  # Activated after approval
+                
+                # Generated username (can be changed later)
+                'username': data['email'].split('@')[0] + str(contractor_id)[-4:]
             }
             
-            # Add to pros list
-            pros.append(new_pro)
+            # Add to contractors list
+            pros.append(new_contractor)
             
             # Save to file
             if save_json_file(PROS_FILE, pros):
                 # Send notification email to admin (in production)
-                print(f"📧 New pro registration: {data['fullName']} ({data['email']})")
+                print(f"📧 New contractor application: {data['fullName']} ({data['email']})")
+                print(f"   Specialties: {data.get('specialties', [])}")
+                print(f"   Service Areas: {data.get('serviceAreas', [])}")
+                print(f"   Experience: {data['experience']}")
+                print(f"   Files uploaded: {list(uploaded_files.keys())}")
                 
                 return jsonify({
                     'success': True,
-                    'message': 'Registration successful! Your application will be reviewed within 24-48 hours.',
-                    'pro': {
-                        'id': new_pro['id'],
-                        'username': new_pro['username'],
-                        'fullName': new_pro['fullName'],
-                        'status': new_pro['status']
+                    'message': 'Your contractor application has been submitted successfully! We\'ll review your application and contact you within 24-48 hours.',
+                    'application': {
+                        'id': new_contractor['id'],
+                        'fullName': new_contractor['fullName'],
+                        'email': new_contractor['email'],
+                        'status': new_contractor['status'],
+                        'specialties': new_contractor['specialties'],
+                        'submittedAt': new_contractor['createdAt']
                     }
                 })
             else:
                 return jsonify({
                     'success': False,
-                    'message': 'Failed to save registration'
+                    'message': 'Failed to save application'
                 }), 500
                 
         except Exception as e:
-            print(f"❌ Error in pro signup: {e}")
+            print(f"❌ Error in contractor application: {e}")
+            import traceback
+            traceback.print_exc()
             return jsonify({
                 'success': False,
-                'message': 'Server error during registration'
+                'message': 'Server error during application submission'
             }), 500
 
     # Pro Management endpoints (Admin only)
@@ -261,6 +348,57 @@ def create_pro_routes(app):
                     'success': False,
                     'message': 'Failed to save suspension'
                 }), 500
+                
+        except Exception as e:
+            print(f"❌ Error suspending pro: {e}")
+            return jsonify({
+                'success': False,
+                'message': 'Error suspending pro'
+            }), 500
+
+    @app.route('/api/pro/pros/<int:pro_id>/reject', methods=['POST'])
+    def reject_pro(pro_id):
+        """Reject a pending pro application"""
+        try:
+            data = request.get_json() or {}
+            notes = data.get('notes', '')
+            
+            PROS_FILE = os.path.join(os.path.dirname(__file__), 'pros.json')
+            pros = load_json_file(PROS_FILE, [])
+            
+            # Find the pro
+            pro_index = next((i for i, p in enumerate(pros) if p['id'] == pro_id), None)
+            if pro_index is None:
+                return jsonify({
+                    'success': False,
+                    'message': 'Pro not found'
+                }), 404
+            
+            # Update status
+            pros[pro_index]['status'] = 'rejected'
+            pros[pro_index]['rejectedAt'] = datetime.now().isoformat()
+            pros[pro_index]['reviewNotes'] = notes
+            
+            # Save changes
+            if save_json_file(PROS_FILE, pros):
+                print(f"❌ Pro rejected: {pros[pro_index]['fullName']} ({pros[pro_index]['email']}) - Reason: {notes}")
+                return jsonify({
+                    'success': True,
+                    'message': 'Pro application rejected',
+                    'pro': {k: v for k, v in pros[pro_index].items() if k != 'password'}
+                })
+            else:
+                return jsonify({
+                    'success': False,
+                    'message': 'Failed to save rejection'
+                }), 500
+                
+        except Exception as e:
+            print(f"❌ Error rejecting pro: {e}")
+            return jsonify({
+                'success': False,
+                'message': 'Error rejecting pro'
+            }), 500
                 
         except Exception as e:
             print(f"❌ Error suspending pro: {e}")
