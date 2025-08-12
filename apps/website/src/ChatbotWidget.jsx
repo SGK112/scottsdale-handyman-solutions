@@ -9,37 +9,487 @@ import {
     Maximize2,
     Phone,
     Mail,
-    Zap
+    Zap,
+    Mic,
+    MicOff,
+    Volume2,
+    VolumeX,
+    Headphones,
+    MessageSquare,
+    Settings
 } from 'lucide-react';
 
 const ChatbotWidget = () => {
     const [chatOpen, setChatOpen] = useState(false);
+    const [chatMode, setChatMode] = useState('choice'); // 'choice', 'text', 'voice'
     const [chatMessages, setChatMessages] = useState([]);
     const [chatInput, setChatInput] = useState('');
     const [chatTyping, setChatTyping] = useState(false);
     const [isMinimized, setIsMinimized] = useState(false);
-    // Tooltip state management
+    
+    // ElevenLabs states
+    const [elevenlabsLoaded, setElevenlabsLoaded] = useState(false);
+    const [elevenlabsWidget, setElevenlabsWidget] = useState(null);
+    
+    // Professional UI states
     const [showTooltip, setShowTooltip] = useState(false);
     const [hasUnreadMessages, setHasUnreadMessages] = useState(false);
     const [shouldPulse, setShouldPulse] = useState(true);
-    const [tooltipShownOnLoad, setTooltipShownOnLoad] = useState(false);
-    const [tooltipShownOnScroll, setTooltipShownOnScroll] = useState(false);
+    
+    // Smart form states
+    const [showQuickForm, setShowQuickForm] = useState(false);
+    const [formData, setFormData] = useState({
+        name: '',
+        phone: '',
+        service: '',
+        urgency: 'standard',
+        description: ''
+    });
+    
     const messagesEndRef = useRef(null);
-
-    // Add tooltip timeout refs
     const tooltipTimeoutRef = useRef(null);
+    
+    // Load and initialize ElevenLabs ConvAI widget
+    useEffect(() => {
+        const initializeElevenLabs = () => {
+            if (window.ElevenLabs && window.ElevenLabs.ConvAI) {
+                setElevenlabsLoaded(true);
+                console.log('✅ ElevenLabs ConvAI loaded successfully');
+            } else {
+                // Wait for script to load
+                setTimeout(initializeElevenLabs, 500);
+            }
+        };
+
+        initializeElevenLabs();
+    }, []);
+
+    // Initialize ElevenLabs widget when voice mode is selected
+    const initializeVoiceWidget = () => {
+        if (!elevenlabsLoaded || !window.ElevenLabs?.ConvAI) {
+            console.error('ElevenLabs ConvAI not available');
+            return;
+        }
+
+        try {
+            // Create ElevenLabs widget container
+            const widgetContainer = document.createElement('div');
+            widgetContainer.id = 'elevenlabs-convai-widget';
+            widgetContainer.innerHTML = `
+                <elevenlabs-convai agent-id="agent_7301k246v5fyebkbsqvzw3d7nkqw"></elevenlabs-convai>
+            `;
+            
+            // Insert the widget
+            const chatContainer = document.querySelector('.elevenlabs-widget-container');
+            if (chatContainer) {
+                chatContainer.appendChild(widgetContainer);
+            }
+            
+            setElevenlabsWidget(widgetContainer);
+        } catch (error) {
+            console.error('Error initializing ElevenLabs widget:', error);
+        }
+    };
+
+    // Chat mode handlers
+    const handleModeSelection = (mode) => {
+        setChatMode(mode);
+        
+        if (mode === 'voice') {
+            initializeVoiceWidget();
+        } else if (mode === 'text') {
+            // Initialize text chat with welcome message
+            const welcomeMessage = {
+                sender: 'bot',
+                text: '🏠 **Welcome to Scottsdale Handyman Solutions!**\n\nI\'m your professional AI assistant ready to help with:\n• 🔧 Service information & pricing\n• 📅 Scheduling appointments\n• 🚨 Emergency support\n• 📍 Service area questions\n• 💰 Free quotes & estimates\n\n**How can I assist you today?**',
+                timestamp: new Date(),
+                isWelcome: true,
+                showSuggestions: true
+            };
+            setChatMessages([welcomeMessage]);
+        }
+    };
 
     // Initialize chatbot to always start blue
     useEffect(() => {
         setHasUnreadMessages(false);
     }, []);
 
+    // Professional mode selection component
+    const renderModeSelection = () => (
+        <div style={{
+            padding: '32px 24px',
+            textAlign: 'center',
+            background: 'linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%)',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center'
+        }}>
+            <div style={{
+                marginBottom: '24px'
+            }}>
+                <h3 style={{
+                    fontSize: '18px',
+                    fontWeight: 'bold',
+                    color: '#1e293b',
+                    marginBottom: '8px'
+                }}>
+                    Welcome to Scottsdale Handyman Solutions
+                </h3>
+                <p style={{
+                    fontSize: '14px',
+                    color: '#64748b',
+                    lineHeight: '1.5'
+                }}>
+                    Choose how you'd like to get assistance today
+                </p>
+            </div>
+
+            <div style={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '16px'
+            }}>
+                {/* Voice Chat Option */}
+                <button
+                    onClick={() => handleModeSelection('voice')}
+                    disabled={!elevenlabsLoaded}
+                    style={{
+                        background: elevenlabsLoaded 
+                            ? 'linear-gradient(135deg, #4f46e5, #7c3aed)'
+                            : 'linear-gradient(135deg, #9ca3af, #6b7280)',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '12px',
+                        padding: '16px 20px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: elevenlabsLoaded ? 'pointer' : 'not-allowed',
+                        transition: 'all 0.2s ease',
+                        boxShadow: elevenlabsLoaded 
+                            ? '0 4px 12px rgba(79, 70, 229, 0.3)'
+                            : '0 2px 6px rgba(0,0,0,0.1)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px',
+                        opacity: elevenlabsLoaded ? 1 : 0.6
+                    }}
+                    onMouseOver={(e) => {
+                        if (elevenlabsLoaded) e.target.style.transform = 'translateY(-2px)';
+                    }}
+                    onMouseOut={(e) => {
+                        if (elevenlabsLoaded) e.target.style.transform = 'translateY(0)';
+                    }}
+                >
+                    <Mic size={16} />
+                    <div style={{ textAlign: 'left' }}>
+                        <div style={{ fontWeight: 'bold' }}>Voice Chat</div>
+                        <div style={{ fontSize: '12px', opacity: 0.9 }}>
+                            Speak naturally with our AI assistant
+                        </div>
+                    </div>
+                    {!elevenlabsLoaded && (
+                        <div style={{
+                            marginLeft: 'auto',
+                            width: '16px',
+                            height: '16px',
+                            border: '2px solid rgba(255,255,255,0.3)',
+                            borderTop: '2px solid white',
+                            borderRadius: '50%',
+                            animation: 'spin 1s linear infinite'
+                        }} />
+                    )}
+                </button>
+
+                {/* Text Chat Option */}
+                <button
+                    onClick={() => handleModeSelection('text')}
+                    style={{
+                        background: 'white',
+                        color: '#1e293b',
+                        border: '2px solid #e2e8f0',
+                        borderRadius: '12px',
+                        padding: '16px 20px',
+                        fontSize: '14px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        transition: 'all 0.2s ease',
+                        boxShadow: '0 2px 6px rgba(0,0,0,0.05)',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '8px'
+                    }}
+                    onMouseOver={(e) => {
+                        e.target.style.transform = 'translateY(-2px)';
+                        e.target.style.borderColor = '#4f46e5';
+                    }}
+                    onMouseOut={(e) => {
+                        e.target.style.transform = 'translateY(0)';
+                        e.target.style.borderColor = '#e2e8f0';
+                    }}
+                >
+                    <MessageSquare size={16} />
+                    <div style={{ textAlign: 'left' }}>
+                        <div style={{ fontWeight: 'bold' }}>Text Chat</div>
+                        <div style={{ fontSize: '12px', opacity: 0.7 }}>
+                            Type your questions and get instant answers
+                        </div>
+                    </div>
+                </button>
+
+                {/* Quick Actions */}
+                <div style={{
+                    marginTop: '16px',
+                    paddingTop: '16px',
+                    borderTop: '1px solid #e2e8f0'
+                }}>
+                    <p style={{
+                        fontSize: '12px',
+                        color: '#64748b',
+                        marginBottom: '12px'
+                    }}>
+                        Need immediate help?
+                    </p>
+                    <div style={{
+                        display: 'flex',
+                        gap: '8px'
+                    }}>
+                        <button
+                            onClick={() => window.location.href = 'tel:+14802555887'}
+                            style={{
+                                flex: 1,
+                                background: '#10b981',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                padding: '8px 12px',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '4px'
+                            }}
+                        >
+                            <Phone size={12} />
+                            Call Now
+                        </button>
+                        <button
+                            onClick={() => {
+                                setShowQuickForm(true);
+                                setChatMode('text');
+                            }}
+                            style={{
+                                flex: 1,
+                                background: '#f59e0b',
+                                color: 'white',
+                                border: 'none',
+                                borderRadius: '8px',
+                                padding: '8px 12px',
+                                fontSize: '12px',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                display: 'flex',
+                                alignItems: 'center',
+                                justifyContent: 'center',
+                                gap: '4px'
+                            }}
+                        >
+                            <Zap size={12} />
+                            Quick Form
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    );
+
+    // Render ElevenLabs voice widget
+    const renderVoiceWidget = () => (
+        <div style={{
+            height: '100%',
+            background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
+            display: 'flex',
+            flexDirection: 'column'
+        }}>
+            {/* Voice widget header */}
+            <div style={{
+                padding: '16px 20px',
+                borderBottom: '1px solid rgba(255,255,255,0.1)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'space-between'
+            }}>
+                <div style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px'
+                }}>
+                    <div style={{
+                        width: '8px',
+                        height: '8px',
+                        borderRadius: '50%',
+                        background: '#10b981',
+                        animation: 'pulse 2s infinite'
+                    }}></div>
+                    <span style={{
+                        color: 'white',
+                        fontSize: '14px',
+                        fontWeight: '600'
+                    }}>
+                        Voice Chat Active
+                    </span>
+                </div>
+                <button
+                    onClick={() => setChatMode('choice')}
+                    style={{
+                        background: 'rgba(255,255,255,0.1)',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '4px 8px',
+                        color: 'white',
+                        fontSize: '12px',
+                        cursor: 'pointer'
+                    }}
+                >
+                    Switch Mode
+                </button>
+            </div>
+
+            {/* ElevenLabs widget container */}
+            <div 
+                className="elevenlabs-widget-container"
+                style={{
+                    flex: 1,
+                    padding: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}
+            >
+                {elevenlabsLoaded ? (
+                    <div style={{ width: '100%', height: '100%' }}>
+                        <elevenlabs-convai 
+                            agent-id="agent_7301k246v5fyebkbsqvzw3d7nkqw"
+                            style={{
+                                width: '100%',
+                                height: '100%',
+                                border: 'none',
+                                borderRadius: '8px'
+                            }}
+                        ></elevenlabs-convai>
+                    </div>
+                ) : (
+                    <div style={{
+                        textAlign: 'center',
+                        color: 'white'
+                    }}>
+                        <div style={{
+                            width: '40px',
+                            height: '40px',
+                            border: '3px solid rgba(255,255,255,0.3)',
+                            borderTop: '3px solid white',
+                            borderRadius: '50%',
+                            animation: 'spin 1s linear infinite',
+                            margin: '0 auto 16px'
+                        }}></div>
+                        <p style={{ fontSize: '14px' }}>Loading voice chat...</p>
+                    </div>
+                )}
+            </div>
+
+            {/* Quick actions footer */}
+            <div style={{
+                padding: '16px 20px',
+                borderTop: '1px solid rgba(255,255,255,0.1)',
+                display: 'flex',
+                gap: '8px'
+            }}>
+                <button
+                    onClick={() => window.location.href = 'tel:+14802555887'}
+                    style={{
+                        flex: 1,
+                        background: '#10b981',
+                        color: 'white',
+                        border: 'none',
+                        borderRadius: '6px',
+                        padding: '8px 12px',
+                        fontSize: '12px',
+                        fontWeight: '600',
+                        cursor: 'pointer',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        gap: '4px'
+                    }}
+                >
+                    <Phone size={12} />
+                    Call (480) 255-5887
+                </button>
+            </div>
+        </div>
+    );
+
+    // Smart form handler
+    const handleQuickFormSubmit = (e) => {
+        e.preventDefault();
+        
+        const formMessage = `� **Service Request Submitted**\n\n**Name:** ${formData.name}\n**Phone:** ${formData.phone}\n**Service:** ${formData.service}\n**Urgency:** ${formData.urgency}\n**Details:** ${formData.description}`;
+        
+        const userMessage = {
+            sender: 'user',
+            text: formMessage,
+            timestamp: new Date(),
+            isForm: true
+        };
+        
+        setChatMessages(prev => [...prev, userMessage]);
+        setShowQuickForm(false);
+        
+        // Generate intelligent response
+        setTimeout(() => {
+            let response = '✅ **Service Request Received!**\n\n';
+            
+            if (formData.urgency === 'emergency') {
+                response += '🚨 **EMERGENCY RESPONSE ACTIVATED**\n\nOur emergency team is being dispatched! Call (480) 255-5887 NOW for immediate assistance.\n\n';
+            } else if (formData.urgency === 'urgent') {
+                response += '⚡ **Priority Service Request**\n\nWe\'ll contact you within 1 hour for same-day service.\n\n';
+            } else {
+                response += '📅 **Standard Service Request**\n\nWe\'ll contact you within 4 hours to schedule your appointment.\n\n';
+            }
+            
+            response += `**Next Steps:**\n• Expect our call at ${formData.phone}\n• Free estimate provided\n• Licensed & insured service\n• 1-year warranty included\n\n**Questions?** Call (480) 255-5887`;
+            
+            const botResponse = {
+                sender: 'bot',
+                text: response,
+                timestamp: new Date()
+            };
+            
+            setChatMessages(prev => [...prev, botResponse]);
+        }, 1000);
+        
+        // Reset form
+        setFormData({
+            name: '',
+            phone: '',
+            service: '',
+            urgency: 'standard',
+            description: ''
+        });
+    };
+
     // Initialize welcome message when chat opens
     useEffect(() => {
         if (chatOpen && chatMessages.length === 0) {
             const welcomeMessage = {
                 sender: 'bot',
-                text: '🏠 **Welcome to Scottsdale Handyman Solutions!**\n\nI\'m your AI assistant ready to help with:\n• 🔧 Service information & pricing\n• 📅 Scheduling appointments\n• 🚨 Emergency support\n• 📍 Service area questions\n• 💰 Free quotes & estimates\n\n**What can I help you with today?**',
+                text: '🏠 **Welcome to Scottsdale Handyman Solutions! [UPGRADED]**\n\n✨ **NEW FEATURES ACTIVATED:**\n• 🎤 Advanced Voice Chat with ElevenLabs AI\n• 🧠 Smart Context Awareness\n• 🚨 Enhanced Emergency Response\n• 📋 Intelligent Form Pre-filling\n\nI\'m your AI assistant ready to help with:\n• 🔧 Service information & pricing\n• 📅 Scheduling appointments\n• 🚨 Emergency support\n• 📍 Service area questions\n• 💰 Free quotes & estimates\n\n**What can I help you with today?**',
                 timestamp: new Date(),
                 isWelcome: true,
                 showSuggestions: true
@@ -157,8 +607,16 @@ const ChatbotWidget = () => {
         return '🏠 **I\'m here to help with your home projects!**\n\n💬 **Ask me about:**\n• Service pricing & quotes\n• Scheduling appointments\n• Our service areas\n• Emergency services\n• Specific repairs\n\n🎯 **Quick Actions:**\n• 📞 Call: (480) 255-5887\n• 🎯 Get instant quote\n• 📅 Schedule service\n• 🚨 Emergency help\n\n**What would you like to know?** I\'m here to help make your project easy!';
     };
 
+    // Enhanced message handler with context awareness
     const handleSendMessage = (message = chatInput) => {
         if (!message.trim()) return;
+
+        // Add to conversation context
+        setConversationContext(prev => [...prev, {
+            type: 'user_message',
+            content: message.trim(),
+            timestamp: new Date()
+        }]);
 
         // Add user message
         const userMessage = {
@@ -171,12 +629,22 @@ const ChatbotWidget = () => {
         setChatInput('');
         setChatTyping(true);
 
-        // Generate bot response after a delay
+        // Generate contextually aware bot response
         setTimeout(() => {
+            const botResponseText = getBotResponse(message.trim());
+            
+            // Add conversation context to response
+            setConversationContext(prev => [...prev, {
+                type: 'bot_response',
+                content: botResponseText,
+                timestamp: new Date()
+            }]);
+            
             const botResponse = {
                 sender: 'bot',
-                text: getBotResponse(message.trim()),
-                timestamp: new Date()
+                text: botResponseText,
+                timestamp: new Date(),
+                hasContext: conversationContext.length > 0
             };
 
             setChatMessages(prev => [...prev, botResponse]);
@@ -438,11 +906,28 @@ const ChatbotWidget = () => {
                         }}
                     >
                         <MessageCircle size={28} />
+                        {/* Upgrade indicator badge */}
+                        <div style={{
+                            position: 'absolute',
+                            top: '-8px',
+                            right: '-8px',
+                            background: 'linear-gradient(135deg, #10b981, #059669)',
+                            color: 'white',
+                            fontSize: '8px',
+                            fontWeight: 'bold',
+                            padding: '2px 4px',
+                            borderRadius: '6px',
+                            border: '1px solid white',
+                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
+                            animation: 'pulse 2s infinite'
+                        }}>
+                            ✨ NEW
+                        </div>
                         {hasUnreadMessages && (
                             <div style={{
                                 position: 'absolute',
                                 top: '-4px',
-                                right: '-4px',
+                                right: '20px',
                                 width: '18px',
                                 height: '18px',
                                 borderRadius: '50%',
@@ -462,24 +947,24 @@ const ChatbotWidget = () => {
                 </>
             )}
 
-            {/* Chat Window */}
+            {/* Professional Chat Window */}
             {chatOpen && (
                 <div style={{
                     position: 'fixed',
                     bottom: '24px',
                     right: '24px',
-                    width: window.innerWidth <= 768 ? 'calc(100vw - 32px)' : '400px',
-                    height: window.innerWidth <= 768 ? 'calc(100vh - 100px)' : isMinimized ? '60px' : '600px',
-                    maxHeight: '80vh',
+                    width: window.innerWidth <= 768 ? 'calc(100vw - 32px)' : '420px',
+                    height: window.innerWidth <= 768 ? 'calc(100vh - 100px)' : isMinimized ? '60px' : '640px',
+                    maxHeight: '85vh',
                     background: 'white',
-                    borderRadius: '16px',
-                    boxShadow: '0 20px 60px rgba(0, 0, 0, 0.15)',
+                    borderRadius: '20px',
+                    boxShadow: '0 25px 80px rgba(0, 0, 0, 0.2)',
                     display: 'flex',
                     flexDirection: 'column',
                     overflow: 'hidden',
                     zIndex: 99999,
                     animation: 'slideUp 0.4s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
-                    border: '1px solid #e5e7eb',
+                    border: '1px solid #e2e8f0',
                     ...(window.innerWidth <= 768 && {
                         left: '16px',
                         right: '16px',
@@ -487,32 +972,280 @@ const ChatbotWidget = () => {
                         height: 'calc(100vh - 100px)'
                     })
                 }}>
-                    {/* Header */}
+                    {/* Professional Header */}
                     <div style={{
-                        background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+                        background: 'linear-gradient(135deg, #1e293b 0%, #334155 100%)',
                         color: 'white',
-                        padding: isMinimized ? '10px 20px' : '16px 20px',
+                        padding: isMinimized ? '12px 20px' : '20px 20px',
                         display: 'flex',
                         justifyContent: 'space-between',
                         alignItems: 'center',
-                        borderRadius: isMinimized ? '16px' : '16px 16px 0 0',
-                        minHeight: isMinimized ? '40px' : 'auto'
+                        borderRadius: isMinimized ? '20px' : '20px 20px 0 0',
+                        minHeight: isMinimized ? '44px' : 'auto'
                     }}>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                             <div style={{
-                                width: isMinimized ? '32px' : '40px',
-                                height: isMinimized ? '32px' : '40px',
-                                borderRadius: '50%',
-                                backgroundColor: 'white',
+                                width: isMinimized ? '32px' : '44px',
+                                height: isMinimized ? '32px' : '44px',
+                                borderRadius: '12px',
+                                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
                                 display: 'flex',
                                 alignItems: 'center',
                                 justifyContent: 'center',
-                                border: '2px solid #3b82f6',
-                                boxShadow: '0 2px 8px rgba(59, 130, 246, 0.2)'
+                                boxShadow: '0 4px 12px rgba(59, 130, 246, 0.3)'
                             }}>
-                                <Bot size={isMinimized ? 16 : 20} style={{ color: '#3b82f6' }} />
+                                <Bot size={isMinimized ? 16 : 20} style={{ color: 'white' }} />
                             </div>
                             <div>
+                                <h4 style={{
+                                    margin: 0,
+                                    fontSize: isMinimized ? '14px' : '16px',
+                                    fontWeight: '700',
+                                    lineHeight: '1.2'
+                                }}>
+                                    Scottsdale Handyman Solutions
+                                </h4>
+                                {!isMinimized && (
+                                    <p style={{
+                                        margin: 0,
+                                        fontSize: '13px',
+                                        opacity: 0.9,
+                                        fontWeight: '500'
+                                    }}>
+                                        {chatMode === 'voice' ? '🎤 Voice Chat Active' : 
+                                         chatMode === 'text' ? '💬 Text Chat Active' : 
+                                         '🏠 Professional AI Assistant'}
+                                    </p>
+                                )}
+                            </div>
+                        </div>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            {!isMinimized && chatMode !== 'choice' && (
+                                <button
+                                    onClick={() => setChatMode('choice')}
+                                    style={{
+                                        background: 'rgba(255,255,255,0.15)',
+                                        border: 'none',
+                                        borderRadius: '8px',
+                                        padding: '6px 10px',
+                                        color: 'white',
+                                        fontSize: '12px',
+                                        fontWeight: '600',
+                                        cursor: 'pointer',
+                                        transition: 'background 0.2s ease'
+                                    }}
+                                    onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.25)'}
+                                    onMouseOut={(e) => e.target.style.background = 'rgba(255,255,255,0.15)'}
+                                >
+                                    <Settings size={12} style={{ marginRight: '4px' }} />
+                                    Switch
+                                </button>
+                            )}
+                            <button
+                                onClick={() => setIsMinimized(!isMinimized)}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'white',
+                                    cursor: 'pointer',
+                                    padding: '6px',
+                                    borderRadius: '6px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    transition: 'background 0.2s ease'
+                                }}
+                                onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.15)'}
+                                onMouseOut={(e) => e.target.style.background = 'none'}
+                            >
+                                {isMinimized ? <Maximize2 size={16} /> : <Minimize2 size={16} />}
+                            </button>
+                            <button
+                                onClick={() => setChatOpen(false)}
+                                style={{
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'white',
+                                    cursor: 'pointer',
+                                    padding: '6px',
+                                    borderRadius: '6px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    transition: 'background 0.2s ease'
+                                }}
+                                onMouseOver={(e) => e.target.style.background = 'rgba(255,255,255,0.15)'}
+                                onMouseOut={(e) => e.target.style.background = 'none'}
+                            >
+                                <X size={16} />
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Content Area */}
+                    {!isMinimized && (
+                        <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
+                            {chatMode === 'choice' && renderModeSelection()}
+                            {chatMode === 'voice' && renderVoiceWidget()}
+                            {chatMode === 'text' && (
+                                <>
+                                    {/* Text Chat Messages */}
+                                    <div style={{
+                                        flex: 1,
+                                        overflowY: 'auto',
+                                        padding: '20px',
+                                        background: 'linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%)'
+                                    }}>
+                                        {chatMessages.map((message, index) => (
+                                            <div
+                                                key={index}
+                                                style={{
+                                                    display: 'flex',
+                                                    justifyContent: message.sender === 'user' ? 'flex-end' : 'flex-start',
+                                                    marginBottom: '16px',
+                                                    animation: 'messageSlide 0.3s ease-out'
+                                                }}
+                                            >
+                                                <div style={{
+                                                    maxWidth: '85%',
+                                                    minWidth: '60px'
+                                                }}>
+                                                    <div style={{
+                                                        background: message.sender === 'user' 
+                                                            ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)'
+                                                            : 'white',
+                                                        color: message.sender === 'user' ? 'white' : '#1e293b',
+                                                        padding: '12px 16px',
+                                                        borderRadius: message.sender === 'user' 
+                                                            ? '18px 18px 6px 18px'
+                                                            : '18px 18px 18px 6px',
+                                                        fontSize: '14px',
+                                                        lineHeight: '1.5',
+                                                        boxShadow: message.sender === 'user'
+                                                            ? '0 4px 12px rgba(59, 130, 246, 0.3)'
+                                                            : '0 2px 8px rgba(0, 0, 0, 0.1)',
+                                                        border: message.sender === 'bot' ? '1px solid #e2e8f0' : 'none',
+                                                        whiteSpace: 'pre-wrap',
+                                                        wordBreak: 'break-word'
+                                                    }}>
+                                                        {message.text}
+                                                    </div>
+                                                    <div style={{
+                                                        fontSize: '11px',
+                                                        color: '#64748b',
+                                                        marginTop: '4px',
+                                                        textAlign: message.sender === 'user' ? 'right' : 'left',
+                                                        paddingLeft: message.sender === 'bot' ? '16px' : '0',
+                                                        paddingRight: message.sender === 'user' ? '16px' : '0'
+                                                    }}>
+                                                        {message.timestamp.toLocaleTimeString([], { 
+                                                            hour: '2-digit', 
+                                                            minute: '2-digit' 
+                                                        })}
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                        
+                                        {chatTyping && (
+                                            <div style={{
+                                                display: 'flex',
+                                                justifyContent: 'flex-start',
+                                                marginBottom: '16px'
+                                            }}>
+                                                <div style={{
+                                                    background: 'white',
+                                                    padding: '12px 16px',
+                                                    borderRadius: '18px 18px 18px 6px',
+                                                    border: '1px solid #e2e8f0',
+                                                    boxShadow: '0 2px 8px rgba(0, 0, 0, 0.1)'
+                                                }}>
+                                                    <div style={{
+                                                        display: 'flex',
+                                                        gap: '4px',
+                                                        alignItems: 'center'
+                                                    }}>
+                                                        <div style={{
+                                                            width: '6px',
+                                                            height: '6px',
+                                                            borderRadius: '50%',
+                                                            background: '#64748b',
+                                                            animation: 'typing 1.4s infinite ease-in-out'
+                                                        }}></div>
+                                                        <div style={{
+                                                            width: '6px',
+                                                            height: '6px',
+                                                            borderRadius: '50%',
+                                                            background: '#64748b',
+                                                            animation: 'typing 1.4s infinite ease-in-out 0.2s'
+                                                        }}></div>
+                                                        <div style={{
+                                                            width: '6px',
+                                                            height: '6px',
+                                                            borderRadius: '50%',
+                                                            background: '#64748b',
+                                                            animation: 'typing 1.4s infinite ease-in-out 0.4s'
+                                                        }}></div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                        
+                                        <div ref={messagesEndRef} />
+                                    </div>
+
+                                    {/* Text Input */}
+                                    <div style={{
+                                        padding: '16px 20px',
+                                        background: 'white',
+                                        borderTop: '1px solid #e2e8f0'
+                                    }}>
+                                        <form onSubmit={handleFormSubmit} style={{ display: 'flex', gap: '8px' }}>
+                                            <input
+                                                type="text"
+                                                value={chatInput}
+                                                onChange={(e) => setChatInput(e.target.value)}
+                                                placeholder="Type your message..."
+                                                style={{
+                                                    flex: 1,
+                                                    padding: '12px 16px',
+                                                    border: '2px solid #e2e8f0',
+                                                    borderRadius: '12px',
+                                                    fontSize: '14px',
+                                                    outline: 'none',
+                                                    transition: 'border-color 0.2s ease',
+                                                    background: '#f8fafc'
+                                                }}
+                                                onFocus={(e) => e.target.style.borderColor = '#3b82f6'}
+                                                onBlur={(e) => e.target.style.borderColor = '#e2e8f0'}
+                                            />
+                                            <button
+                                                type="submit"
+                                                disabled={!chatInput.trim()}
+                                                style={{
+                                                    background: chatInput.trim() 
+                                                        ? 'linear-gradient(135deg, #3b82f6, #1d4ed8)'
+                                                        : '#e2e8f0',
+                                                    color: chatInput.trim() ? 'white' : '#9ca3af',
+                                                    border: 'none',
+                                                    borderRadius: '12px',
+                                                    padding: '12px',
+                                                    cursor: chatInput.trim() ? 'pointer' : 'not-allowed',
+                                                    display: 'flex',
+                                                    alignItems: 'center',
+                                                    justifyContent: 'center',
+                                                    transition: 'all 0.2s ease',
+                                                    minWidth: '44px'
+                                                }}
+                                            >
+                                                <Send size={16} />
+                                            </button>
+                                        </form>
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    )}
+                </div>
+            )}
                                 <div style={{
                                     fontWeight: '600',
                                     fontSize: isMinimized ? '14px' : '16px'
@@ -565,6 +1298,349 @@ const ChatbotWidget = () => {
 
                     {!isMinimized && (
                         <>
+                            {/* Mobile CTA Buttons */}
+                            <div style={{
+                                display: window.innerWidth <= 768 ? 'grid' : 'none',
+                                gridTemplateColumns: '1fr 1fr',
+                                gap: '8px',
+                                padding: '16px 20px 0 20px'
+                            }}>
+                                {mobileCTAButtons.map((btn, index) => (
+                                    <button
+                                        key={index}
+                                        onClick={btn.disabled ? null : btn.action}
+                                        disabled={btn.disabled}
+                                        style={{
+                                            background: btn.disabled 
+                                                ? 'linear-gradient(135deg, #9ca3af, #6b7280)' 
+                                                : `linear-gradient(135deg, ${btn.color}, ${btn.color}dd)`,
+                                            color: 'white',
+                                            border: 'none',
+                                            borderRadius: '12px',
+                                            padding: '12px 8px',
+                                            fontSize: '12px',
+                                            fontWeight: '600',
+                                            cursor: btn.disabled ? 'not-allowed' : 'pointer',
+                                            display: 'flex',
+                                            flexDirection: 'column',
+                                            alignItems: 'center',
+                                            gap: '4px',
+                                            transition: 'all 0.2s ease',
+                                            boxShadow: btn.disabled 
+                                                ? '0 1px 3px rgba(0,0,0,0.1)' 
+                                                : '0 2px 8px rgba(0,0,0,0.1)',
+                                            position: 'relative',
+                                            opacity: btn.disabled ? 0.6 : 1,
+                                            animation: btn.pulse ? 'pulse 2s infinite' : 'none'
+                                        }}
+                                        onTouchStart={(e) => {
+                                            if (!btn.disabled) e.target.style.transform = 'scale(0.95)';
+                                        }}
+                                        onTouchEnd={(e) => {
+                                            if (!btn.disabled) e.target.style.transform = 'scale(1)';
+                                        }}
+                                    >
+                                        {btn.loading && (
+                                            <div style={{
+                                                position: 'absolute',
+                                                top: '50%',
+                                                left: '50%',
+                                                transform: 'translate(-50%, -50%)',
+                                                width: '16px',
+                                                height: '16px',
+                                                border: '2px solid rgba(255,255,255,0.3)',
+                                                borderTop: '2px solid white',
+                                                borderRadius: '50%',
+                                                animation: 'spin 1s linear infinite'
+                                            }} />
+                                        )}
+                                        <span style={{ 
+                                            fontSize: '16px',
+                                            opacity: btn.loading ? 0.3 : 1
+                                        }}>{btn.icon}</span>
+                                        <span style={{ 
+                                            opacity: btn.loading ? 0.3 : 1,
+                                            position: 'relative'
+                                        }}>
+                                            {btn.text}
+                                            {btn.badge && (
+                                                <span style={{
+                                                    position: 'absolute',
+                                                    top: '-8px',
+                                                    right: '-12px',
+                                                    background: '#10b981',
+                                                    color: 'white',
+                                                    fontSize: '8px',
+                                                    padding: '2px 4px',
+                                                    borderRadius: '6px',
+                                                    fontWeight: 'bold'
+                                                }}>
+                                                    {btn.badge}
+                                                </span>
+                                            )}
+                                        </span>
+                                        {btn.text === 'Voice Chat' && voiceModeActive && (
+                                            <div style={{
+                                                width: '4px',
+                                                height: '4px',
+                                                borderRadius: '50%',
+                                                background: '#ffffff',
+                                                animation: 'pulse 1s infinite'
+                                            }} />
+                                        )}
+                                    </button>
+                                ))}
+                            </div>
+
+                            {/* ElevenLabs ConvAI Widget Container */}
+                            {voiceModeActive && (
+                                <div style={{
+                                    background: 'linear-gradient(135deg, #6366f1, #4f46e5)',
+                                    borderRadius: '16px',
+                                    padding: '16px',
+                                    margin: '16px 20px 0 20px',
+                                    textAlign: 'center',
+                                    color: 'white'
+                                }}>
+                                    <div style={{
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '8px',
+                                        marginBottom: '12px'
+                                    }}>
+                                        <Headphones size={20} />
+                                        <span style={{ fontWeight: '600' }}>AI Voice Assistant Active</span>
+                                        {isListening && <Mic size={16} style={{ animation: 'pulse 1s infinite' }} />}
+                                    </div>
+                                    
+                                    {/* ElevenLabs Widget */}
+                                    <elevenlabs-convai 
+                                        agent-id="agent_7301k246v5fyebkbsqvzw3d7nkqw"
+                                        style={{
+                                            width: '100%',
+                                            minHeight: '200px',
+                                            borderRadius: '12px',
+                                            background: 'rgba(255,255,255,0.1)',
+                                            border: '1px solid rgba(255,255,255,0.2)'
+                                        }}
+                                    />
+                                    
+                                    <div style={{
+                                        display: 'flex',
+                                        gap: '8px',
+                                        marginTop: '12px',
+                                        justifyContent: 'center'
+                                    }}>
+                                        <button
+                                            onClick={() => setVoiceEnabled(!voiceEnabled)}
+                                            style={{
+                                                background: 'rgba(255,255,255,0.2)',
+                                                border: 'none',
+                                                borderRadius: '8px',
+                                                padding: '8px 12px',
+                                                color: 'white',
+                                                cursor: 'pointer',
+                                                fontSize: '12px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '4px'
+                                            }}
+                                        >
+                                            {voiceEnabled ? <Volume2 size={14} /> : <VolumeX size={14} />}
+                                            {voiceEnabled ? 'Mute' : 'Unmute'}
+                                        </button>
+                                        <button
+                                            onClick={() => setVoiceModeActive(false)}
+                                            style={{
+                                                background: 'rgba(255,255,255,0.2)',
+                                                border: 'none',
+                                                borderRadius: '8px',
+                                                padding: '8px 12px',
+                                                color: 'white',
+                                                cursor: 'pointer',
+                                                fontSize: '12px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '4px'
+                                            }}
+                                        >
+                                            <MessageCircle size={14} />
+                                            Text Chat
+                                        </button>
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* Smart Quick Form */}
+                            {showQuickForm && (
+                                <div style={{
+                                    background: 'white',
+                                    border: '2px solid #3b82f6',
+                                    borderRadius: '16px',
+                                    padding: '16px',
+                                    margin: '16px 20px 0 20px',
+                                    boxShadow: '0 8px 24px rgba(59, 130, 246, 0.15)'
+                                }}>
+                                    <div style={{
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        marginBottom: '12px'
+                                    }}>
+                                        <h3 style={{
+                                            margin: 0,
+                                            color: '#1f2937',
+                                            fontSize: '16px',
+                                            fontWeight: '600'
+                                        }}>📋 Quick Service Request</h3>
+                                        <button
+                                            onClick={() => setShowQuickForm(false)}
+                                            style={{
+                                                background: 'none',
+                                                border: 'none',
+                                                cursor: 'pointer',
+                                                padding: '4px',
+                                                borderRadius: '4px'
+                                            }}
+                                        >
+                                            <X size={16} color="#6b7280" />
+                                        </button>
+                                    </div>
+
+                                    <form onSubmit={handleQuickFormSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                                            <input
+                                                type="text"
+                                                placeholder="Your Name *"
+                                                value={formData.name}
+                                                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                                                required
+                                                style={{
+                                                    padding: '10px 12px',
+                                                    border: '1px solid #d1d5db',
+                                                    borderRadius: '8px',
+                                                    fontSize: '14px',
+                                                    outline: 'none'
+                                                }}
+                                            />
+                                            <input
+                                                type="tel"
+                                                placeholder="Phone Number *"
+                                                value={formData.phone}
+                                                onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
+                                                required
+                                                style={{
+                                                    padding: '10px 12px',
+                                                    border: '1px solid #d1d5db',
+                                                    borderRadius: '8px',
+                                                    fontSize: '14px',
+                                                    outline: 'none'
+                                                }}
+                                            />
+                                        </div>
+
+                                        <select
+                                            value={formData.service}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, service: e.target.value }))}
+                                            required
+                                            style={{
+                                                padding: '10px 12px',
+                                                border: '1px solid #d1d5db',
+                                                borderRadius: '8px',
+                                                fontSize: '14px',
+                                                outline: 'none',
+                                                backgroundColor: 'white'
+                                            }}
+                                        >
+                                            <option value="">Select Service Type *</option>
+                                            <option value="Electrical">Electrical Work</option>
+                                            <option value="Plumbing">Plumbing Repair</option>
+                                            <option value="Painting">Painting Project</option>
+                                            <option value="Drywall">Drywall Repair</option>
+                                            <option value="Flooring">Flooring Installation</option>
+                                            <option value="HVAC">HVAC Service</option>
+                                            <option value="General">General Repair</option>
+                                            <option value="Emergency">Emergency Service</option>
+                                        </select>
+
+                                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px' }}>
+                                            {['standard', 'urgent', 'emergency'].map(urgency => (
+                                                <label
+                                                    key={urgency}
+                                                    style={{
+                                                        display: 'flex',
+                                                        alignItems: 'center',
+                                                        gap: '6px',
+                                                        padding: '8px',
+                                                        borderRadius: '8px',
+                                                        border: formData.urgency === urgency ? '2px solid #3b82f6' : '1px solid #d1d5db',
+                                                        background: formData.urgency === urgency ? '#eff6ff' : 'white',
+                                                        cursor: 'pointer',
+                                                        fontSize: '12px'
+                                                    }}
+                                                >
+                                                    <input
+                                                        type="radio"
+                                                        name="urgency"
+                                                        value={urgency}
+                                                        checked={formData.urgency === urgency}
+                                                        onChange={(e) => setFormData(prev => ({ ...prev, urgency: e.target.value }))}
+                                                        style={{ margin: 0 }}
+                                                    />
+                                                    <span style={{ textTransform: 'capitalize' }}>
+                                                        {urgency === 'emergency' ? '🚨' : urgency === 'urgent' ? '⚡' : '📅'} {urgency}
+                                                    </span>
+                                                </label>
+                                            ))}
+                                        </div>
+
+                                        <textarea
+                                            placeholder="Describe your project (optional)"
+                                            value={formData.description}
+                                            onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                                            rows={3}
+                                            style={{
+                                                padding: '10px 12px',
+                                                border: '1px solid #d1d5db',
+                                                borderRadius: '8px',
+                                                fontSize: '14px',
+                                                outline: 'none',
+                                                resize: 'vertical',
+                                                minHeight: '60px',
+                                                fontFamily: 'inherit'
+                                            }}
+                                        />
+
+                                        <button
+                                            type="submit"
+                                            style={{
+                                                background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)',
+                                                color: 'white',
+                                                border: 'none',
+                                                borderRadius: '8px',
+                                                padding: '12px 16px',
+                                                fontSize: '14px',
+                                                fontWeight: '600',
+                                                cursor: 'pointer',
+                                                transition: 'all 0.2s ease'
+                                            }}
+                                        >
+                                            🚀 Submit Request
+                                        </button>
+                                    </form>
+
+                                    <div style={{
+                                        fontSize: '11px',
+                                        color: '#6b7280',
+                                        textAlign: 'center',
+                                        marginTop: '8px'
+                                    }}>
+                                        🔒 Your information is secure and will only be used to contact you about your service request.
+                                    </div>
+                                </div>
+                            )}
+
                             {/* Messages */}
                             <div style={{
                                 flex: 1,

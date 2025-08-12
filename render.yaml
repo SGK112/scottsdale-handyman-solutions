@@ -47,5 +47,6 @@ services:
       # MAIL_PASSWORD=nfsx nosf sfbp ckmp
       # STRIPE_PUBLISHABLE_KEY_TEST=pk_test_...
       # STRIPE_SECRET_KEY_TEST=sk_test_...
+      # GOOGLE_API_KEY=AIzaSyAUjw9Yk4sYC09AAADP6Gr07qwUEZyKHZ0
       # ENVIRONMENT=production
       # CORS_ORIGINS=https://scottsdale-handyman-website.onrender.com,https://scottsdale-handyman-pro-portal.onrender.com

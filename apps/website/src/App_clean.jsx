@@ -3,7 +3,7 @@ import { loadStripe } from '@stripe/stripe-js';
 import './App.css';
 
 // Lazy load components for better performance
-const ProfessionalChatbotWidget = lazy(() => import('./ProfessionalChatbotWidget'));
+const ChatbotWidget = lazy(() => import('./ChatbotWidget'));
 const Header = lazy(() => import('./components/Header'));
 const Hero = lazy(() => import('./components/Hero'));
 const ServicePackages = lazy(() => import('./components/ServicePackages'));
@@ -123,7 +123,7 @@ function App() {
           />
         )}
 
-        <ProfessionalChatbotWidget />
+        <ChatbotWidget />
       </Suspense>
     </div>
   );

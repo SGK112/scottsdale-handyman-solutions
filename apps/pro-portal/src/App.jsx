@@ -6,6 +6,7 @@ import {
     ExternalLink, Clock, MapPin, ChevronLeft, ChevronRight, Users,
     Phone, Mail, Home, Wrench, AlertCircle, CheckCircle, RefreshCw
 } from 'lucide-react';
+import GoogleIntegration from './GoogleIntegration';
 
 const ProPortalApp = () => {
     // Authentication state
@@ -4525,6 +4526,43 @@ const ProPortalApp = () => {
                                                 <Download size={16} />
                                                 Apple Calendar
                                             </button>
+                                        </div>
+
+                                        {/* Google Calendar Integration */}
+                                        <div style={{
+                                            marginTop: '24px',
+                                            padding: '20px',
+                                            background: '#f8f9fa',
+                                            borderRadius: '12px',
+                                            border: '2px solid #e9ecef'
+                                        }}>
+                                            <div style={{
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '8px',
+                                                marginBottom: '16px'
+                                            }}>
+                                                <Calendar size={20} style={{ color: '#0066cc' }} />
+                                                <h4 style={{ margin: 0, color: '#333', fontSize: '16px', fontWeight: '600' }}>
+                                                    Enhanced Google Calendar Integration
+                                                </h4>
+                                            </div>
+                                            <GoogleIntegration 
+                                                appointmentData={{
+                                                    clientName: scheduleForm.clientName,
+                                                    service: scheduleForm.service,
+                                                    date: scheduleForm.date,
+                                                    time: scheduleForm.time,
+                                                    address: scheduleForm.address,
+                                                    phone: scheduleForm.phone,
+                                                    email: scheduleForm.email,
+                                                    notes: scheduleForm.notes
+                                                }}
+                                                onEventCreated={(eventDetails) => {
+                                                    console.log('Google Calendar event created:', eventDetails);
+                                                    // You can add additional logic here if needed
+                                                }}
+                                            />
                                         </div>
                                     </div>
                                 </div>

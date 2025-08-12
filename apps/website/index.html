@@ -19,6 +19,21 @@
     <meta property="twitter:title" content="Scottsdale Handyman Solutions - Professional Home Services" />
     <meta property="twitter:description" content="Professional handyman services in Scottsdale, Arizona. Licensed, bonded & insured. Emergency repairs, home improvements, maintenance plans." />
     
+    <!-- ElevenLabs ConvAI Widget - Updated CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/@elevenlabs/convai-widget-embed@latest/dist/index.umd.js" async type="text/javascript"></script>
+    <script>
+      // Backup script loader for ElevenLabs
+      window.addEventListener('load', () => {
+        if (!window.customElements?.get('elevenlabs-convai')) {
+          console.log('🔄 Loading ElevenLabs ConvAI fallback...');
+          const fallbackScript = document.createElement('script');
+          fallbackScript.src = 'https://unpkg.com/@elevenlabs/convai-widget-embed';
+          fallbackScript.async = true;
+          document.head.appendChild(fallbackScript);
+        }
+      });
+    </script>
+    
     <title>Scottsdale Handyman Solutions - Professional Home Services</title>
   </head>
   <body>

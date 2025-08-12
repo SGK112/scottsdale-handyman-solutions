@@ -28,6 +28,5 @@
       "@utils/*": ["./src/utils/*"]
     }
   },
-  "include": ["src", "**/*.jsx", "**/*.js"],
-  "references": [{ "path": "./tsconfig.node.json" }]
+  "include": ["src", "**/*.jsx", "**/*.js"]
 }

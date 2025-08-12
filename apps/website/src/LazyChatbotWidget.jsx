@@ -1,9 +1,9 @@
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, Component } from 'react'
 
-// Lazy load the ChatbotWidget for better performance
+// Lazy load the enhanced ChatbotWidget for optimal performance
 const ChatbotWidget = lazy(() => import('./ChatbotWidget.jsx'))
 
-// Loading component for the chatbot
+// Enhanced loading component with better UX
 const ChatbotLoading = () => (
     <div style={{
         position: 'fixed',
@@ -28,18 +28,75 @@ const ChatbotLoading = () => (
             background: 'rgba(255,255,255,0.3)',
             animation: 'pulse 1.5s infinite'
         }}></div>
+        {/* Loading indicator */}
+        <div style={{
+            position: 'absolute',
+            width: '100%',
+            height: '100%',
+            border: '2px solid transparent',
+            borderTop: '2px solid rgba(255,255,255,0.6)',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+        }}></div>
     </div>
 )
 
-// Lazy Chatbot Component Wrapper
-const LazyChatbotWidget = ({ isVisible, ...props }) => {
+// Enhanced Lazy Chatbot Component Wrapper with error boundary
+const LazyChatbotWidget = ({ isVisible, onError, ...props }) => {
     if (!isVisible) return null
+
+    const handleError = (error) => {
+        console.error('Chatbot loading error:', error);
+        if (onError) onError(error);
+        return (
+            <div style={{
+                position: 'fixed',
+                bottom: '2rem',
+                right: '2rem',
+                background: '#ef4444',
+                color: 'white',
+                padding: '12px 16px',
+                borderRadius: '8px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+                fontSize: '14px',
+                zIndex: 1000
+            }}>
+                ⚠️ Chat temporarily unavailable
+            </div>
+        );
+    }
 
     return (
         <Suspense fallback={<ChatbotLoading />}>
-            <ChatbotWidget {...props} />
+            <ErrorBoundary fallback={handleError}>
+                <ChatbotWidget {...props} />
+            </ErrorBoundary>
         </Suspense>
     )
+}
+
+// Simple error boundary component
+class ErrorBoundary extends Component {
+    constructor(props) {
+        super(props);
+        this.state = { hasError: false };
+    }
+
+    static getDerivedStateFromError(error) {
+        return { hasError: true };
+    }
+
+    componentDidCatch(error, errorInfo) {
+        console.error('ChatbotWidget Error:', error, errorInfo);
+    }
+
+    render() {
+        if (this.state.hasError) {
+            return this.props.fallback(new Error('ChatbotWidget failed to load'));
+        }
+
+        return this.props.children;
+    }
 }
 
 export default LazyChatbotWidget
