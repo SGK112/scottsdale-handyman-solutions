@@ -184,8 +184,8 @@ export const cssStyles = `
 
   .professional-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
-    border-color: rgba(255, 215, 0, 0.3);
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.12);
+  border-color: rgba(var(--accent-rgb), 0.3);
   }
 
   .chat-tooltip {
@@ -241,8 +241,8 @@ export const cssStyles = `
 
   .service-card-professional:hover {
     transform: translateY(-8px) scale(1.02);
-    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
-    border-color: rgba(255, 215, 0, 0.4);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+  border-color: rgba(var(--accent-rgb), 0.4);
   }
 
   .quick-link-card {

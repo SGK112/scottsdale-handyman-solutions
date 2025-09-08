@@ -24,7 +24,7 @@ const WhyChooseUs = () => {
           </ul>
         </div>
         <div className="why-choose-us-image">
-          <img src="https://via.placeholder.com/500x400.png?text=Our+Team" alt="Our professional team" />
+          <img src="/team.svg" alt="Our professional handyman team" loading="lazy" width="500" height="400" />
         </div>
       </div>
     </section>

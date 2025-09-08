@@ -285,11 +285,11 @@ section {
 }
 
 .star-rating {
-  color: #fbbf24;
+  color: var(--accent);
 }
 
 .footer {
-  background: #1f2937;
+  background: hsl(215, 96%, 47%);
   color: white;
 }
 

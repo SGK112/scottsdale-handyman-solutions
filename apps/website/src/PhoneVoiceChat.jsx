@@ -393,7 +393,7 @@ const PhoneVoiceChat = ({ chatHistory, onModeSwitch, onClose }) => {
                     onClick={() => window.location.href = 'tel:+14802555887'}
                     style={{
                         flex: 1,
-                        background: 'linear-gradient(135deg, #f59e0b, #d97706)',
+                        background: 'linear-gradient(135deg, var(--accent), rgba(var(--accent-rgb), 0.85))',
                         color: 'white',
                         border: 'none',
                         borderRadius: '8px',

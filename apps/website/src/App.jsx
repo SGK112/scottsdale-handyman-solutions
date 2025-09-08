@@ -11,6 +11,7 @@ const WhyChooseUs = lazy(() => import('./components/WhyChooseUs'));
 const Testimonials = lazy(() => import('./components/Testimonials'));
 const CtaSection = lazy(() => import('./components/CtaSection'));
 const Footer = lazy(() => import('./components/Footer'));
+const MobileCta = lazy(() => import('./components/MobileCta'));
 const BlogSection = lazy(() => import('./components/BlogSection'));
 const BookingModal = lazy(() => import('./components/BookingModal'));
 const ProPortalModal = lazy(() => import('./components/ProPortalModal'));
@@ -123,7 +124,8 @@ function App() {
           />
         )}
 
-        <ProfessionalChatbotWidget />
+  <ProfessionalChatbotWidget />
+  <MobileCta onBookNow={() => handleBookNow(null)} />
       </Suspense>
     </div>
   );

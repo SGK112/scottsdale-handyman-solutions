@@ -369,7 +369,7 @@ const ProfessionalChatbotWidget = () => {
                             }}
                             style={{
                                 flex: 1,
-                                background: '#f59e0b',
+                                background: 'var(--accent)',
                                 color: 'white',
                                 border: 'none',
                                 borderRadius: '8px',

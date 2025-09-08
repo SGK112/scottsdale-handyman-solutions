@@ -2,45 +2,42 @@ import React from 'react';
 import { Phone, Mail, MapPin, Clock, Menu, X, Lock } from './icons.jsx';
 
 export default function Header({ onProPortalClick, onWorkWithUsClick }) {
-  const [isMenuOpen, setIsMenuOpen] = React.useState(false);
-
+  // mobile-first header: remove hamburger and expose app-like quick actions
   return (
     <header className="header">
-      <div className="header-top">
-        <div className="container">
-          <div className="contact-info">
-            <span><Phone size={14} /> (480) 255-5887</span>
-            <span><Mail size={14} /> contact@scottsdalehandymansolutions.com</span>
-          </div>
-          <div className="top-links">
-            <a href="#" onClick={(e) => { e.preventDefault(); onWorkWithUsClick(); }}>Work With Us</a>
-            <a href="#" onClick={(e) => { e.preventDefault(); onProPortalClick(); }}>Pro Portal</a>
-          </div>
-        </div>
-      </div>
       <div className="header-main">
-        <div className="container">
-          <a href="/" className="logo">
-            <div className="logo-icon">
-              <span>🔧</span>
-            </div>
+        <div className="container header-content">
+          <a href="/" className="logo" aria-label="Scottsdale Handyman Solutions">
+            <div className="logo-icon"><span>🔧</span></div>
             <div className="logo-text">
-              <h1>Scottsdale Handyman Solutions</h1>
-              <p>Your Trusted Partner for Home Repairs & Maintenance</p>
+              <h1>Scottsdale Handyman</h1>
             </div>
           </a>
-          <nav className={`main-nav ${isMenuOpen ? 'open' : ''}`}>
+
+          {/* App-like quick actions on the right (mobile-first). Chat button triggers global event 'openChat' */}
+          <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+            <a href="tel:+14802555887" className="menu-action" aria-label="Call us" style={{ textDecoration: 'none' }}>
+              <button className="cta-button-nav" style={{ padding: '0.5rem 0.9rem' }}>📞 Call</button>
+            </a>
+
+            <button className="menu-action" onClick={() => (onWorkWithUsClick ? onWorkWithUsClick() : window.location.href = '#contact')} aria-label="Get a free quote" style={{ padding: '0.5rem 0.9rem' }}>
+              <span className="cta-button-nav">Get Quote</span>
+            </button>
+
+            <button className="menu-action" onClick={() => window.dispatchEvent(new CustomEvent('openChat'))} aria-label="Open chat" style={{ padding: '0.5rem', borderRadius: 10 }}>
+              <span style={{ display: 'inline-flex', alignItems: 'center', gap: 6 }}>💬 Chat</span>
+            </button>
+          </div>
+
+          {/* Desktop navigation remains for larger screens */}
+          <nav className={`main-nav`} aria-hidden={false}>
             <ul>
               <li><a href="#services">Services</a></li>
               <li><a href="#why-us">Why Us</a></li>
               <li><a href="#testimonials">Testimonials</a></li>
-              <li><a href="#blog">Blog</a></li>
               <li><a href="#contact" className="cta-button-nav">Get a Free Quote</a></li>
             </ul>
           </nav>
-          <button className="menu-toggle" onClick={() => setIsMenuOpen(!isMenuOpen)}>
-            {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
         </div>
       </div>
     </header>
