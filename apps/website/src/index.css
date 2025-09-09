@@ -2193,10 +2193,10 @@ elevenlabs-convai {
   }
 }
 
-/* NEW HEADER STYLES - White & Yellow Design */
+/* NEW HEADER STYLES - Dark to match footer */
 .new-header {
-  background: #ffffff;
-  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.1);
+  background: var(--gray-800);
+  box-shadow: 0 2px 20px rgba(0, 0, 0, 0.3);
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -2242,7 +2242,7 @@ elevenlabs-convai {
 .new-logo-main {
   font-size: 18px;
   font-weight: 700;
-  color: #1f2937;
+  color: #ffffff;
 }
 
 .new-logo-accent {
@@ -2259,7 +2259,7 @@ elevenlabs-convai {
 }
 
 .new-nav-link {
-  color: #1f2937;
+  color: #ffffff;
   text-decoration: none;
   font-weight: 500;
   padding: 8px 16px;
@@ -2268,7 +2268,7 @@ elevenlabs-convai {
 }
 
 .new-nav-link:hover {
-  background: #fff9e6;
+  background: rgba(255, 176, 32, 0.2);
   color: #ffb020;
 }
 
@@ -2324,14 +2324,14 @@ elevenlabs-convai {
   display: none;
   background: none;
   border: none;
-  color: #1f2937;
+  color: #ffffff;
   cursor: pointer;
   padding: 8px;
   border-radius: 8px;
 }
 
 .new-mobile-toggle:hover {
-  background: #f3f4f6;
+  background: rgba(255, 255, 255, 0.1);
 }
 
 /* Mobile Menu */

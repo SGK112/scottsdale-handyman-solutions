@@ -1577,6 +1577,7 @@ const ProPortalApp = () => {
                 }}>
                     <div style={{
                         display: 'flex',
+                        justifyContent: 'center',
                         overflowX: 'auto',
                         scrollbarWidth: 'none', /* Firefox */
                         msOverflowStyle: 'none', /* IE/Edge */
