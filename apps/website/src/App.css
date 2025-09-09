@@ -341,3 +341,33 @@ section {
   padding: 0.75rem;
   margin: 1rem 0;
 }
+
+/* Header logo text colors: main text white, accent yellow */
+.header .logo-text h1 {
+  margin: 0;
+  color: white;
+  font-size: 1.25rem;
+  font-weight: 700;
+}
+.header .logo-text h1 .logo-accent {
+  color: #FFD700; /* yellow accent */
+}
+
+/* Standard CTA class used across site */
+.cta-button-nav {
+  background: linear-gradient(135deg, #f59e0b, #d97706); /* warm gold/yellow */
+  color: #0f172a; /* dark slate text */
+  border: none;
+  border-radius: 8px;
+  padding: 0.5rem 0.9rem;
+  font-weight: 700;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+}
+.cta-button-nav:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(249, 115, 22, 0.18);
+}

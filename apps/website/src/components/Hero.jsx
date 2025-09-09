@@ -8,11 +8,6 @@ const Hero = ({ onBookNow }) => {
       <div className="container">
         <div className="hero-content stack">
           <div className="hero-top">
-            <div className="hero-badges">
-              <span className="hero-badge">⭐ 5-Star Rated</span>
-              <span className="hero-badge">🛡️ Licensed & Insured</span>
-            </div>
-
             <h1 className="hero-title">Your <span className="text-highlight">Trusted</span> Scottsdale Handyman</h1>
             <p className="hero-subtitle">Quality craftsmanship that exceeds expectations</p>
             <p className="hero-description">From quick fixes to complete renovations, we deliver professional results with exceptional customer service.</p>

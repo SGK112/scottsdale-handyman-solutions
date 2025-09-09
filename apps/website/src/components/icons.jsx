@@ -31,3 +31,4 @@ export const User = ({ size }) => <span style={{ fontSize: size }}>👤</span>;
 export const Building = ({ size }) => <span style={{ fontSize: size }}>🏢</span>;
 export const BookOpen = ({ size }) => <span style={{ fontSize: size }}>📖</span>;
 export const Lock = ({ size }) => <span style={{ fontSize: size }}>🔒</span>;
+export const ExternalLink = ({ size }) => <span style={{ fontSize: size }}>🔗</span>;

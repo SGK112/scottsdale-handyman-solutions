@@ -7980,7 +7980,7 @@ const ProPortalApp = () => {
 
                     <div style={{ textAlign: 'center', marginTop: '20px' }}>
                         <a
-                            href="/"
+                            href={import.meta.env.VITE_WEBSITE_URL || "http://localhost:5174"}
                             style={{
                                 background: 'none',
                                 border: 'none',

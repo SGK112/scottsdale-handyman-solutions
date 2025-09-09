@@ -352,6 +352,8 @@ const GoogleMapsIntegration = () => {
                                     </button>
 
                                     <button
+                                        type="button"
+                                        className="cta-button-nav"
                                         onClick={() => {
                                             const contactSection = document.getElementById('contact');
                                             if (contactSection) {

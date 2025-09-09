@@ -10,7 +10,7 @@
     "dev": "concurrently \"npm run dev:website\" \"npm run dev:pro\" \"npm run dev:api\"",
     "dev:website": "cd apps/website && npm run dev",
     "dev:pro": "cd apps/pro-portal && npm run dev",
-    "dev:api": "cd apps/api && ./start.sh",
+  "dev:api": "cd apps/api && if exist start.bat (start.bat) else ./start.sh",
     "build": "npm run build:website && npm run build:pro",
     "build:website": "cd apps/website && npm run build",
     "build:pro": "cd apps/pro-portal && npm run build",

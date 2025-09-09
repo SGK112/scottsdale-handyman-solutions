@@ -25,7 +25,7 @@ const ServicePackageCard = ({ pkg, onBookNow }) => (
       ))}
     </ul>
     
-    <button onClick={() => onBookNow(pkg)} className="service-btn">
+    <button type="button" onClick={() => onBookNow(pkg)} className="service-btn cta-button-nav">
       Book Now
     </button>
   </div>
