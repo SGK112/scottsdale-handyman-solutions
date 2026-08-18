@@ -32,7 +32,7 @@ export default function AriaWidget() {
       // Cloudflare fronts VoiceNow and cached the script back when it was served
       // with Cross-Origin-Resource-Policy: same-origin, which blocked the embed.
       // Bump this to claim a fresh cache key if that ever happens again.
-      `&v=2`;
+      `&v=3`;
     script.onerror = () => console.warn('[aria] assistant failed to load');
     document.body.appendChild(script);
 
