@@ -2,7 +2,7 @@ import React, { useState, useEffect, Suspense, lazy } from 'react';
 import './App.css';
 
 // Lazy load components for better performance
-const ProfessionalChatbotWidget = lazy(() => import('./ProfessionalChatbotWidget'));
+const AriaWidget = lazy(() => import('./AriaWidget'));
 const SiteRedesign = lazy(() => import('./SiteRedesign'));
 const BookingModal = lazy(() => import('./components/BookingModal'));
 const ProPortalModal = lazy(() => import('./components/ProPortalModal'));
@@ -80,7 +80,7 @@ function App() {
           <WorkWithUsModal isOpen={isWorkWithUsModalOpen} onClose={handleCloseModals} />
         )}
 
-        <ProfessionalChatbotWidget />
+        <AriaWidget />
       </Suspense>
     </div>
   );
