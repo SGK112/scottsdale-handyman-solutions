@@ -98,7 +98,7 @@ def create_checkout():
         session = stripe.checkout.Session.create(
             mode='payment',
             line_items=[_line_item(package['name'], package['description'], package['amount'])],
-            success_url=f'{SITE_URL}/booking-confirmed.html?session_id={{CHECKOUT_SESSION_ID}}',
+            success_url=f'{SITE_URL}/payment-complete.html?type=booking&session_id={{CHECKOUT_SESSION_ID}}',
             cancel_url=f'{SITE_URL}/?booking=cancelled',
             customer_email=data.get('email') or None,
             # Required for Stripe Tax to determine a jurisdiction.
@@ -142,7 +142,7 @@ def create_subscription_checkout():
         session = stripe.checkout.Session.create(
             mode='subscription',
             line_items=[{'price': MAINTENANCE_PRICE_ID, 'quantity': 1}],
-            success_url=f'{SITE_URL}/plan-active.html?session_id={{CHECKOUT_SESSION_ID}}',
+            success_url=f'{SITE_URL}/payment-complete.html?type=plan&session_id={{CHECKOUT_SESSION_ID}}',
             cancel_url=f'{SITE_URL}/?plan=cancelled',
             customer_email=data.get('email') or None,
             billing_address_collection='required',
@@ -194,7 +194,7 @@ def create_custom_checkout():
             mode='payment',
             line_items=[_line_item(f'{label} — Scottsdale Handyman Solutions',
                                    description, amount_cents)],
-            success_url=f'{SITE_URL}/payment-received.html?session_id={{CHECKOUT_SESSION_ID}}',
+            success_url=f'{SITE_URL}/payment-complete.html?type=payment&session_id={{CHECKOUT_SESSION_ID}}',
             cancel_url=f'{SITE_URL}/',
             customer_email=data.get('email') or None,
             billing_address_collection='required',
