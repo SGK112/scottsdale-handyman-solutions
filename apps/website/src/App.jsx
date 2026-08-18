@@ -3,15 +3,7 @@ import './App.css';
 
 // Lazy load components for better performance
 const ProfessionalChatbotWidget = lazy(() => import('./ProfessionalChatbotWidget'));
-const Header = lazy(() => import('./components/Header'));
-const Hero = lazy(() => import('./components/Hero'));
-const ServicePackages = lazy(() => import('./components/ServicePackages'));
-const WhyChooseUs = lazy(() => import('./components/WhyChooseUs'));
-const Testimonials = lazy(() => import('./components/Testimonials'));
-const CtaSection = lazy(() => import('./components/CtaSection'));
-const Footer = lazy(() => import('./components/Footer'));
-const MobileCta = lazy(() => import('./components/MobileCta'));
-const BlogSection = lazy(() => import('./components/BlogSection'));
+const SiteRedesign = lazy(() => import('./SiteRedesign'));
 const BookingModal = lazy(() => import('./components/BookingModal'));
 const ProPortalModal = lazy(() => import('./components/ProPortalModal'));
 const WorkWithUsModal = lazy(() => import('./components/WorkWithUsModal'));
@@ -66,23 +58,10 @@ function App() {
   return (
     <div className="App">
       <Suspense fallback={<LoadingFallback />}>
-        <Header 
-          onProPortalClick={handleOpenProPortal} 
-          onWorkWithUsClick={handleOpenWorkWithUs} 
-        />
-        
-        <main>
-          <Hero onBookNow={() => handleBookNow(null)} />
-          <ServicePackages onBookNow={handleBookNow} />
-          <WhyChooseUs />
-          <Testimonials />
-          <BlogSection />
-          <CtaSection onBookNow={() => handleBookNow(null)} />
-        </main>
-        
-        <Footer 
-          onProPortalClick={handleOpenProPortal} 
-          onWorkWithUsClick={handleOpenWorkWithUs} 
+        <SiteRedesign
+          onBookNow={handleBookNow}
+          onProPortalClick={handleOpenProPortal}
+          onWorkWithUsClick={handleOpenWorkWithUs}
         />
 
         {isBookingModalOpen && (
@@ -94,21 +73,14 @@ function App() {
         )}
 
         {isProPortalModalOpen && (
-          <ProPortalModal
-            isOpen={isProPortalModalOpen}
-            onClose={handleCloseModals}
-          />
+          <ProPortalModal isOpen={isProPortalModalOpen} onClose={handleCloseModals} />
         )}
 
         {isWorkWithUsModalOpen && (
-          <WorkWithUsModal
-            isOpen={isWorkWithUsModalOpen}
-            onClose={handleCloseModals}
-          />
+          <WorkWithUsModal isOpen={isWorkWithUsModalOpen} onClose={handleCloseModals} />
         )}
 
-  <ProfessionalChatbotWidget />
-  <MobileCta onBookNow={() => handleBookNow(null)} />
+        <ProfessionalChatbotWidget />
       </Suspense>
     </div>
   );

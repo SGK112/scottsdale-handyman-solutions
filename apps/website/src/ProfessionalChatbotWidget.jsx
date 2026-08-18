@@ -452,11 +452,11 @@ const ProfessionalChatbotWidget = () => {
             {!chatOpen && (
                 <>
                     {/* Tooltip */}
-                    {showTooltip && !hasUnreadMessages && (
+                    {showTooltip && !hasUnreadMessages && typeof window !== 'undefined' && window.innerWidth > 960 && (
                         <div
                             style={{
                                 position: 'fixed',
-                                bottom: '100px',
+                                bottom: 'calc(100px + var(--sh-bar, 0px))',
                                 right: '24px',
                                 background: 'linear-gradient(135deg, #1f2937 0%, #374151 100%)',
                                 color: 'white',
@@ -473,7 +473,7 @@ const ProfessionalChatbotWidget = () => {
                                     right: '16px',
                                     left: '16px',
                                     maxWidth: 'none',
-                                    bottom: '88px'
+                                    bottom: 'calc(88px + var(--sh-bar, 0px))'
                                 })
                             }}
                             onMouseEnter={handleTooltipEnter}
@@ -500,7 +500,7 @@ const ProfessionalChatbotWidget = () => {
                                 opacity: 0.9,
                                 lineHeight: '1.4'
                             }}>
-                                ✨ <strong>NEW:</strong> Voice & Text Chat Available<br />
+                                <strong>New:</strong> voice &amp; text chat<br />
                                 Get instant quotes, schedule service, or emergency help!
                             </div>
                         </div>
@@ -511,7 +511,7 @@ const ProfessionalChatbotWidget = () => {
                         onClick={() => setChatOpen(true)}
                         style={{
                             position: 'fixed',
-                            bottom: '24px',
+                            bottom: 'calc(24px + var(--sh-bar, 0px))',
                             right: '24px',
                             width: '64px',
                             height: '64px',
@@ -550,7 +550,7 @@ const ProfessionalChatbotWidget = () => {
                             boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
                             animation: 'pulse 2s infinite'
                         }}>
-                            ✨ PRO
+                            PRO
                         </div>
                     </button>
                 </>
@@ -560,7 +560,7 @@ const ProfessionalChatbotWidget = () => {
             {chatOpen && (
                 <div style={{
                     position: 'fixed',
-                    bottom: '24px',
+                    bottom: 'calc(24px + var(--sh-bar, 0px))',
                     right: '24px',
                     width: window.innerWidth <= 768 ? 'calc(100vw - 32px)' : '420px',
                     height: window.innerWidth <= 768 ? 'calc(100vh - 100px)' : isMinimized ? '60px' : '640px',

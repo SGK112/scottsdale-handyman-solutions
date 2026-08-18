@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X } from './icons.jsx';
+import { CheckCircle2 } from 'lucide-react';
 import GoogleMapsIntegration from './GoogleMapsIntegration';
 import { submitLead, BUSINESS_PHONE, BUSINESS_PHONE_HREF } from '../leadCapture';
 import { startPackageCheckout, startMaintenanceSubscription, getPaymentsConfig, PACKAGE_KEYS, MAINTENANCE_PACKAGE_NAME } from '../payments';
@@ -112,7 +113,7 @@ const BookingModal = ({ isOpen, onClose, selectedPackage }) => {
         <div className="modal-body">
           {status === 'sent' ? (
             <div style={{ textAlign: 'center', padding: '1rem 0' }}>
-              <div style={{ fontSize: '3rem', lineHeight: 1 }}>✅</div>
+              <CheckCircle2 size={56} strokeWidth={2} style={{ color: '#1e4034' }} />
               <h3 style={{ margin: '1rem 0 0.5rem' }}>Request received</h3>
               <p style={{ color: '#4b5563', margin: 0 }}>
                 {isEmergency
