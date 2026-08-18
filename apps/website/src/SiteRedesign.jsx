@@ -50,7 +50,7 @@ function Header({ onQuote }) {
     <header className="sh-header">
       <div className="sh-wrap sh-header__in">
         <a className="sh-brand" href="#top">
-          <span className="sh-brand__mark"><Wrench size={20} strokeWidth={2.4} /></span>
+          <img className="sh-brand__mark" src="/logo-icon.png" alt="" width="38" height="38" />
           <span>
             <span className="sh-brand__name">Scottsdale Handyman</span>
             <span className="sh-brand__sub">Solutions</span>

@@ -131,9 +131,8 @@
 .sh-header__in { display: flex; align-items: center; justify-content: space-between; gap: 1rem; height: 66px; }
 .sh-brand { display: flex; align-items: center; gap: .7rem; text-decoration: none; color: #fff; }
 .sh-brand__mark {
-  width: 38px; height: 38px; border-radius: 10px; flex: none;
-  background: var(--gold); color: var(--gold-ink);
-  display: grid; place-items: center;
+  width: 38px; height: 38px; border-radius: 9px; flex: none;
+  display: block; object-fit: contain;
 }
 .sh-brand__name {
   display: block; font-family: var(--display); font-weight: 800;
