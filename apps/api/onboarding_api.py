@@ -90,7 +90,13 @@ def submit_onboarding():
         req = urllib.request.Request(
             f'{CRM_BASE}/webhooks/lead/{LEAD_KEY}',
             data=json.dumps(payload).encode(),
-            headers={'Content-Type': 'application/json'},
+            headers={
+                'Content-Type': 'application/json',
+                # VoiceNow sits behind Cloudflare, which rejects the default
+                # Python-urllib signature with 403 error 1010. Identify properly.
+                'User-Agent': 'ScottsdaleHandymanSite/1.0 (+https://www.scottsdalehandyman.com)',
+                'Accept': 'application/json',
+            },
             method='POST',
         )
         with urllib.request.urlopen(req, timeout=20) as resp:
