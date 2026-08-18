@@ -38,7 +38,7 @@ const WorkWithUsModal = ({ isOpen, onClose }) => {
         phone: formData.phone,
         service: 'Contractor application',
         message: `Experience: ${formData.experience}\nSkills: ${formData.skills}\n\n${formData.message}`,
-        source: 'scottsdalehandyman.com/work-with-us',
+        source: 'scottsdalehandyman.com/work-with-us', // carried as `origin`
       });
       setStatus('sent');
     } catch (error) {

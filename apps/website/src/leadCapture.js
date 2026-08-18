@@ -33,7 +33,12 @@ export async function submitLead(fields) {
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         ...fields,
-        source: fields.source || 'scottsdalehandyman.com',
+        // MUST be a value from Lead.source's enum in VoiceNow — anything else
+        // fails validation server-side and the lead is silently dropped with a
+        // 500. The real origin is preserved in origin/ referrer below and ends
+        // up on the lead's metadata.formData.
+        source: 'website',
+        origin: fields.source || 'scottsdalehandyman.com',
       }),
       signal: controller.signal,
     });
