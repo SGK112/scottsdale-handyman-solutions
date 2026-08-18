@@ -1,0 +1,366 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Property Survey — Scottsdale Handyman Solutions</title>
+<meta name="description" content="Tell us about your property so we can build your monthly maintenance checklist." />
+<meta name="robots" content="noindex" />
+<link rel="icon" href="/favicon.svg" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@600;700;800&family=Inter:wght@400;500;600;700&family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --ink:#16191c; --ink-soft:#4a5258; --concrete:#eceeea; --card:#fff; --line:#d9ddd6;
+    --saguaro:#1e4034; --saguaro-deep:#142c24; --gold:#ffb020; --gold-ink:#35230a; --alert:#b33a11;
+    --display:'Archivo',Helvetica,Arial,sans-serif; --body:'Inter',system-ui,sans-serif; --mono:'Roboto Mono',monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--concrete);color:var(--ink);font-family:var(--body);line-height:1.6}
+  h1,h2,legend{font-family:var(--display);font-weight:800;letter-spacing:-.02em;margin:0}
+  .wrap{max-width:720px;margin:0 auto;padding:0 1.25rem}
+
+  header{background:var(--saguaro-deep);color:#fff;padding:.9rem 0}
+  .hd{display:flex;align-items:center;justify-content:space-between;gap:1rem}
+  .brand{display:flex;align-items:center;gap:.65rem;text-decoration:none;color:#fff}
+  .mark{width:34px;height:34px;border-radius:9px;background:var(--gold);display:grid;place-items:center;flex:none}
+  .bn{font-family:var(--display);font-weight:800;font-size:.95rem;display:block;line-height:1.05}
+  .bs{font-family:var(--mono);font-size:.58rem;letter-spacing:.22em;text-transform:uppercase;color:var(--gold)}
+  .callbtn{display:inline-flex;align-items:center;gap:.4rem;background:var(--gold);color:var(--gold-ink);
+    font-family:var(--display);font-weight:700;text-decoration:none;padding:.5rem .9rem;border-radius:8px;font-size:.9rem;min-height:44px;white-space:nowrap}
+
+  .intro{background:var(--saguaro);color:#fff;padding:2.5rem 0}
+  .intro h1{color:#fff;font-size:clamp(1.7rem,6vw,2.5rem)}
+  .intro p{color:rgba(255,255,255,.86);margin:.8rem 0 0;max-width:52ch}
+  .eyebrow{font-family:var(--mono);font-size:.7rem;letter-spacing:.16em;text-transform:uppercase;
+    color:rgba(255,255,255,.7);display:flex;align-items:center;gap:.6rem;margin-bottom:.8rem}
+  .eyebrow::before{content:'';width:26px;height:2px;background:var(--gold)}
+
+  main{padding:2.5rem 0 4rem}
+  fieldset{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:1.35rem;margin:0 0 1.15rem}
+  legend{font-size:1.05rem;padding:0 .5rem;background:var(--card);border:1px solid var(--line);border-radius:8px}
+  .hint{color:var(--ink-soft);font-size:.88rem;margin:.2rem 0 1rem}
+  label{display:block;font-weight:600;font-size:.92rem;margin:.9rem 0 .3rem}
+  label .opt{font-weight:400;color:var(--ink-soft);font-size:.84rem}
+  input,select,textarea{
+    width:100%;font:inherit;font-size:1rem;padding:.75rem .85rem;min-height:48px;
+    border:1px solid var(--line);border-radius:9px;background:#fff;color:var(--ink);
+  }
+  textarea{min-height:96px;resize:vertical}
+  input:focus,select:focus,textarea:focus{outline:3px solid var(--gold);outline-offset:1px;border-color:var(--saguaro)}
+  .two{display:grid;gap:0}
+  @media(min-width:600px){.two{grid-template-columns:1fr 1fr;gap:0 1rem}}
+  .chips{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.4rem}
+  .chip{position:relative}
+  .chip input{position:absolute;opacity:0;width:1px;height:1px}
+  .chip span{display:inline-block;padding:.6rem .9rem;border:1px solid var(--line);border-radius:999px;
+    background:#fff;cursor:pointer;font-size:.9rem;min-height:44px;display:flex;align-items:center}
+  .chip input:checked + span{background:var(--saguaro);color:#fff;border-color:var(--saguaro)}
+  .chip input:focus-visible + span{outline:3px solid var(--gold);outline-offset:2px}
+
+  .actions{margin-top:1.5rem}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;width:100%;min-height:54px;
+    padding:.9rem 1.6rem;border:2px solid transparent;border-radius:9px;cursor:pointer;
+    font-family:var(--display);font-weight:700;font-size:1.05rem;background:var(--gold);color:var(--gold-ink)}
+  .btn:hover{background:#ffc94d}
+  .btn[disabled]{opacity:.65;cursor:not-allowed}
+  .note{color:var(--ink-soft);font-size:.86rem;text-align:center;margin-top:.9rem}
+
+  .msg{border-radius:10px;padding:1rem 1.15rem;margin-bottom:1.15rem;display:none}
+  .msg.err{display:block;background:#fdeee9;border:1px solid #f3c4b4;color:#8a2c0c}
+  .done{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:2.5rem 1.5rem;text-align:center}
+  .done .tick{width:64px;height:64px;border-radius:50%;background:var(--saguaro);display:grid;place-items:center;margin:0 auto 1.2rem}
+  .done h2{font-size:1.5rem;margin-bottom:.6rem}
+  .done p{color:var(--ink-soft);margin:0 auto 1.2rem;max-width:44ch}
+  footer{background:var(--ink);color:#cfd4d1;padding:1.75rem 0;font-size:.88rem;text-align:center}
+  footer a{color:var(--gold)}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap hd">
+    <a class="brand" href="/">
+      <span class="mark"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#35230a" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg></span>
+      <span><span class="bn">Scottsdale Handyman</span><span class="bs">Solutions</span></span>
+    </a>
+    <a class="callbtn" href="tel:+14802555887">(480) 255-5887</a>
+  </div>
+</header>
+
+<div class="intro">
+  <div class="wrap">
+    <p class="eyebrow">Step 1 of 3 · about 5 minutes</p>
+    <h1>Tell us about the property.</h1>
+    <p>
+      This is how we build your first checklist — what's there, how old it is, and what
+      already worries you. Only the first few fields are required; skip anything you're unsure of
+      and we'll confirm it when we walk the property.
+    </p>
+  </div>
+</div>
+
+<main>
+  <div class="wrap">
+    <div class="msg" id="err"></div>
+
+    <form id="survey" novalidate>
+      <fieldset>
+        <legend>Your details</legend>
+        <p class="hint">So we know who to send the service record to.</p>
+        <div class="two">
+          <div>
+            <label for="name">Your name *</label>
+            <input id="name" name="name" required autocomplete="name" />
+          </div>
+          <div>
+            <label for="phone">Phone *</label>
+            <input id="phone" name="phone" type="tel" required autocomplete="tel" />
+          </div>
+        </div>
+        <div class="two">
+          <div>
+            <label for="email">Email <span class="opt">— for the record</span></label>
+            <input id="email" name="email" type="email" autocomplete="email" />
+          </div>
+          <div>
+            <label for="ownership">You are the</label>
+            <select id="ownership" name="ownership">
+              <option value="">Select…</option>
+              <option>Owner, I live here</option>
+              <option>Owner, it's a rental</option>
+              <option>Property manager</option>
+              <option>Commercial tenant / business</option>
+            </select>
+          </div>
+        </div>
+        <label for="address">Service address *</label>
+        <input id="address" name="address" required autocomplete="street-address" placeholder="Street, city, ZIP" />
+      </fieldset>
+
+      <fieldset>
+        <legend>The property</legend>
+        <p class="hint">Rough answers are fine — we're building a picture, not an inventory.</p>
+        <div class="two">
+          <div>
+            <label for="property_type">Property type</label>
+            <select id="property_type" name="property_type">
+              <option value="">Select…</option>
+              <option>Single-family home</option>
+              <option>Condo or townhome</option>
+              <option>Apartment unit</option>
+              <option>Multi-unit building</option>
+              <option>Commercial space</option>
+            </select>
+          </div>
+          <div>
+            <label for="year_built">Approx. year built</label>
+            <input id="year_built" name="year_built" inputmode="numeric" placeholder="e.g. 1998" />
+          </div>
+        </div>
+        <div class="two">
+          <div>
+            <label for="square_feet">Approximate size <span class="opt">— sq ft</span></label>
+            <input id="square_feet" name="square_feet" inputmode="numeric" placeholder="e.g. 2200" />
+          </div>
+          <div>
+            <label for="stories">Stories</label>
+            <select id="stories" name="stories">
+              <option value="">Select…</option>
+              <option>Single story</option>
+              <option>Two story</option>
+              <option>Three or more</option>
+            </select>
+          </div>
+        </div>
+        <label>What's on site? <span class="opt">— tick all that apply</span></label>
+        <div class="chips" id="features">
+          <label class="chip"><input type="checkbox" name="feature" value="Pool" /><span>Pool</span></label>
+          <label class="chip"><input type="checkbox" name="feature" value="Spa / hot tub" /><span>Spa / hot tub</span></label>
+          <label class="chip"><input type="checkbox" name="feature" value="Irrigation" /><span>Irrigation</span></label>
+          <label class="chip"><input type="checkbox" name="feature" value="Garage door opener" /><span>Garage door</span></label>
+          <label class="chip"><input type="checkbox" name="feature" value="Water softener" /><span>Water softener</span></label>
+          <label class="chip"><input type="checkbox" name="feature" value="Solar" /><span>Solar</span></label>
+          <label class="chip"><input type="checkbox" name="feature" value="Tile roof" /><span>Tile roof</span></label>
+          <label class="chip"><input type="checkbox" name="feature" value="Shingle roof" /><span>Shingle roof</span></label>
+          <label class="chip"><input type="checkbox" name="feature" value="Flat roof" /><span>Flat roof</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Systems</legend>
+        <p class="hint">The expensive things. Knowing their age is most of the job.</p>
+        <div class="two">
+          <div>
+            <label for="hvac_units">HVAC units</label>
+            <select id="hvac_units" name="hvac_units">
+              <option value="">Select…</option>
+              <option>1</option><option>2</option><option>3 or more</option><option>Not sure</option>
+            </select>
+          </div>
+          <div>
+            <label for="hvac_last_service">HVAC last serviced</label>
+            <select id="hvac_last_service" name="hvac_last_service">
+              <option value="">Select…</option>
+              <option>Within 6 months</option>
+              <option>6–12 months ago</option>
+              <option>Over a year ago</option>
+              <option>Never / don't know</option>
+            </select>
+          </div>
+        </div>
+        <div class="two">
+          <div>
+            <label for="water_heater">Water heater <span class="opt">— type and age</span></label>
+            <input id="water_heater" name="water_heater" placeholder="e.g. tank, about 8 years" />
+          </div>
+          <div>
+            <label for="preferred_window">Preferred visit window</label>
+            <select id="preferred_window" name="preferred_window">
+              <option value="">Select…</option>
+              <option>Weekday mornings</option>
+              <option>Weekday afternoons</option>
+              <option>Weekends</option>
+              <option>Flexible</option>
+            </select>
+          </div>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>What needs attention</legend>
+        <p class="hint">Be blunt here — this is the part that saves you money.</p>
+        <label for="known_issues">Anything wrong right now?</label>
+        <textarea id="known_issues" name="known_issues" placeholder="Dripping tap in the guest bath, garage door sticks, crack above the patio door…"></textarea>
+        <label>What matters most to you? <span class="opt">— tick all that apply</span></label>
+        <div class="chips" id="priorities">
+          <label class="chip"><input type="checkbox" name="priority" value="Avoiding emergencies" /><span>Avoiding emergencies</span></label>
+          <label class="chip"><input type="checkbox" name="priority" value="Keeping tenants happy" /><span>Keeping tenants happy</span></label>
+          <label class="chip"><input type="checkbox" name="priority" value="Protecting property value" /><span>Property value</span></label>
+          <label class="chip"><input type="checkbox" name="priority" value="Not having to think about it" /><span>Not thinking about it</span></label>
+          <label class="chip"><input type="checkbox" name="priority" value="Budget predictability" /><span>Predictable cost</span></label>
+        </div>
+      </fieldset>
+
+      <fieldset>
+        <legend>Access</legend>
+        <p class="hint">So a visit never turns into a wasted trip.</p>
+        <div class="two">
+          <div>
+            <label for="occupancy">Who is normally on site?</label>
+            <select id="occupancy" name="occupancy">
+              <option value="">Select…</option>
+              <option>I am</option>
+              <option>A tenant</option>
+              <option>Nobody, it's vacant</option>
+              <option>Staff / employees</option>
+            </select>
+          </div>
+          <div>
+            <label for="pets">Pets on site?</label>
+            <input id="pets" name="pets" placeholder="e.g. two dogs in the yard" />
+          </div>
+        </div>
+        <label for="access">How should we get in?</label>
+        <textarea id="access" name="access" placeholder="Lockbox code on request, gate code, tenant lets us in with 24h notice…"></textarea>
+        <label for="notes">Anything else we should know?</label>
+        <textarea id="notes" name="notes"></textarea>
+      </fieldset>
+
+      <div class="actions">
+        <button class="btn" type="submit" id="submit">Send the survey</button>
+        <p class="note">No payment now. We'll call to arrange the free walkthrough.</p>
+      </div>
+    </form>
+
+    <div class="done" id="done" style="display:none">
+      <div class="tick"><svg width="30" height="30" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+      <h2>Got it — thank you.</h2>
+      <p id="doneMsg">We have everything we need to build your first checklist. We'll call within one business day to arrange the free walkthrough.</p>
+      <p style="margin-bottom:0">Need us sooner? Call <a href="tel:+14802555887"><strong>(480) 255-5887</strong></a>.</p>
+    </div>
+  </div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <a href="/">Home</a> · <a href="/plan.html">The plan</a> · <a href="/terms.html">Terms</a> · <a href="tel:+14802555887">(480) 255-5887</a>
+  </div>
+</footer>
+
+<script>
+  var API = 'https://scottsdale-handyman-api.onrender.com';
+
+  // The API sleeps on Render's free tier and takes ~45s to wake. Poke it while
+  // the form is being filled in so submitting is not the request that waits.
+  try { fetch(API + '/api/health', { mode: 'cors' }).catch(function(){}); } catch (e) {}
+
+  var form = document.getElementById('survey');
+  var errBox = document.getElementById('err');
+  var btn = document.getElementById('submit');
+
+  function ticked(name) {
+    return Array.prototype.slice
+      .call(document.querySelectorAll('input[name="' + name + '"]:checked'))
+      .map(function (i) { return i.value; });
+  }
+
+  function showError(text) {
+    errBox.className = 'msg err';
+    errBox.innerHTML = text;
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+
+    var data = {};
+    new FormData(form).forEach(function (v, k) {
+      if (k !== 'feature' && k !== 'priority' && String(v).trim()) data[k] = String(v).trim();
+    });
+    data.on_site_features = ticked('feature');
+    data.priorities = ticked('priority');
+
+    if (!data.name || !data.phone || !data.address) {
+      showError('<strong>Almost there.</strong> Please give your name, a phone number, and the service address.');
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Sending…';
+    errBox.className = 'msg';
+
+    var ctrl = new AbortController();
+    var timer = setTimeout(function () { ctrl.abort(); }, 60000);
+
+    fetch(API + '/api/onboarding', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data),
+      signal: ctrl.signal
+    })
+      .then(function (r) { return r.json().catch(function () { return {}; }).then(function (b) { return { ok: r.ok, body: b }; }); })
+      .then(function (res) {
+        clearTimeout(timer);
+        if (!res.ok || !res.body.success) throw new Error(res.body.error || 'Submission failed');
+        form.style.display = 'none';
+        document.getElementById('done').style.display = 'block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      })
+      .catch(function (err) {
+        clearTimeout(timer);
+        btn.disabled = false;
+        btn.textContent = 'Try again';
+        // Never claim we received something we did not. Give them the phone number.
+        showError(
+          "<strong>We couldn't send that.</strong> " +
+          (err && err.message ? err.message + '. ' : '') +
+          'Please call <a href="tel:+14802555887"><strong>(480) 255-5887</strong></a> ' +
+          'and we will take the details over the phone.'
+        );
+      });
+  });
+</script>
+</body>
+</html>

@@ -14,6 +14,7 @@ from pro_api import create_pro_routes
 from voice_api import voice_bp
 from google_api import google_bp
 from payments_api import payments_bp
+from onboarding_api import onboarding_bp
 
 app = Flask(__name__)
 
@@ -27,6 +28,7 @@ create_pro_routes(app)
 app.register_blueprint(voice_bp)
 app.register_blueprint(google_bp)
 app.register_blueprint(payments_bp)
+app.register_blueprint(onboarding_bp)
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 3000))
