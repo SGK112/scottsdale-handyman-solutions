@@ -34,7 +34,11 @@ const Footer = ({ onProPortalClick, onWorkWithUsClick }) => {
           </div>
         </div>
         <div className="footer-bottom">
-          <p>&copy; {new Date().getFullYear()} Scottsdale Handyman Solutions LLC. All Rights Reserved.</p>
+          <p>
+            &copy; {new Date().getFullYear()} Scottsdale Handyman Solutions LLC. All Rights Reserved.
+            {' · '}
+            <a href="/terms.html">Terms of Service</a>
+          </p>
         </div>
       </div>
     </footer>
