@@ -37,7 +37,8 @@ body {
 
   /* Accent / CTA */
   --accent: var(--yellow);
-  --accent-dark: #b36a00;
+  --accent-dark: #b36a00; /* borders/shadows only - too dark to sit under navy text */
+  --accent-light: #ffc94d;
   --accent-rgb: 255,176,32;
   --accent-dark-rgb: 179,106,0;
 
@@ -212,8 +213,12 @@ body {
 }
 
 .cta-button-nav {
-  background: linear-gradient(135deg, var(--brand-secondary), var(--accent));
-  color: var(--brand-primary) !important;
+  /* Gold CTA with dark navy text — the same pairing as the hero button.
+     Never set a dark foreground here: this class composes onto .service-btn
+     and .cta-btn-primary, which paint dark backgrounds of their own, and an
+     !important dark color made all of them unreadable. */
+  background: linear-gradient(135deg, var(--accent-light), var(--accent));
+  color: #0b2545;
   padding: 0.75rem 1.5rem;
   border-radius: 8px;
   font-weight: 600;
@@ -485,7 +490,7 @@ body {
 }
 
 .cta-primary {
-  background: linear-gradient(135deg, var(--yellow), var(--accent-dark));
+  background: linear-gradient(135deg, var(--accent-light), var(--accent));
   color: var(--brand-secondary);
   border: none;
   border-radius: 12px;
@@ -608,7 +613,7 @@ body {
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+  background: linear-gradient(135deg, var(--accent-light), var(--accent));
   color: #000;
 }
 
@@ -796,7 +801,9 @@ body {
 
 .service-original-price {
   font-size: 1.2rem;
-  color: #999;
+  /* #999 on white was 2.85:1 — too faint for a price the customer is meant
+     to read as the saving. */
+  color: var(--gray-500);
   text-decoration: line-through;
 }
 
@@ -1268,8 +1275,10 @@ body {
 }
 
 .cta-btn-primary {
-  background: var(--brand-secondary);
-  color: var(--brand-primary);
+  /* Sits on the navy CTA band, so it has to be the light/gold half of the
+     pairing — navy on navy is invisible. */
+  background: linear-gradient(135deg, var(--accent-light), var(--accent));
+  color: #0b2545;
   border: none;
   border-radius: 12px;
   padding: 1rem 2rem;
@@ -1320,7 +1329,8 @@ body {
 }
 
 .footer-column h4 {
-  color: var(--brand-secondary);
+  /* Was --brand-secondary (deep navy) on a near-black footer: 1.17:1. */
+  color: var(--accent);
   margin-bottom: 1rem;
   font-size: 1.1rem;
 }
@@ -1346,7 +1356,7 @@ body {
 }
 
 .footer-column ul li a:hover {
-  color: var(--brand-secondary);
+  color: var(--accent);
 }
 
 .footer-bottom {

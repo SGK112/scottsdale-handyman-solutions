@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X } from './icons.jsx';
 import GoogleMapsIntegration from './GoogleMapsIntegration';
 import { submitLead, BUSINESS_PHONE, BUSINESS_PHONE_HREF } from '../leadCapture';
-import { startPackageCheckout, startMaintenanceSubscription, PACKAGE_KEYS, MAINTENANCE_PACKAGE_NAME } from '../payments';
+import { startPackageCheckout, startMaintenanceSubscription, getPaymentsConfig, PACKAGE_KEYS, MAINTENANCE_PACKAGE_NAME } from '../payments';
 
 const BookingModal = ({ isOpen, onClose, selectedPackage }) => {
   const [formData, setFormData] = useState({
@@ -19,6 +19,9 @@ const BookingModal = ({ isOpen, onClose, selectedPackage }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [payStatus, setPayStatus] = useState('idle'); // idle | starting | error
   const [payError, setPayError] = useState('');
+  const [payConfig, setPayConfig] = useState(null);
+
+  useEffect(() => { getPaymentsConfig().then(setPayConfig); }, []);
 
   if (!isOpen) return null;
 
@@ -31,8 +34,10 @@ const BookingModal = ({ isOpen, onClose, selectedPackage }) => {
 
   const isEmergency = selectedPackage?.name === 'Emergency Service';
   const isMaintenancePlan = selectedPackage?.name === MAINTENANCE_PACKAGE_NAME;
-  const canPayOnline = Boolean(selectedPackage) &&
-    (isMaintenancePlan || Boolean(PACKAGE_KEYS[selectedPackage.name]));
+  const canPayOnline = Boolean(selectedPackage) && Boolean(payConfig?.configured) &&
+    (isMaintenancePlan
+      ? Boolean(payConfig?.maintenance_plan)
+      : Boolean(PACKAGE_KEYS[selectedPackage.name]));
 
   const handlePayNow = async () => {
     setPayStatus('starting');

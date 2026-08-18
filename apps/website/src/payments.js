@@ -38,6 +38,18 @@ async function postJson(path, body) {
   }
 }
 
+// Ask the API what is actually wired before offering to take money — showing
+// a Pay button that 503s is worse than not showing one.
+let configPromise = null;
+export function getPaymentsConfig() {
+  if (!configPromise) {
+    configPromise = fetch(`${API_BASE}/api/payments/config`)
+      .then((r) => (r.ok ? r.json() : null))
+      .catch(() => null);
+  }
+  return configPromise;
+}
+
 export async function startPackageCheckout({ packageName, email, address, message }) {
   const key = PACKAGE_KEYS[packageName];
   if (!key) throw new Error('That package is not available for online payment');
