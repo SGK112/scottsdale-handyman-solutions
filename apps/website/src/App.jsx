@@ -1,5 +1,4 @@
 import React, { useState, useEffect, Suspense, lazy } from 'react';
-import { loadStripe } from '@stripe/stripe-js';
 import './App.css';
 
 // Lazy load components for better performance
@@ -45,25 +44,10 @@ function App() {
   const [isProPortalModalOpen, setProPortalModalOpen] = useState(false);
   const [isWorkWithUsModalOpen, setWorkWithUsModalOpen] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState(null);
-  const [stripePromise, setStripePromise] = useState(null);
 
-  useEffect(() => {
-    // Initialize Stripe
-    const initializeStripe = async () => {
-      try {
-        const pk = 'pk_test_51P47j6RshGf2a9j93O9sO3gB2ZfE1bXz6lJ8Yk9aZ7gH8cW7eJ6kF4hG9jJ9cK8dY5lA0bN3mI2oP1s00lO9bY7eJ';
-        if (pk && pk.startsWith('pk_')) {
-          setStripePromise(loadStripe(pk));
-        } else {
-          console.warn("Stripe public key is not properly configured");
-        }
-      } catch (error) {
-        console.error("Error initializing Stripe:", error);
-      }
-    };
-
-    initializeStripe();
-  }, []);
+  // No Stripe.js on the client: payments use Stripe-hosted Checkout, so the
+  // browser only ever receives a redirect URL minted by our API. Nothing to
+  // initialize and no publishable key to ship.
 
   const handleBookNow = (pkg) => {
     setSelectedPackage(pkg);
@@ -106,7 +90,6 @@ function App() {
             isOpen={isBookingModalOpen}
             onClose={handleCloseModals}
             selectedPackage={selectedPackage}
-            stripePromise={stripePromise}
           />
         )}
 

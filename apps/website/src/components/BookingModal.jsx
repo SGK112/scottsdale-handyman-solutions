@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { X } from './icons.jsx';
 import GoogleMapsIntegration from './GoogleMapsIntegration';
 import { submitLead, BUSINESS_PHONE, BUSINESS_PHONE_HREF } from '../leadCapture';
+import { startPackageCheckout, startMaintenanceSubscription, PACKAGE_KEYS, MAINTENANCE_PACKAGE_NAME } from '../payments';
 
-const BookingModal = ({ isOpen, onClose, selectedPackage, stripePromise }) => {
+const BookingModal = ({ isOpen, onClose, selectedPackage }) => {
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -16,6 +17,8 @@ const BookingModal = ({ isOpen, onClose, selectedPackage, stripePromise }) => {
   const [serviceAreaStatus, setServiceAreaStatus] = useState(null);
   const [status, setStatus] = useState('idle'); // idle | sending | sent | error
   const [errorMessage, setErrorMessage] = useState('');
+  const [payStatus, setPayStatus] = useState('idle'); // idle | starting | error
+  const [payError, setPayError] = useState('');
 
   if (!isOpen) return null;
 
@@ -27,6 +30,31 @@ const BookingModal = ({ isOpen, onClose, selectedPackage, stripePromise }) => {
   };
 
   const isEmergency = selectedPackage?.name === 'Emergency Service';
+  const isMaintenancePlan = selectedPackage?.name === MAINTENANCE_PACKAGE_NAME;
+  const canPayOnline = Boolean(selectedPackage) &&
+    (isMaintenancePlan || Boolean(PACKAGE_KEYS[selectedPackage.name]));
+
+  const handlePayNow = async () => {
+    setPayStatus('starting');
+    setPayError('');
+    try {
+      if (isMaintenancePlan) {
+        await startMaintenanceSubscription({ email: formData.email, address: formData.address });
+      } else {
+        await startPackageCheckout({
+          packageName: selectedPackage.name,
+          email: formData.email,
+          address: formData.address,
+          message: formData.message,
+        });
+      }
+      // On success the browser navigates to Stripe, so nothing runs past here.
+    } catch (error) {
+      console.error('Checkout failed:', error);
+      setPayError(error.message || 'Could not open the payment page');
+      setPayStatus('error');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -86,12 +114,44 @@ const BookingModal = ({ isOpen, onClose, selectedPackage, stripePromise }) => {
                   ? 'This came in as an emergency — we respond 24/7 and will call you right away.'
                   : "We've got your details and will be in touch shortly to confirm your appointment."}
               </p>
+              {canPayOnline && (
+                <div style={{
+                  background: '#f8fafc', border: '1px solid #e6edf4', borderRadius: '10px',
+                  padding: '1rem', margin: '1.25rem 0 0', textAlign: 'left'
+                }}>
+                  <strong style={{ display: 'block', marginBottom: '.25rem' }}>
+                    {isMaintenancePlan
+                      ? `Start your plan — ${selectedPackage.price}/month`
+                      : `Pay ${selectedPackage.price} now to lock in your booking`}
+                  </strong>
+                  <span style={{ fontSize: '.9rem', color: '#4b5563' }}>
+                    {isMaintenancePlan
+                      ? 'Cancel any time with 30 days notice. Secure checkout by Stripe.'
+                      : 'Optional — you can also settle up when the work is done. Secure checkout by Stripe.'}
+                  </span>
+                  {payStatus === 'error' && (
+                    <div style={{ color: '#991b1b', fontSize: '.9rem', marginTop: '.5rem' }}>
+                      {payError}. You can still pay when we arrive.
+                    </div>
+                  )}
+                  <button
+                    type="button"
+                    className="btn-primary"
+                    style={{ width: '100%', marginTop: '.75rem' }}
+                    onClick={handlePayNow}
+                    disabled={payStatus === 'starting'}
+                  >
+                    {payStatus === 'starting' ? 'Opening secure checkout…'
+                      : isMaintenancePlan ? 'Start plan' : `Pay ${selectedPackage.price}`}
+                  </button>
+                </div>
+              )}
               <p style={{ color: '#4b5563', marginTop: '1rem' }}>
                 Need us sooner? Call{' '}
                 <a href={BUSINESS_PHONE_HREF} style={{ fontWeight: 700 }}>{BUSINESS_PHONE}</a>.
               </p>
               <div className="modal-footer" style={{ justifyContent: 'center' }}>
-                <button type="button" onClick={onClose} className="btn-primary">Done</button>
+                <button type="button" onClick={onClose} className="btn-secondary">Done</button>
               </div>
             </div>
           ) : (
