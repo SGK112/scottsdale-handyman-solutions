@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X } from './icons.jsx';
 import { CheckCircle2 } from 'lucide-react';
-import GoogleMapsIntegration from './GoogleMapsIntegration';
 import { submitLead, BUSINESS_PHONE, BUSINESS_PHONE_HREF } from '../leadCapture';
 import { startPackageCheckout, startMaintenanceSubscription, getPaymentsConfig, PACKAGE_KEYS, MAINTENANCE_PACKAGE_NAME } from '../payments';
 
@@ -14,8 +13,6 @@ const BookingModal = ({ isOpen, onClose, selectedPackage }) => {
     message: ''
   });
 
-  const [addressValidation, setAddressValidation] = useState(null);
-  const [serviceAreaStatus, setServiceAreaStatus] = useState(null);
   const [status, setStatus] = useState('idle'); // idle | sending | sent | error
   const [errorMessage, setErrorMessage] = useState('');
   const [payStatus, setPayStatus] = useState('idle'); // idle | starting | error
@@ -79,8 +76,11 @@ const BookingModal = ({ isOpen, onClose, selectedPackage }) => {
         service: selectedPackage?.name || 'General inquiry',
         urgency: isEmergency ? 'emergency' : 'normal',
         package_price: selectedPackage?.price || '',
-        service_area: serviceAreaStatus?.inServiceArea === false ? 'outside' : 'in-area',
-        validated_address: addressValidation?.formattedAddress || formData.address,
+        // Dropped with the Google address widget: service_area was hardcoded to
+        // "in-area" on every lead (its endpoint 404'd, so the status was always
+        // null and the ternary always fell through), and validated_address was
+        // just a duplicate of address. Both were confident-looking noise in the
+        // CRM rather than data anyone had actually checked.
       });
       setStatus('sent');
     } catch (error) {
@@ -90,14 +90,6 @@ const BookingModal = ({ isOpen, onClose, selectedPackage }) => {
       setErrorMessage(error.message || 'Something went wrong');
       setStatus('error');
     }
-  };
-
-  const handleAddressValidated = (validation) => {
-    setAddressValidation(validation);
-  };
-
-  const handleServiceAreaVerified = (status) => {
-    setServiceAreaStatus(status);
   };
 
   return (
@@ -219,12 +211,8 @@ const BookingModal = ({ isOpen, onClose, selectedPackage }) => {
                 className="form-input"
                 value={formData.address}
                 onChange={handleInputChange}
+                placeholder="Street, city, ZIP"
                 required
-              />
-              <GoogleMapsIntegration 
-                address={formData.address}
-                onAddressValidated={handleAddressValidated}
-                onServiceAreaVerified={handleServiceAreaVerified}
               />
             </div>
             
